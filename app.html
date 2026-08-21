@@ -391,6 +391,8 @@
       overflow: hidden;
       box-shadow: 0 16px 34px rgba(8, 32, 91, .07);
       font-family: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
     }
 
     .market-widget .mw-title {
@@ -411,24 +413,27 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      height: calc(100% - 54px);
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .market-widget .mw-card {
       border: 1px solid #dde7f2;
       border-radius: 16px;
       background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-      padding: 16px 14px 14px;
+      padding: 12px 12px 10px;
       display: flex;
       flex-direction: column;
       min-width: 0;
+      min-height: 0;
       overflow: hidden;
       height: 100%;
       box-shadow: 0 8px 18px rgba(12, 54, 130, .05), inset 0 1px 0 rgba(255, 255, 255, .95);
     }
 
     .market-widget .mw-head {
-      min-height: 132px;
+      flex: 0 0 122px;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -439,8 +444,8 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
-      min-height: 26px;
-      margin-bottom: 10px;
+      min-height: 28px;
+      margin-bottom: 8px;
     }
 
     .market-widget .mw-name {
@@ -459,8 +464,8 @@
     }
 
     .market-widget .mw-value-block {
-      margin: 0 0 8px;
-      min-height: 56px;
+      margin: 0 0 6px;
+      min-height: 46px;
     }
 
     .market-widget .mw-value {
@@ -495,6 +500,7 @@
       font-size: 13px;
       font-weight: 800;
       min-height: 17px;
+      line-height: 1.2;
       margin-bottom: 0;
     }
 
@@ -520,23 +526,26 @@
     .market-widget .mw-divider {
       height: 1px;
       background: linear-gradient(90deg, #edf2f8 0%, #dce5f0 50%, #edf2f8 100%);
-      margin: 6px 0 8px;
+      margin: 7px 0 8px;
+      flex: 0 0 auto;
     }
 
     .market-widget .mw-stats {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: repeat(6, minmax(27px, 1fr));
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .market-widget .mw-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      min-height: 22px;
+      gap: 12px;
+      min-height: 27px;
       font-size: 11px;
-      line-height: 1.25;
-      padding: 1px 0;
+      line-height: 1.3;
+      padding: 3px 0;
     }
 
     .market-widget .mw-label {
@@ -1077,7 +1086,7 @@
             <input id="canvasW" type="number" value="1600" oninput="applyCanvas()">
           </label>
           <label>Cao
-            <input id="canvasH" type="number" value="900" oninput="applyCanvas()">
+            <input id="canvasH" type="number" value="1000" oninput="applyCanvas()">
           </label>
         </div>
         <div class="row">
@@ -1157,7 +1166,7 @@
     <!-- WORKSPACE -->
     <main class="workspace" id="workspace">
       <div class="stage-wrap">
-        <div id="stage" style="width:1600px;height:900px;background:#f7f9fc;transform:scale(0.7)"></div>
+        <div id="stage" style="width:1600px;height:1000px;background:#f7f9fc;transform:scale(0.7)"></div>
       </div>
     </main>
 
@@ -1748,7 +1757,7 @@
         selectedIds: [...selectedIds],
         canvas: {
           w: +canvasW.value || 1600,
-          h: +canvasH.value || 900,
+          h: +canvasH.value || 1000,
           bg: canvasBg.value || '#f7f9fc',
           zoom: +zoomInput.value || 70
         }
@@ -1761,7 +1770,7 @@
         const data = JSON.parse(snapshot);
         state = data.state || state;
         canvasW.value = data.canvas?.w || 1600;
-        canvasH.value = data.canvas?.h || 900;
+        canvasH.value = data.canvas?.h || 1000;
         canvasBg.value = data.canvas?.bg || '#f7f9fc';
         zoomInput.value = data.canvas?.zoom || 70;
         applyCanvas();
@@ -2829,7 +2838,7 @@
 
     function applyCanvas() {
       stage.style.width = (+canvasW.value || 1600) + 'px';
-      stage.style.height = (+canvasH.value || 900) + 'px';
+      stage.style.height = (+canvasH.value || 1000) + 'px';
       stage.style.background = canvasBg.value;
       if (!isRestoringHistory) scheduleHistory();
     }
@@ -2919,7 +2928,7 @@
       return {
         canvas: {
           w: +canvasW.value || 1600,
-          h: +canvasH.value || 900,
+          h: +canvasH.value || 1000,
           bg: canvasBg.value || '#f7f9fc',
           zoom: +zoomInput.value || 70
         },
@@ -2927,26 +2936,51 @@
       };
     }
 
-    function migrateResponsiveLayoutMetadata() {
+    function migrateResponsiveLayoutMetadata(canvasHeight) {
       const containers = (state.elements || []).filter(item =>
         item.layoutRole === 'container' ||
-        (item.type === 'card' && item.w >= 500 && item.h >= 200 && item.y >= 130 && item.y < 850)
+        (item.type === 'card' && item.w >= 500 && item.h >= 200 && item.y >= 130 && item.y < 950)
       ).sort((a, b) => a.y - b.y || a.x - b.x).slice(0, 4);
-      if (containers.length !== 4) return;
+      if (containers.length !== 4) return canvasHeight || 1000;
       const [topLeft, topRight, bottomLeft, bottomRight] = containers;
-      Object.assign(topLeft, { layoutRole: 'container', minW: 620, minH: 340 });
-      Object.assign(topRight, { layoutRole: 'container', minW: 560, minH: 340 });
-      Object.assign(bottomLeft, { layoutRole: 'container', minW: 620, minH: 220 });
-      Object.assign(bottomRight, { layoutRole: 'container', minW: 560, minH: 220 });
+      const legacyTemplate = Number(canvasHeight) === 900 &&
+        Math.abs(topLeft.y - 142) <= 1 && Math.abs(topRight.y - 142) <= 1 &&
+        Math.abs(bottomLeft.y - 548) <= 1 && Math.abs(bottomRight.y - 548) <= 1 &&
+        Math.abs(topLeft.h - 388) <= 1 && Math.abs(topRight.h - 388) <= 1 &&
+        Math.abs(bottomLeft.h - 276) <= 1 && Math.abs(bottomRight.h - 276) <= 1;
+
+      if (legacyTemplate) {
+        const changes = [
+          [topLeft, { x: topLeft.x, y: 142, w: topLeft.w, h: 448 }],
+          [topRight, { x: topRight.x, y: 142, w: topRight.w, h: 448 }],
+          [bottomLeft, { x: bottomLeft.x, y: 608, w: bottomLeft.w, h: 316 }],
+          [bottomRight, { x: bottomRight.x, y: 608, w: bottomRight.w, h: 316 }]
+        ];
+        changes.forEach(([panel, bounds]) => {
+          const snapshot = snapshotContainer(panel);
+          Object.assign(panel, bounds);
+          reflowContainerChildren(snapshot, bounds);
+        });
+        state.elements.forEach(item => {
+          if (item.locked && item.type === 'card' && item.x === 0 && item.y === 0 && item.w === 1600 && item.h === 900) item.h = 1000;
+          if (item.type === 'text' && Math.abs(item.y - 844) <= 1 && item.w >= 1400) item.y = 944;
+        });
+      }
+
+      Object.assign(topLeft, { layoutRole: 'container', minW: 620, minH: 380 });
+      Object.assign(topRight, { layoutRole: 'container', minW: 560, minH: 380 });
+      Object.assign(bottomLeft, { layoutRole: 'container', minW: 620, minH: 250 });
+      Object.assign(bottomRight, { layoutRole: 'container', minW: 560, minH: 250 });
+      return legacyTemplate ? 1000 : (canvasHeight || 1000);
     }
 
     async function loadProjectData(data) {
       state = data.state || data;
       if (!state.nextId) state.nextId = (state.elements?.length || 0) + 1;
-      migrateResponsiveLayoutMetadata();
+      const migratedCanvasHeight = migrateResponsiveLayoutMetadata(data.canvas?.h);
       if (data.canvas) {
         canvasW.value = data.canvas.w || 1600;
-        canvasH.value = data.canvas.h || 900;
+        canvasH.value = migratedCanvasHeight;
         canvasBg.value = data.canvas.bg || '#f7f9fc';
         zoomInput.value = data.canvas.zoom || zoomInput.value || 70;
       }
@@ -3091,13 +3125,13 @@
       activeEditable = null;
       document.getElementById('globalFont').value = state.defaultFont;
       canvasW.value = 1600;
-      canvasH.value = 900;
+      canvasH.value = 1000;
       canvasBg.value = '#eef4fb';
       applyCanvas();
 
       // Background base
-      let bg = addCard({ x: 0, y: 0, w: 1600, h: 900, z: 0, bg: '#eef4fb', radius: 0, borderW: 0 }); bg.locked = true;
-      let soft1 = addCard({ x: 0, y: 0, w: 1600, h: 900, z: 1, bg: 'radial-gradient(circle at top right, rgba(255,111,0,0.08), transparent 28%), radial-gradient(circle at bottom left, rgba(15,70,180,0.07), transparent 28%)', radius: 0, borderW: 0 }); soft1.locked = true;
+      let bg = addCard({ x: 0, y: 0, w: 1600, h: 1000, z: 0, bg: '#eef4fb', radius: 0, borderW: 0 }); bg.locked = true;
+      let soft1 = addCard({ x: 0, y: 0, w: 1600, h: 1000, z: 1, bg: 'radial-gradient(circle at top right, rgba(255,111,0,0.08), transparent 28%), radial-gradient(circle at bottom left, rgba(15,70,180,0.07), transparent 28%)', radius: 0, borderW: 0 }); soft1.locked = true;
 
       // Hero banner — masthead kiểu bản tin tài chính: navy đậm + điểm nhấn vàng đồng
       addCard({ x: 40, y: 22, w: 1520, h: 106, z: 2, bg: 'linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)', radius: 16, borderW: 0 });
@@ -3114,18 +3148,18 @@
       addText({ x: 1036, y: 64, w: 425, h: 52, z: 30, text: `CẬP NHẬT · ${today} · 08:15`, fontSize: 25, weight: 900, color: '#ffffff', lineHeight: 1.15, baselineY: 106 });
 
       // Main panels — resize tất cả box cùng chạm đoạn cạnh gần nhất
-      const overviewPanel = addCard({ x: 40, y: 142, w: 770, h: 388, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
-      Object.assign(overviewPanel, { layoutRole: 'container', minW: 620, minH: 340 });
-      const newsPanel = addCard({ x: 830, y: 142, w: 730, h: 388, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
-      Object.assign(newsPanel, { layoutRole: 'container', minW: 560, minH: 340 });
-      const contentPanel = addCard({ x: 40, y: 548, w: 770, h: 276, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
-      Object.assign(contentPanel, { layoutRole: 'container', minW: 620, minH: 220 });
-      const strategyPanel = addCard({ x: 830, y: 548, w: 730, h: 276, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
-      Object.assign(strategyPanel, { layoutRole: 'container', minW: 560, minH: 220 });
+      const overviewPanel = addCard({ x: 40, y: 142, w: 770, h: 448, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
+      Object.assign(overviewPanel, { layoutRole: 'container', minW: 620, minH: 380 });
+      const newsPanel = addCard({ x: 830, y: 142, w: 730, h: 448, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
+      Object.assign(newsPanel, { layoutRole: 'container', minW: 560, minH: 380 });
+      const contentPanel = addCard({ x: 40, y: 608, w: 770, h: 316, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
+      Object.assign(contentPanel, { layoutRole: 'container', minW: 620, minH: 250 });
+      const strategyPanel = addCard({ x: 830, y: 608, w: 730, h: 316, z: 2, bg: '#ffffff', radius: 18, borderColor: '#d7e2ef', borderW: 1 });
+      Object.assign(strategyPanel, { layoutRole: 'container', minW: 560, minH: 250 });
 
       // Overview widget
       const overviewWidget = addMarketWidget({
-        x: 52, y: 154, w: 746, h: 362, z: 8,
+        x: 52, y: 154, w: 746, h: 422, z: 8,
         sectionTitle: 'TỔNG QUAN THỊ TRƯỜNG',
         cardTitleSize: 14,
         cardTitleColor: '#143f79',
@@ -3190,26 +3224,26 @@
       Object.assign(newsBody, { parentId: newsPanel.id, resizeMode: 'stretch-both' });
 
       // Main content — children của panel trái/dưới
-      const contentHeader = addCard({ x: 60, y: 564, w: 236, h: 42, z: 9, bg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)', radius: 10, borderW: 0 });
+      const contentHeader = addCard({ x: 60, y: 624, w: 236, h: 42, z: 9, bg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)', radius: 10, borderW: 0 });
       Object.assign(contentHeader, { parentId: contentPanel.id, resizeMode: 'stretch-width' });
-      const contentIcon = addIcon({ x: 74, y: 573, w: 24, h: 24, z: 20, icon: 'folder', color: '#ffffff', strokeWidth: 1.9 });
+      const contentIcon = addIcon({ x: 74, y: 633, w: 24, h: 24, z: 20, icon: 'folder', color: '#ffffff', strokeWidth: 1.9 });
       Object.assign(contentIcon, { parentId: contentPanel.id, resizeMode: 'anchor-top-left' });
-      const contentTitle = addText({ x: 104, y: 573, w: 182, h: 24, z: 20, text: 'NỘI DUNG CHÍNH', fontSize: 20, weight: 900, color: '#ffffff' });
+      const contentTitle = addText({ x: 104, y: 633, w: 182, h: 24, z: 20, text: 'NỘI DUNG CHÍNH', fontSize: 20, weight: 900, color: '#ffffff' });
       Object.assign(contentTitle, { parentId: contentPanel.id, resizeMode: 'stretch-width' });
-      const contentBody = addText({ x: 74, y: 622, w: 700, h: 142, z: 20, text: 'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.4 });
+      const contentBody = addText({ x: 74, y: 682, w: 700, h: 182, z: 20, text: 'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.4 });
       Object.assign(contentBody, { parentId: contentPanel.id, resizeMode: 'stretch-both' });
 
       // Strategy — children của panel phải/dưới
-      const strategyHeader = addCard({ x: 850, y: 564, w: 430, h: 42, z: 9, bg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)', radius: 10, borderW: 0 });
+      const strategyHeader = addCard({ x: 850, y: 624, w: 430, h: 42, z: 9, bg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)', radius: 10, borderW: 0 });
       Object.assign(strategyHeader, { parentId: strategyPanel.id, resizeMode: 'stretch-width' });
-      const strategyIcon = addIcon({ x: 864, y: 573, w: 24, h: 24, z: 20, icon: 'target', color: '#ffffff', strokeWidth: 1.9 });
+      const strategyIcon = addIcon({ x: 864, y: 633, w: 24, h: 24, z: 20, icon: 'target', color: '#ffffff', strokeWidth: 1.9 });
       Object.assign(strategyIcon, { parentId: strategyPanel.id, resizeMode: 'anchor-top-left' });
-      const strategyTitle = addText({ x: 897, y: 573, w: 360, h: 24, z: 20, text: 'NHẬN ĐỊNH VÀ CHIẾN LƯỢC', fontSize: 20, weight: 900, color: '#ffffff' });
+      const strategyTitle = addText({ x: 897, y: 633, w: 360, h: 24, z: 20, text: 'NHẬN ĐỊNH VÀ CHIẾN LƯỢC', fontSize: 20, weight: 900, color: '#ffffff' });
       Object.assign(strategyTitle, { parentId: strategyPanel.id, resizeMode: 'stretch-width' });
-      const strategyBody = addText({ x: 864, y: 620, w: 650, h: 154, z: 20, text: 'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.42 });
+      const strategyBody = addText({ x: 864, y: 680, w: 650, h: 194, z: 20, text: 'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.42 });
       Object.assign(strategyBody, { parentId: strategyPanel.id, resizeMode: 'stretch-both' });
 
-      addText({ x: 60, y: 844, w: 1480, h: 18, z: 20, text: 'Nguồn: [Sở GDCK / FiinTrade / báo cáo doanh nghiệp] · Thời điểm dữ liệu: [hh:mm dd/mm/yyyy] · Nội dung chỉ mang tính tham khảo, không phải cam kết lợi nhuận.', fontSize: 11, weight: 600, color: '#70839a', align: 'center' });
+      addText({ x: 60, y: 944, w: 1480, h: 18, z: 20, text: 'Nguồn: [Sở GDCK / FiinTrade / báo cáo doanh nghiệp] · Thời điểm dữ liệu: [hh:mm dd/mm/yyyy] · Nội dung chỉ mang tính tham khảo, không phải cam kết lợi nhuận.', fontSize: 11, weight: 600, color: '#70839a', align: 'center' });
 
       selected = null;
       render();
