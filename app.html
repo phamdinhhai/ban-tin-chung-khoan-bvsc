@@ -1616,7 +1616,8 @@ function addText(custom={}){
     lineHeight:custom.lineHeight??1.2,
     letterSpacing:custom.letterSpacing??0,
     upper:custom.upper??false,
-    verticalAlign:custom.verticalAlign??'top'
+    verticalAlign:custom.verticalAlign??'top',
+    baselineY:custom.baselineY??null
   });
   render();selectById(obj.id);pushHistory();return obj;
 }
@@ -1695,7 +1696,15 @@ function render(){
       ed.style.lineHeight=o.lineHeight||1.2;
       ed.style.letterSpacing=(o.letterSpacing||0)+'px';
       ed.style.textTransform=o.upper?'uppercase':'none';
-      if(o.verticalAlign==='middle'){
+      if(Number.isFinite(o.baselineY)){
+        const measureCanvas=render._fontMeasureCanvas||(render._fontMeasureCanvas=document.createElement('canvas'));
+        const ctx=measureCanvas.getContext('2d');
+        const family=(o.font||state.defaultFont||"'Be Vietnam Pro'") + ", 'Noto Sans', Arial, sans-serif";
+        ctx.font=`${o.weight||400} ${o.fontSize||18}px ${family}`;
+        const metrics=ctx.measureText(String(o.text||'Hg'));
+        const ascent=metrics.actualBoundingBoxAscent || (o.fontSize||18)*0.8;
+        ed.style.paddingTop=Math.max(0,o.baselineY-o.y-ascent)+'px';
+      }else if(o.verticalAlign==='middle'){
         ed.style.display='flex';
         ed.style.flexDirection='column';
         ed.style.justifyContent='center';
@@ -1766,6 +1775,66 @@ function render(){
   syncInspector(false);
 }
 
+function getLayoutGroupMembers(groupId){
+  return state.elements.filter(item=>item.layoutGroup===groupId && item.layoutRole==='container');
+}
+
+function captureChildLayout(container){
+  return state.elements.filter(item=>item.parentId===container.id).map(item=>({
+    item, x:item.x, y:item.y, w:item.w, h:item.h,
+    left:item.x-container.x, right:container.x+container.w-(item.x+item.w),
+    top:item.y-container.y, bottom:container.y+container.h-(item.y+item.h),
+    mode:item.resizeMode||'width'
+  }));
+}
+
+function capturePairedResize(obj,handle){
+  if(!obj.layoutGroup || obj.layoutRole!=='container') return null;
+  const pair=getLayoutGroupMembers(obj.layoutGroup);
+  const left=pair.find(item=>item.pairSide==='left');
+  const right=pair.find(item=>item.pairSide==='right');
+  const isDivider=(obj===left && handle.includes('e')) || (obj===right && handle.includes('w'));
+  if(!left || !right || !isDivider) return null;
+  return {
+    left,right, leftX:left.x, rightEdge:right.x+right.w,
+    gap:right.x-(left.x+left.w),
+    leftMin:left.minW||320, rightMin:right.minW||320,
+    leftChildren:captureChildLayout(left), rightChildren:captureChildLayout(right)
+  };
+}
+
+function reflowContainerChildren(children,parent,nextBounds){
+  children.forEach(s=>{
+    const item=s.item;
+    if(s.mode==='inset'){
+      item.x=nextBounds.x+s.left;
+      item.y=nextBounds.y+s.top;
+      item.w=Math.max(30,nextBounds.w-s.left-s.right);
+      item.h=Math.max(20,nextBounds.h-s.top-s.bottom);
+    }else if(s.mode==='fixed'){
+      item.x=nextBounds.x+s.left;
+      item.y=nextBounds.y+s.top;
+    }else{
+      item.x=nextBounds.x+s.left;
+      item.y=nextBounds.y+s.top;
+      item.w=Math.max(30,nextBounds.w-s.left-s.right);
+    }
+  });
+}
+
+function resizePairedPanels(snapshot,dividerX){
+  const minDivider=snapshot.leftX+snapshot.leftMin;
+  const maxDivider=snapshot.rightEdge-snapshot.gap-snapshot.rightMin;
+  const divider=clamp(dividerX,minDivider,maxDivider);
+  const leftBounds={x:snapshot.leftX,y:snapshot.left.y,w:divider-snapshot.leftX,h:snapshot.left.h};
+  const rightX=divider+snapshot.gap;
+  const rightBounds={x:rightX,y:snapshot.right.y,w:snapshot.rightEdge-rightX,h:snapshot.right.h};
+  Object.assign(snapshot.left,leftBounds);
+  Object.assign(snapshot.right,rightBounds);
+  reflowContainerChildren(snapshot.leftChildren,snapshot.left,leftBounds);
+  reflowContainerChildren(snapshot.rightChildren,snapshot.right,rightBounds);
+}
+
 function selectById(id,additive=false){
   const obj=state.elements.find(x=>x.id===id)||null;
   if(!obj){ selected=null; selectedIds.clear(); render(); return; }
@@ -1815,7 +1884,7 @@ function onPointerDown(e){
     const cx=obj.x+obj.w/2, cy=obj.y+obj.h/2;
     action={type:'rotate',obj,cx,cy,scale};
   }else if(handle){
-    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale};
+    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale,paired:capturePairedResize(obj,handle)};
   }else{
     if(editingTextId===id && e.target.closest?.('.editable')) return;
     const members=state.elements.filter(item=>selectedIds.has(item.id) && !item.locked)
@@ -1841,12 +1910,17 @@ function onPointerMove(e){
     });
   }else if(action.type==='resize'){
     const dx=mx-action.startX, dy=my-action.startY;
-    let x=action.ox,y=action.oy,w=action.ow,h=action.oh;
-    if(action.handle.includes('e'))w=Math.max(30,action.ow+dx);
-    if(action.handle.includes('s'))h=Math.max(20,action.oh+dy);
-    if(action.handle.includes('w')){w=Math.max(30,action.ow-dx);x=action.ox+(action.ow-w);}
-    if(action.handle.includes('n')){h=Math.max(20,action.oh-dy);y=action.oy+(action.oh-h);}
-    Object.assign(obj,{x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)});
+    if(action.paired){
+      const divider=action.obj===action.paired.left ? action.ox+action.ow+dx : action.ox+dx;
+      resizePairedPanels(action.paired,divider);
+    }else{
+      let x=action.ox,y=action.oy,w=action.ow,h=action.oh;
+      if(action.handle.includes('e'))w=Math.max(30,action.ow+dx);
+      if(action.handle.includes('s'))h=Math.max(20,action.oh+dy);
+      if(action.handle.includes('w')){w=Math.max(30,action.ow-dx);x=action.ox+(action.ow-w);}
+      if(action.handle.includes('n')){h=Math.max(20,action.oh-dy);y=action.oy+(action.oh-h);}
+      Object.assign(obj,{x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)});
+    }
   }else if(action.type==='rotate'){
     const angle=Math.atan2(my-action.cy,mx-action.cx)*180/Math.PI+90;
     obj.rot=Math.round(angle);
@@ -1863,8 +1937,14 @@ function onPointerUp(){
 }
 
 function updateSelectedDom(){
-  const items=action?.type==='drag' ? action.members.map(member=>member.item) : (selected?[selected]:[]);
-  items.forEach(item=>{
+  let items;
+  if(action?.type==='drag') items=action.members.map(member=>member.item);
+  else if(action?.type==='resize' && action.paired){
+    items=[action.paired.left,action.paired.right,
+      ...action.paired.leftChildren.map(s=>s.item),
+      ...action.paired.rightChildren.map(s=>s.item)];
+  }else items=selected?[selected]:[];
+  [...new Set(items)].forEach(item=>{
     const el=stage.querySelector(`[data-id="${item.id}"]`);
     if(!el)return;
     el.style.left=item.x+'px';el.style.top=item.y+'px';
@@ -2334,24 +2414,26 @@ function resetTemplate(){
   addCard({x:40,y:22,w:1520,h:106,z:2,bg:'linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)',radius:16,borderW:0});
   // dải viền vàng đồng mảnh phía dưới banner - tạo cảm giác "masthead" báo tài chính
   addCard({x:40,y:126,w:1520,h:3,z:3,bg:'linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)',radius:0,borderW:0});
-  // Header chuẩn: A bên trái, B bên phải; toàn bộ căn đáy tại y=108 và cân giữa banner
-  // Cụm A — icon chart + hai tầng tiêu đề, box text có vùng an toàn cho dấu tiếng Việt
-  addIcon({x:138,y:58,w:48,h:48,z:25,icon:'chart',color:'#e8c165',strokeWidth:1.6});
+  // Header căn theo pixel thật: đáy nét SVG tại y≈106, baseline chữ chính tại y=100
+  // Cụm A — chart 48px: path thấp nhất y=20 + nửa stroke 0.8 trong viewBox 24
+  addIcon({x:138,y:64.4,w:48,h:48,z:25,icon:'chart',color:'#e8c165',strokeWidth:1.6});
   addText({x:202,y:38,w:780,h:24,z:30,text:'DAILY MARKET BRIEF · BẢN TIN THỊ TRƯỜNG',fontSize:12,weight:800,color:'#e8c165',letterSpacing:1.6,lineHeight:1.25,verticalAlign:'middle'});
-  addText({x:201,y:58,w:780,h:50,z:30,text:'BẢN TIN CHỨNG KHOÁN HÀNG NGÀY',fontSize:34,weight:900,color:'#ffffff',letterSpacing:0.4,lineHeight:1.15,verticalAlign:'middle'});
-  // Cụm B — icon lịch tăng tương xứng text 25px; icon và text cùng đáy y=108
+  addText({x:201,y:55,w:780,h:55,z:30,text:'BẢN TIN CHỨNG KHOÁN HÀNG NGÀY',fontSize:34,weight:900,color:'#ffffff',letterSpacing:0.4,lineHeight:1.15,baselineY:100});
+  // Cụm B — calendar 30px: path thấp nhất y=20 + nửa stroke 0.95 trong viewBox 24
   const today=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());
-  addIcon({x:996,y:78,w:30,h:30,z:30,icon:'calendar',color:'#ffffff',strokeWidth:1.9});
-  addText({x:1036,y:72,w:425,h:36,z:30,text:`Cập nhật · ${today} · 08:15`,fontSize:25,weight:600,color:'#ffffff',lineHeight:1.15,verticalAlign:'middle'});
+  addIcon({x:996,y:79.8,w:30,h:30,z:30,icon:'calendar',color:'#ffffff',strokeWidth:1.9});
+  addText({x:1036,y:64,w:425,h:46,z:30,text:`Cập nhật · ${today} · 08:15`,fontSize:25,weight:600,color:'#ffffff',lineHeight:1.15,baselineY:100});
 
-  // Main panels
-  addCard({x:40,y:142,w:770,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  addCard({x:830,y:142,w:730,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  // Main panels — hàng trên là cặp container responsive dùng chung divider
+  const overviewPanel=addCard({x:40,y:142,w:770,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  Object.assign(overviewPanel,{layoutGroup:'top-panels',layoutRole:'container',pairSide:'left',minW:620});
+  const newsPanel=addCard({x:830,y:142,w:730,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  Object.assign(newsPanel,{layoutGroup:'top-panels',layoutRole:'container',pairSide:'right',minW:420});
   addCard({x:40,y:548,w:770,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
   addCard({x:830,y:548,w:730,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
 
   // Overview widget
-  addMarketWidget({
+  const overviewWidget=addMarketWidget({
     x:52,y:154,w:746,h:362,z:8,
     sectionTitle:'TỔNG QUAN THỊ TRƯỜNG',
     cardTitleSize:14,
@@ -2404,12 +2486,17 @@ function resetTemplate(){
       }
     ]
   });
+  Object.assign(overviewWidget,{parentId:overviewPanel.id,resizeMode:'inset'});
 
-  // News box
-  addCard({x:850,y:158,w:284,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  addIcon({x:864,y:167,w:24,h:24,z:20,icon:'news',color:'#ffffff',strokeWidth:1.9});
-  addText({x:897,y:167,w:215,h:24,z:20,text:'CẬP NHẬT TIN TỨC',fontSize:20,weight:900,color:'#ffffff'});
-  addText({x:864,y:218,w:650,h:250,z:20,text:'• QUỐC TẾ — [Sự kiện có khả năng tác động trực tiếp]\n  Tác động dự kiến: [tích cực / trung tính / tiêu cực]\n\n• TRONG NƯỚC — [Chính sách, vĩ mô hoặc doanh nghiệp]\n  Nhóm đáng chú ý: [ngành / mã cổ phiếu]\n\n• LỊCH SỰ KIỆN — [Thời gian · sự kiện cần theo dõi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
+  // News box — children bám theo panel phải và reflow khi divider di chuyển
+  const newsHeader=addCard({x:850,y:158,w:284,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
+  Object.assign(newsHeader,{parentId:newsPanel.id,resizeMode:'width'});
+  const newsIcon=addIcon({x:864,y:167,w:24,h:24,z:20,icon:'news',color:'#ffffff',strokeWidth:1.9});
+  Object.assign(newsIcon,{parentId:newsPanel.id,resizeMode:'fixed'});
+  const newsTitle=addText({x:897,y:167,w:215,h:24,z:20,text:'CẬP NHẬT TIN TỨC',fontSize:20,weight:900,color:'#ffffff'});
+  Object.assign(newsTitle,{parentId:newsPanel.id,resizeMode:'width'});
+  const newsBody=addText({x:864,y:218,w:650,h:250,z:20,text:'• QUỐC TẾ — [Sự kiện có khả năng tác động trực tiếp]\n  Tác động dự kiến: [tích cực / trung tính / tiêu cực]\n\n• TRONG NƯỚC — [Chính sách, vĩ mô hoặc doanh nghiệp]\n  Nhóm đáng chú ý: [ngành / mã cổ phiếu]\n\n• LỊCH SỰ KIỆN — [Thời gian · sự kiện cần theo dõi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
+  Object.assign(newsBody,{parentId:newsPanel.id,resizeMode:'width'});
 
   // Main content / blank box
   addCard({x:60,y:564,w:236,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
