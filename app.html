@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Morning Brief Studio — Thiết kế bản tin chứng khoán</title>
 <meta name="description" content="Công cụ thiết kế, lưu và xuất ảnh bản tin chứng khoán buổi sáng dành cho chuyên viên tư vấn đầu tư.">
 <meta name="theme-color" content="#071b3d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans:wght@400;500;600;700;800;900&family=Noto+Serif:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -468,18 +471,47 @@
     .sidebar.right{padding:0;border:0;overflow:hidden}
     .workspace-actions{left:auto;right:12px;transform:none}
   }
+  .mobile-backdrop{display:none}
+  @media(max-width:768px){
+    body{overflow:hidden;touch-action:manipulation}
+    .app{display:block;height:100dvh;padding-top:calc(58px + env(safe-area-inset-top))}
+    .workspace{position:absolute;inset:calc(58px + env(safe-area-inset-top)) 0 0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom}
+    .stage-wrap{padding:16px;min-width:0;min-height:0}
+    .workspace-actions{top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;transform:none;justify-content:center;gap:8px;z-index:120}
+    .workspace-actions button{min-height:44px;flex:1;max-width:180px;padding:9px 12px;font-size:12px}
+    .sidebar,.sidebar.left,.sidebar.right{
+      position:fixed;top:0;bottom:0;width:min(88vw,360px);height:100dvh;z-index:140;
+      padding:calc(70px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));
+      overflow:auto;border:0;box-shadow:0 24px 70px rgba(2,8,23,.48);transition:transform .24s ease;
+    }
+    .sidebar.left{left:0;transform:translateX(-105%);border-right:1px solid var(--ui-border)}
+    .sidebar.right{right:0;transform:translateX(105%);padding-left:14px;border-left:1px solid var(--ui-border)}
+    body.mobile-left-open .sidebar.left{transform:translateX(0)}
+    body.mobile-right-open .sidebar.right{transform:translateX(0)}
+    .mobile-backdrop{position:fixed;inset:0;z-index:130;background:rgba(2,8,23,.58);backdrop-filter:blur(3px)}
+    body.mobile-left-open .mobile-backdrop,body.mobile-right-open .mobile-backdrop{display:block}
+    button,input,select{min-height:44px}
+    .tiny{width:44px;height:44px}
+    .handle{width:24px;height:24px;border-width:3px}
+    .handle.nw{left:-13px;top:-13px}.handle.ne{right:-13px;top:-13px}.handle.sw{left:-13px;bottom:-13px}.handle.se{right:-13px;bottom:-13px}
+    .handle.n{top:-13px}.handle.s{bottom:-13px}.handle.w{left:-13px}.handle.e{right:-13px}
+    .element{touch-action:none}
+    .float-toolbar{left:8px!important;right:8px;max-width:calc(100vw - 16px);overflow-x:auto;overscroll-behavior-x:contain}
+    .status{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}
+  }
 </style>
 <script>window.__INITIAL_PROJECT__ = null;</script>
 </head>
 
 <body>
+<div id="mobileBackdrop" class="mobile-backdrop" aria-hidden="true" onclick="closeMobileDrawers()"></div>
 <div class="workspace-actions" aria-label="Điều khiển không gian làm việc">
-  <button id="toggleLeftSidebar" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ">☰ Công cụ</button>
-  <button id="toggleRightSidebar" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện thuộc tính">Thuộc tính ☰</button>
+  <button id="toggleLeftSidebar" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ" aria-controls="leftSidebar" aria-expanded="false">☰ Công cụ</button>
+  <button id="toggleRightSidebar" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện thuộc tính" aria-controls="rightSidebar" aria-expanded="false">Thuộc tính ☰</button>
 </div>
 <div class="app">
   <!-- LEFT PANEL -->
-  <aside class="sidebar left">
+  <aside id="leftSidebar" class="sidebar left" aria-label="Công cụ thiết kế">
     <div class="panel">
       <div class="panel-title">FILE / XUẤT ẢNH</div>
       <div class="toolbar">
@@ -600,13 +632,13 @@
 
   <!-- WORKSPACE -->
   <main class="workspace" id="workspace">
-    <div class="stage-wrap" style="width: 1204px; height: 714px;">
+    <div class="stage-wrap">
       <div id="stage" style="width:1600px;height:900px;background:#f7f9fc;transform:scale(0.7)"></div>
     </div>
   </main>
 
   <!-- RIGHT PANEL -->
-  <aside class="sidebar right">
+  <aside id="rightSidebar" class="sidebar right" aria-label="Thuộc tính phần tử">
     <div class="panel">
       <div class="panel-title">PHẦN TỬ ĐANG CHỌN</div>
       <div id="noneSelected" class="hint" style="display: none;">Chưa chọn phần tử nào.</div>
@@ -890,10 +922,32 @@
 </div>
 
 <script>
+function isMobileViewport(){ return window.matchMedia('(max-width: 768px)').matches; }
+function closeMobileDrawers(){
+  document.body.classList.remove('mobile-left-open','mobile-right-open');
+  syncSidebarUI();
+}
+function syncSidebarUI(){
+  const mobile=isMobileViewport();
+  const leftOpen=mobile?document.body.classList.contains('mobile-left-open'):!document.body.classList.contains('left-collapsed');
+  const rightOpen=mobile?document.body.classList.contains('mobile-right-open'):!document.body.classList.contains('right-collapsed');
+  document.getElementById('toggleLeftSidebar')?.setAttribute('aria-expanded',String(leftOpen));
+  document.getElementById('toggleRightSidebar')?.setAttribute('aria-expanded',String(rightOpen));
+  document.getElementById('mobileBackdrop')?.setAttribute('aria-hidden',String(!(mobile&&(leftOpen||rightOpen))));
+}
 function toggleSidebar(side){
-  document.body.classList.toggle(side+'-collapsed');
+  if(isMobileViewport()){
+    const own=`mobile-${side}-open`,other=`mobile-${side==='left'?'right':'left'}-open`;
+    const willOpen=!document.body.classList.contains(own);
+    document.body.classList.remove(other);
+    document.body.classList.toggle(own,willOpen);
+  }else{
+    document.body.classList.toggle(side+'-collapsed');
+  }
+  syncSidebarUI();
   setTimeout(applyZoom,180);
 }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMobileDrawers(); });
 
 document.getElementById('qualityChecklist').addEventListener('change',()=>{
   const checks=[...document.querySelectorAll('[data-quality]')];
@@ -1775,68 +1829,110 @@ function render(){
   syncInspector(false);
 }
 
-function getLayoutGridMembers(gridId){
-  return state.elements.filter(item=>item.layoutGrid===gridId && item.layoutRole==='container');
+function getLayoutContainers(obj){
+  return state.elements.filter(item=>item!==obj&&item.layoutRole==='container');
 }
 
 function captureChildLayout(container){
   return state.elements.filter(item=>item.parentId===container.id).map(item=>({
     item,left:item.x-container.x,right:container.x+container.w-(item.x+item.w),
     top:item.y-container.y,bottom:container.y+container.h-(item.y+item.h),
-    mode:item.resizeMode||'width'
+    w:item.w,h:item.h,mode:item.resizeMode||'stretch-width'
   }));
 }
 
-function captureGridResize(obj,handle){
-  if(!obj.layoutGrid || obj.layoutRole!=='container') return null;
-  const panels=getLayoutGridMembers(obj.layoutGrid);
-  const at=(column,row)=>panels.find(p=>p.gridColumn===column&&p.gridRow===row);
-  const lt=at('left','top'),rt=at('right','top'),lb=at('left','bottom'),rb=at('right','bottom');
-  if(!lt||!rt||!lb||!rb)return null;
-  const columnAxis=(obj.gridColumn==='left'&&handle.includes('e'))||(obj.gridColumn==='right'&&handle.includes('w'));
-  const rowAxis=(obj.gridRow==='top'&&handle.includes('s'))||(obj.gridRow==='bottom'&&handle.includes('n'));
-  if(!columnAxis&&!rowAxis)return null;
+function rangeOverlap(a1,a2,b1,b2){ return Math.max(0,Math.min(a2,b2)-Math.max(a1,b1)); }
+function findEdgeNeighbor(obj,edge){
+  const vertical=edge==='e'||edge==='w';
+  return getLayoutContainers(obj).map(candidate=>{
+    const overlap=vertical
+      ?rangeOverlap(obj.y,obj.y+obj.h,candidate.y,candidate.y+candidate.h)
+      :rangeOverlap(obj.x,obj.x+obj.w,candidate.x,candidate.x+candidate.w);
+    if(overlap<=0)return null;
+    let gap;
+    if(edge==='e')gap=candidate.x-(obj.x+obj.w);
+    else if(edge==='w')gap=obj.x-(candidate.x+candidate.w);
+    else if(edge==='s')gap=candidate.y-(obj.y+obj.h);
+    else gap=obj.y-(candidate.y+candidate.h);
+    if(gap<0)return null;
+    const objCenter=vertical?obj.y+obj.h/2:obj.x+obj.w/2;
+    const candidateCenter=vertical?candidate.y+candidate.h/2:candidate.x+candidate.w/2;
+    return {candidate,gap,overlap,centerDistance:Math.abs(objCenter-candidateCenter)};
+  }).filter(Boolean).sort((a,b)=>a.gap-b.gap||b.overlap-a.overlap||a.centerDistance-b.centerDistance)[0]||null;
+}
+
+function snapshotContainer(panel){
+  return {panel,bounds:{x:panel.x,y:panel.y,w:panel.w,h:panel.h},children:captureChildLayout(panel)};
+}
+function captureNeighborResize(obj,handle){
+  if(obj.layoutRole!=='container')return null;
+  const horizontalEdge=handle.includes('e')?'e':handle.includes('w')?'w':null;
+  const verticalEdge=handle.includes('s')?'s':handle.includes('n')?'n':null;
+  if(!horizontalEdge&&!verticalEdge)return null;
+  const horizontal=horizontalEdge?findEdgeNeighbor(obj,horizontalEdge):null;
+  const vertical=verticalEdge?findEdgeNeighbor(obj,verticalEdge):null;
+  const panels=[obj,horizontal?.candidate,vertical?.candidate].filter(Boolean);
+  const unique=[...new Set(panels)];
   return {
-    panels:[lt,rt,lb,rb],lt,rt,lb,rb,columnAxis,rowAxis,
-    leftX:lt.x,rightEdge:rt.x+rt.w,topY:lt.y,bottomEdge:lb.y+lb.h,
-    columnGap:rt.x-(lt.x+lt.w),rowGap:lb.y-(lt.y+lt.h),
-    leftMin:Math.max(lt.minW||320,lb.minW||320),rightMin:Math.max(rt.minW||320,rb.minW||320),
-    topMin:Math.max(lt.minH||160,rt.minH||160),bottomMin:Math.max(lb.minH||160,rb.minH||160),
-    children:new Map([lt,rt,lb,rb].map(panel=>[panel,captureChildLayout(panel)]))
+    obj,handle,horizontalEdge,verticalEdge,horizontal,vertical,
+    snapshots:new Map(unique.map(panel=>[panel,snapshotContainer(panel)])),
+    touched:unique
   };
 }
 
-function reflowContainerChildren(children,nextBounds){
-  children.forEach(s=>{
+function reflowContainerChildren(snapshot,nextBounds){
+  snapshot.children.forEach(s=>{
     const item=s.item;
     item.x=nextBounds.x+s.left;
     item.y=nextBounds.y+s.top;
-    if(s.mode==='inset'){
+    if(s.mode==='stretch-both'||s.mode==='inset'){
       item.w=Math.max(30,nextBounds.w-s.left-s.right);
-      item.h=Math.max(20,nextBounds.h-s.top-s.bottom);
-    }else if(s.mode==='width'){
-      item.w=Math.max(30,nextBounds.w-s.left-s.right);
-    }else if(s.mode==='height'){
-      item.h=Math.max(20,nextBounds.h-s.top-s.bottom);
-    }else if(s.mode==='bottom-fixed'){
+      item.h=Math.max(item.minH||20,nextBounds.h-s.top-s.bottom);
+    }else if(s.mode==='stretch-width'||s.mode==='width'||s.mode==='content-flow'){
+      item.w=Math.max(item.minW||30,nextBounds.w-s.left-s.right);
+      if(s.mode==='content-flow')item.h=Math.max(item.minH||s.h,nextBounds.h-s.top-s.bottom);
+    }else if(s.mode==='stretch-height'||s.mode==='height'){
+      item.h=Math.max(item.minH||20,nextBounds.h-s.top-s.bottom);
+    }else if(s.mode==='anchor-bottom'||s.mode==='bottom-fixed'){
       item.y=nextBounds.y+nextBounds.h-s.bottom-item.h;
     }
   });
 }
 
-function resizeGrid(snapshot,dividerX,dividerY){
-  const x=snapshot.columnAxis?clamp(dividerX,snapshot.leftX+snapshot.leftMin,snapshot.rightEdge-snapshot.columnGap-snapshot.rightMin):snapshot.lt.x+snapshot.lt.w;
-  const y=snapshot.rowAxis?clamp(dividerY,snapshot.topY+snapshot.topMin,snapshot.bottomEdge-snapshot.rowGap-snapshot.bottomMin):snapshot.lt.y+snapshot.lt.h;
-  const rightX=x+snapshot.columnGap,bottomY=y+snapshot.rowGap;
-  const bounds=new Map([
-    [snapshot.lt,{x:snapshot.leftX,y:snapshot.topY,w:x-snapshot.leftX,h:y-snapshot.topY}],
-    [snapshot.rt,{x:rightX,y:snapshot.topY,w:snapshot.rightEdge-rightX,h:y-snapshot.topY}],
-    [snapshot.lb,{x:snapshot.leftX,y:bottomY,w:x-snapshot.leftX,h:snapshot.bottomEdge-bottomY}],
-    [snapshot.rb,{x:rightX,y:bottomY,w:snapshot.rightEdge-rightX,h:snapshot.bottomEdge-bottomY}]
-  ]);
-  snapshot.panels.forEach(panel=>{
-    const next=bounds.get(panel);Object.assign(panel,next);
-    reflowContainerChildren(snapshot.children.get(panel),next);
+function resizeWithNeighbors(snapshot,dx,dy){
+  const next=new Map([...snapshot.snapshots].map(([panel,s])=>[panel,{...s.bounds}]));
+  const main=next.get(snapshot.obj),origin=snapshot.snapshots.get(snapshot.obj).bounds;
+  if(snapshot.horizontalEdge){
+    const edge=snapshot.horizontalEdge,neighbor=snapshot.horizontal?.candidate;
+    if(edge==='e'){
+      const max=neighbor?next.get(neighbor).w-(neighbor.minW||120):Infinity;
+      const d=clamp(dx,(snapshot.obj.minW||120)-origin.w,max);
+      main.w=origin.w+d;
+      if(neighbor){const nb=next.get(neighbor),no=snapshot.snapshots.get(neighbor).bounds;nb.x=no.x+d;nb.w=no.w-d;}
+    }else{
+      const left=neighbor, max=left?next.get(left).w-(left.minW||120):Infinity;
+      const d=clamp(dx,-max,origin.w-(snapshot.obj.minW||120));
+      main.x=origin.x+d;main.w=origin.w-d;
+      if(left){const nb=next.get(left),no=snapshot.snapshots.get(left).bounds;nb.w=no.w+d;}
+    }
+  }
+  if(snapshot.verticalEdge){
+    const edge=snapshot.verticalEdge,neighbor=snapshot.vertical?.candidate;
+    if(edge==='s'){
+      const max=neighbor?next.get(neighbor).h-(neighbor.minH||100):Infinity;
+      const d=clamp(dy,(snapshot.obj.minH||100)-origin.h,max);
+      main.h=origin.h+d;
+      if(neighbor){const nb=next.get(neighbor),no=snapshot.snapshots.get(neighbor).bounds;nb.y=no.y+d;nb.h=no.h-d;}
+    }else{
+      const above=neighbor,max=above?next.get(above).h-(above.minH||100):Infinity;
+      const d=clamp(dy,-max,origin.h-(snapshot.obj.minH||100));
+      main.y=origin.y+d;main.h=origin.h-d;
+      if(above){const nb=next.get(above),no=snapshot.snapshots.get(above).bounds;nb.h=no.h+d;}
+    }
+  }
+  snapshot.touched.forEach(panel=>{
+    const bounds=next.get(panel);Object.assign(panel,bounds);
+    reflowContainerChildren(snapshot.snapshots.get(panel),bounds);
   });
 }
 
@@ -1889,7 +1985,7 @@ function onPointerDown(e){
     const cx=obj.x+obj.w/2, cy=obj.y+obj.h/2;
     action={type:'rotate',obj,cx,cy,scale};
   }else if(handle){
-    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale,grid:captureGridResize(obj,handle)};
+    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale,neighbors:captureNeighborResize(obj,handle)};
   }else{
     if(editingTextId===id && e.target.closest?.('.editable')) return;
     const members=state.elements.filter(item=>selectedIds.has(item.id) && !item.locked)
@@ -1915,10 +2011,8 @@ function onPointerMove(e){
     });
   }else if(action.type==='resize'){
     const dx=mx-action.startX, dy=my-action.startY;
-    if(action.grid){
-      const dividerX=action.obj.gridColumn==='left'?action.ox+action.ow+dx:action.ox+dx;
-      const dividerY=action.obj.gridRow==='top'?action.oy+action.oh+dy:action.oy+dy;
-      resizeGrid(action.grid,dividerX,dividerY);
+    if(action.neighbors){
+      resizeWithNeighbors(action.neighbors,dx,dy);
     }else{
       let x=action.ox,y=action.oy,w=action.ow,h=action.oh;
       if(action.handle.includes('e'))w=Math.max(30,action.ow+dx);
@@ -1945,8 +2039,10 @@ function onPointerUp(){
 function updateSelectedDom(){
   let items;
   if(action?.type==='drag') items=action.members.map(member=>member.item);
-  else if(action?.type==='resize' && action.grid){
-    items=[...action.grid.panels,...action.grid.panels.flatMap(panel=>action.grid.children.get(panel).map(s=>s.item))];
+  else if(action?.type==='resize' && action.neighbors){
+    items=action.neighbors.touched.flatMap(panel=>[
+      panel,...action.neighbors.snapshots.get(panel).children.map(s=>s.item)
+    ]);
   }else items=selected?[selected]:[];
   [...new Set(items)].forEach(item=>{
     const el=stage.querySelector(`[data-id="${item.id}"]`);
@@ -2174,11 +2270,23 @@ function applyCanvas(){
   stage.style.background=canvasBg.value;
   if(!isRestoringHistory) scheduleHistory();
 }
+function getMobileFitZoom(){
+  const workspace=document.getElementById('workspace');
+  const available=Math.max(280,(workspace?.clientWidth||window.innerWidth)-32);
+  const canvasWidth=+canvasW.value||stage.offsetWidth||1600;
+  return clamp(Math.floor(available/canvasWidth*100),18,100);
+}
+function applyResponsiveWorkspace(forceFit=false){
+  if(isMobileViewport()&&forceFit) zoomInput.value=getMobileFitZoom();
+  applyZoom();
+  syncSidebarUI();
+}
 function applyZoom(){
   const z=(+zoomInput.value||70)/100;
   stage.style.transform=`scale(${z})`;
-  stage.parentElement.style.width=(stage.offsetWidth*z+84)+'px';
-  stage.parentElement.style.height=(stage.offsetHeight*z+84)+'px';
+  const mobilePadding=isMobileViewport()?32:84;
+  stage.parentElement.style.width=(stage.offsetWidth*z+mobilePadding)+'px';
+  stage.parentElement.style.height=(stage.offsetHeight*z+mobilePadding)+'px';
 }
 
 function waitForStageImages(){
@@ -2428,15 +2536,15 @@ function resetTemplate(){
   addIcon({x:996,y:79.8,w:30,h:30,z:30,icon:'calendar',color:'#ffffff',strokeWidth:1.9});
   addText({x:1036,y:64,w:425,h:52,z:30,text:`Cập nhật · ${today} · 08:15`,fontSize:25,weight:600,color:'#ffffff',lineHeight:1.15,baselineY:106});
 
-  // Main panels — lưới responsive 2×2 dùng chung divider cột và hàng
+  // Main panels — mỗi cạnh chỉ resize cùng một box hàng xóm trực tiếp
   const overviewPanel=addCard({x:40,y:142,w:770,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(overviewPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'left',gridRow:'top',minW:620,minH:260});
+  Object.assign(overviewPanel,{layoutRole:'container',minW:620,minH:340});
   const newsPanel=addCard({x:830,y:142,w:730,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(newsPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'right',gridRow:'top',minW:420,minH:260});
+  Object.assign(newsPanel,{layoutRole:'container',minW:560,minH:340});
   const contentPanel=addCard({x:40,y:548,w:770,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(contentPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'left',gridRow:'bottom',minW:620,minH:210});
+  Object.assign(contentPanel,{layoutRole:'container',minW:620,minH:276});
   const strategyPanel=addCard({x:830,y:548,w:730,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(strategyPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'right',gridRow:'bottom',minW:420,minH:210});
+  Object.assign(strategyPanel,{layoutRole:'container',minW:560,minH:276});
 
   // Overview widget
   const overviewWidget=addMarketWidget({
@@ -2492,37 +2600,37 @@ function resetTemplate(){
       }
     ]
   });
-  Object.assign(overviewWidget,{parentId:overviewPanel.id,resizeMode:'inset'});
+  Object.assign(overviewWidget,{parentId:overviewPanel.id,resizeMode:'stretch-both'});
 
   // News box — children bám theo panel phải và reflow khi divider di chuyển
   const newsHeader=addCard({x:850,y:158,w:284,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  Object.assign(newsHeader,{parentId:newsPanel.id,resizeMode:'width'});
+  Object.assign(newsHeader,{parentId:newsPanel.id,resizeMode:'stretch-width'});
   const newsIcon=addIcon({x:864,y:167,w:24,h:24,z:20,icon:'news',color:'#ffffff',strokeWidth:1.9});
-  Object.assign(newsIcon,{parentId:newsPanel.id,resizeMode:'fixed'});
+  Object.assign(newsIcon,{parentId:newsPanel.id,resizeMode:'anchor-top-left'});
   const newsTitle=addText({x:897,y:167,w:215,h:24,z:20,text:'CẬP NHẬT TIN TỨC',fontSize:20,weight:900,color:'#ffffff'});
-  Object.assign(newsTitle,{parentId:newsPanel.id,resizeMode:'width'});
+  Object.assign(newsTitle,{parentId:newsPanel.id,resizeMode:'stretch-width'});
   const newsBody=addText({x:864,y:218,w:650,h:250,z:20,text:'• QUỐC TẾ — [Sự kiện có khả năng tác động trực tiếp]\n  Tác động dự kiến: [tích cực / trung tính / tiêu cực]\n\n• TRONG NƯỚC — [Chính sách, vĩ mô hoặc doanh nghiệp]\n  Nhóm đáng chú ý: [ngành / mã cổ phiếu]\n\n• LỊCH SỰ KIỆN — [Thời gian · sự kiện cần theo dõi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
-  Object.assign(newsBody,{parentId:newsPanel.id,resizeMode:'inset'});
+  Object.assign(newsBody,{parentId:newsPanel.id,resizeMode:'stretch-both'});
 
   // Main content — children của panel trái/dưới
   const contentHeader=addCard({x:60,y:564,w:236,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  Object.assign(contentHeader,{parentId:contentPanel.id,resizeMode:'width'});
+  Object.assign(contentHeader,{parentId:contentPanel.id,resizeMode:'stretch-width'});
   const contentIcon=addIcon({x:74,y:573,w:24,h:24,z:20,icon:'folder',color:'#ffffff',strokeWidth:1.9});
-  Object.assign(contentIcon,{parentId:contentPanel.id,resizeMode:'fixed'});
+  Object.assign(contentIcon,{parentId:contentPanel.id,resizeMode:'anchor-top-left'});
   const contentTitle=addText({x:104,y:573,w:182,h:24,z:20,text:'NỘI DUNG CHÍNH',fontSize:20,weight:900,color:'#ffffff'});
-  Object.assign(contentTitle,{parentId:contentPanel.id,resizeMode:'width'});
+  Object.assign(contentTitle,{parentId:contentPanel.id,resizeMode:'stretch-width'});
   const contentBody=addText({x:74,y:622,w:700,h:142,z:20,text:'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.4});
-  Object.assign(contentBody,{parentId:contentPanel.id,resizeMode:'inset'});
+  Object.assign(contentBody,{parentId:contentPanel.id,resizeMode:'stretch-both'});
 
   // Strategy — children của panel phải/dưới
   const strategyHeader=addCard({x:850,y:564,w:430,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  Object.assign(strategyHeader,{parentId:strategyPanel.id,resizeMode:'width'});
+  Object.assign(strategyHeader,{parentId:strategyPanel.id,resizeMode:'stretch-width'});
   const strategyIcon=addIcon({x:864,y:573,w:24,h:24,z:20,icon:'target',color:'#ffffff',strokeWidth:1.9});
-  Object.assign(strategyIcon,{parentId:strategyPanel.id,resizeMode:'fixed'});
+  Object.assign(strategyIcon,{parentId:strategyPanel.id,resizeMode:'anchor-top-left'});
   const strategyTitle=addText({x:897,y:573,w:360,h:24,z:20,text:'NHẬN ĐỊNH VÀ CHIẾN LƯỢC',fontSize:20,weight:900,color:'#ffffff'});
-  Object.assign(strategyTitle,{parentId:strategyPanel.id,resizeMode:'width'});
+  Object.assign(strategyTitle,{parentId:strategyPanel.id,resizeMode:'stretch-width'});
   const strategyBody=addText({x:864,y:620,w:650,h:154,z:20,text:'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
-  Object.assign(strategyBody,{parentId:strategyPanel.id,resizeMode:'inset'});
+  Object.assign(strategyBody,{parentId:strategyPanel.id,resizeMode:'stretch-both'});
 
   addText({x:60,y:844,w:1480,h:18,z:20,text:'Nguồn: [Sở GDCK / FiinTrade / báo cáo doanh nghiệp] · Thời điểm dữ liệu: [hh:mm dd/mm/yyyy] · Nội dung chỉ mang tính tham khảo, không phải cam kết lợi nhuận.',fontSize:11,weight:600,color:'#70839a',align:'center'});
 
@@ -2552,9 +2660,15 @@ async function initApp(){
   }
   resetTemplate();
   applyCanvas();
-  applyZoom();
+  applyResponsiveWorkspace(isMobileViewport());
 }
-initApp();
+let responsiveResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(responsiveResizeTimer);
+  responsiveResizeTimer=setTimeout(()=>applyResponsiveWorkspace(isMobileViewport()),160);
+});
+window.addEventListener('orientationchange',()=>setTimeout(()=>applyResponsiveWorkspace(true),220));
+initApp().then(()=>applyResponsiveWorkspace(isMobileViewport()));
 </script>
 
 
