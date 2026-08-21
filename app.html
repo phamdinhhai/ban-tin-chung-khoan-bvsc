@@ -1775,64 +1775,69 @@ function render(){
   syncInspector(false);
 }
 
-function getLayoutGroupMembers(groupId){
-  return state.elements.filter(item=>item.layoutGroup===groupId && item.layoutRole==='container');
+function getLayoutGridMembers(gridId){
+  return state.elements.filter(item=>item.layoutGrid===gridId && item.layoutRole==='container');
 }
 
 function captureChildLayout(container){
   return state.elements.filter(item=>item.parentId===container.id).map(item=>({
-    item, x:item.x, y:item.y, w:item.w, h:item.h,
-    left:item.x-container.x, right:container.x+container.w-(item.x+item.w),
-    top:item.y-container.y, bottom:container.y+container.h-(item.y+item.h),
+    item,left:item.x-container.x,right:container.x+container.w-(item.x+item.w),
+    top:item.y-container.y,bottom:container.y+container.h-(item.y+item.h),
     mode:item.resizeMode||'width'
   }));
 }
 
-function capturePairedResize(obj,handle){
-  if(!obj.layoutGroup || obj.layoutRole!=='container') return null;
-  const pair=getLayoutGroupMembers(obj.layoutGroup);
-  const left=pair.find(item=>item.pairSide==='left');
-  const right=pair.find(item=>item.pairSide==='right');
-  const isDivider=(obj===left && handle.includes('e')) || (obj===right && handle.includes('w'));
-  if(!left || !right || !isDivider) return null;
+function captureGridResize(obj,handle){
+  if(!obj.layoutGrid || obj.layoutRole!=='container') return null;
+  const panels=getLayoutGridMembers(obj.layoutGrid);
+  const at=(column,row)=>panels.find(p=>p.gridColumn===column&&p.gridRow===row);
+  const lt=at('left','top'),rt=at('right','top'),lb=at('left','bottom'),rb=at('right','bottom');
+  if(!lt||!rt||!lb||!rb)return null;
+  const columnAxis=(obj.gridColumn==='left'&&handle.includes('e'))||(obj.gridColumn==='right'&&handle.includes('w'));
+  const rowAxis=(obj.gridRow==='top'&&handle.includes('s'))||(obj.gridRow==='bottom'&&handle.includes('n'));
+  if(!columnAxis&&!rowAxis)return null;
   return {
-    left,right, leftX:left.x, rightEdge:right.x+right.w,
-    gap:right.x-(left.x+left.w),
-    leftMin:left.minW||320, rightMin:right.minW||320,
-    leftChildren:captureChildLayout(left), rightChildren:captureChildLayout(right)
+    panels:[lt,rt,lb,rb],lt,rt,lb,rb,columnAxis,rowAxis,
+    leftX:lt.x,rightEdge:rt.x+rt.w,topY:lt.y,bottomEdge:lb.y+lb.h,
+    columnGap:rt.x-(lt.x+lt.w),rowGap:lb.y-(lt.y+lt.h),
+    leftMin:Math.max(lt.minW||320,lb.minW||320),rightMin:Math.max(rt.minW||320,rb.minW||320),
+    topMin:Math.max(lt.minH||160,rt.minH||160),bottomMin:Math.max(lb.minH||160,rb.minH||160),
+    children:new Map([lt,rt,lb,rb].map(panel=>[panel,captureChildLayout(panel)]))
   };
 }
 
-function reflowContainerChildren(children,parent,nextBounds){
+function reflowContainerChildren(children,nextBounds){
   children.forEach(s=>{
     const item=s.item;
+    item.x=nextBounds.x+s.left;
+    item.y=nextBounds.y+s.top;
     if(s.mode==='inset'){
-      item.x=nextBounds.x+s.left;
-      item.y=nextBounds.y+s.top;
       item.w=Math.max(30,nextBounds.w-s.left-s.right);
       item.h=Math.max(20,nextBounds.h-s.top-s.bottom);
-    }else if(s.mode==='fixed'){
-      item.x=nextBounds.x+s.left;
-      item.y=nextBounds.y+s.top;
-    }else{
-      item.x=nextBounds.x+s.left;
-      item.y=nextBounds.y+s.top;
+    }else if(s.mode==='width'){
       item.w=Math.max(30,nextBounds.w-s.left-s.right);
+    }else if(s.mode==='height'){
+      item.h=Math.max(20,nextBounds.h-s.top-s.bottom);
+    }else if(s.mode==='bottom-fixed'){
+      item.y=nextBounds.y+nextBounds.h-s.bottom-item.h;
     }
   });
 }
 
-function resizePairedPanels(snapshot,dividerX){
-  const minDivider=snapshot.leftX+snapshot.leftMin;
-  const maxDivider=snapshot.rightEdge-snapshot.gap-snapshot.rightMin;
-  const divider=clamp(dividerX,minDivider,maxDivider);
-  const leftBounds={x:snapshot.leftX,y:snapshot.left.y,w:divider-snapshot.leftX,h:snapshot.left.h};
-  const rightX=divider+snapshot.gap;
-  const rightBounds={x:rightX,y:snapshot.right.y,w:snapshot.rightEdge-rightX,h:snapshot.right.h};
-  Object.assign(snapshot.left,leftBounds);
-  Object.assign(snapshot.right,rightBounds);
-  reflowContainerChildren(snapshot.leftChildren,snapshot.left,leftBounds);
-  reflowContainerChildren(snapshot.rightChildren,snapshot.right,rightBounds);
+function resizeGrid(snapshot,dividerX,dividerY){
+  const x=snapshot.columnAxis?clamp(dividerX,snapshot.leftX+snapshot.leftMin,snapshot.rightEdge-snapshot.columnGap-snapshot.rightMin):snapshot.lt.x+snapshot.lt.w;
+  const y=snapshot.rowAxis?clamp(dividerY,snapshot.topY+snapshot.topMin,snapshot.bottomEdge-snapshot.rowGap-snapshot.bottomMin):snapshot.lt.y+snapshot.lt.h;
+  const rightX=x+snapshot.columnGap,bottomY=y+snapshot.rowGap;
+  const bounds=new Map([
+    [snapshot.lt,{x:snapshot.leftX,y:snapshot.topY,w:x-snapshot.leftX,h:y-snapshot.topY}],
+    [snapshot.rt,{x:rightX,y:snapshot.topY,w:snapshot.rightEdge-rightX,h:y-snapshot.topY}],
+    [snapshot.lb,{x:snapshot.leftX,y:bottomY,w:x-snapshot.leftX,h:snapshot.bottomEdge-bottomY}],
+    [snapshot.rb,{x:rightX,y:bottomY,w:snapshot.rightEdge-rightX,h:snapshot.bottomEdge-bottomY}]
+  ]);
+  snapshot.panels.forEach(panel=>{
+    const next=bounds.get(panel);Object.assign(panel,next);
+    reflowContainerChildren(snapshot.children.get(panel),next);
+  });
 }
 
 function selectById(id,additive=false){
@@ -1884,7 +1889,7 @@ function onPointerDown(e){
     const cx=obj.x+obj.w/2, cy=obj.y+obj.h/2;
     action={type:'rotate',obj,cx,cy,scale};
   }else if(handle){
-    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale,paired:capturePairedResize(obj,handle)};
+    action={type:'resize',obj,handle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,scale,grid:captureGridResize(obj,handle)};
   }else{
     if(editingTextId===id && e.target.closest?.('.editable')) return;
     const members=state.elements.filter(item=>selectedIds.has(item.id) && !item.locked)
@@ -1910,9 +1915,10 @@ function onPointerMove(e){
     });
   }else if(action.type==='resize'){
     const dx=mx-action.startX, dy=my-action.startY;
-    if(action.paired){
-      const divider=action.obj===action.paired.left ? action.ox+action.ow+dx : action.ox+dx;
-      resizePairedPanels(action.paired,divider);
+    if(action.grid){
+      const dividerX=action.obj.gridColumn==='left'?action.ox+action.ow+dx:action.ox+dx;
+      const dividerY=action.obj.gridRow==='top'?action.oy+action.oh+dy:action.oy+dy;
+      resizeGrid(action.grid,dividerX,dividerY);
     }else{
       let x=action.ox,y=action.oy,w=action.ow,h=action.oh;
       if(action.handle.includes('e'))w=Math.max(30,action.ow+dx);
@@ -1939,10 +1945,8 @@ function onPointerUp(){
 function updateSelectedDom(){
   let items;
   if(action?.type==='drag') items=action.members.map(member=>member.item);
-  else if(action?.type==='resize' && action.paired){
-    items=[action.paired.left,action.paired.right,
-      ...action.paired.leftChildren.map(s=>s.item),
-      ...action.paired.rightChildren.map(s=>s.item)];
+  else if(action?.type==='resize' && action.grid){
+    items=[...action.grid.panels,...action.grid.panels.flatMap(panel=>action.grid.children.get(panel).map(s=>s.item))];
   }else items=selected?[selected]:[];
   [...new Set(items)].forEach(item=>{
     const el=stage.querySelector(`[data-id="${item.id}"]`);
@@ -2414,23 +2418,25 @@ function resetTemplate(){
   addCard({x:40,y:22,w:1520,h:106,z:2,bg:'linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)',radius:16,borderW:0});
   // dải viền vàng đồng mảnh phía dưới banner - tạo cảm giác "masthead" báo tài chính
   addCard({x:40,y:126,w:1520,h:3,z:3,bg:'linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)',radius:0,borderW:0});
-  // Header căn theo pixel thật: đáy nét SVG tại y≈106, baseline chữ chính tại y=100
+  // Header: đáy pixel hai icon và baseline hai text cùng nằm trên y=106
   // Cụm A — chart 48px: path thấp nhất y=20 + nửa stroke 0.8 trong viewBox 24
   addIcon({x:138,y:64.4,w:48,h:48,z:25,icon:'chart',color:'#e8c165',strokeWidth:1.6});
   addText({x:202,y:38,w:780,h:24,z:30,text:'DAILY MARKET BRIEF · BẢN TIN THỊ TRƯỜNG',fontSize:12,weight:800,color:'#e8c165',letterSpacing:1.6,lineHeight:1.25,verticalAlign:'middle'});
-  addText({x:201,y:55,w:780,h:55,z:30,text:'BẢN TIN CHỨNG KHOÁN HÀNG NGÀY',fontSize:34,weight:900,color:'#ffffff',letterSpacing:0.4,lineHeight:1.15,baselineY:100});
+  addText({x:201,y:55,w:780,h:61,z:30,text:'BẢN TIN CHỨNG KHOÁN HÀNG NGÀY',fontSize:34,weight:900,color:'#ffffff',letterSpacing:0.4,lineHeight:1.15,baselineY:106});
   // Cụm B — calendar 30px: path thấp nhất y=20 + nửa stroke 0.95 trong viewBox 24
   const today=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());
   addIcon({x:996,y:79.8,w:30,h:30,z:30,icon:'calendar',color:'#ffffff',strokeWidth:1.9});
-  addText({x:1036,y:64,w:425,h:46,z:30,text:`Cập nhật · ${today} · 08:15`,fontSize:25,weight:600,color:'#ffffff',lineHeight:1.15,baselineY:100});
+  addText({x:1036,y:64,w:425,h:52,z:30,text:`Cập nhật · ${today} · 08:15`,fontSize:25,weight:600,color:'#ffffff',lineHeight:1.15,baselineY:106});
 
-  // Main panels — hàng trên là cặp container responsive dùng chung divider
+  // Main panels — lưới responsive 2×2 dùng chung divider cột và hàng
   const overviewPanel=addCard({x:40,y:142,w:770,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(overviewPanel,{layoutGroup:'top-panels',layoutRole:'container',pairSide:'left',minW:620});
+  Object.assign(overviewPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'left',gridRow:'top',minW:620,minH:260});
   const newsPanel=addCard({x:830,y:142,w:730,h:388,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  Object.assign(newsPanel,{layoutGroup:'top-panels',layoutRole:'container',pairSide:'right',minW:420});
-  addCard({x:40,y:548,w:770,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
-  addCard({x:830,y:548,w:730,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  Object.assign(newsPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'right',gridRow:'top',minW:420,minH:260});
+  const contentPanel=addCard({x:40,y:548,w:770,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  Object.assign(contentPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'left',gridRow:'bottom',minW:620,minH:210});
+  const strategyPanel=addCard({x:830,y:548,w:730,h:276,z:2,bg:'#ffffff',radius:18,borderColor:'#d7e2ef',borderW:1});
+  Object.assign(strategyPanel,{layoutGrid:'main-grid',layoutRole:'container',gridColumn:'right',gridRow:'bottom',minW:420,minH:210});
 
   // Overview widget
   const overviewWidget=addMarketWidget({
@@ -2496,19 +2502,27 @@ function resetTemplate(){
   const newsTitle=addText({x:897,y:167,w:215,h:24,z:20,text:'CẬP NHẬT TIN TỨC',fontSize:20,weight:900,color:'#ffffff'});
   Object.assign(newsTitle,{parentId:newsPanel.id,resizeMode:'width'});
   const newsBody=addText({x:864,y:218,w:650,h:250,z:20,text:'• QUỐC TẾ — [Sự kiện có khả năng tác động trực tiếp]\n  Tác động dự kiến: [tích cực / trung tính / tiêu cực]\n\n• TRONG NƯỚC — [Chính sách, vĩ mô hoặc doanh nghiệp]\n  Nhóm đáng chú ý: [ngành / mã cổ phiếu]\n\n• LỊCH SỰ KIỆN — [Thời gian · sự kiện cần theo dõi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
-  Object.assign(newsBody,{parentId:newsPanel.id,resizeMode:'width'});
+  Object.assign(newsBody,{parentId:newsPanel.id,resizeMode:'inset'});
 
-  // Main content / blank box
-  addCard({x:60,y:564,w:236,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  addIcon({x:74,y:573,w:24,h:24,z:20,icon:'folder',color:'#ffffff',strokeWidth:1.9});
-  addText({x:104,y:573,w:182,h:24,z:20,text:'NỘI DUNG CHÍNH',fontSize:20,weight:900,color:'#ffffff'});
-  addText({x:74,y:622,w:700,h:142,z:20,text:'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.4});
+  // Main content — children của panel trái/dưới
+  const contentHeader=addCard({x:60,y:564,w:236,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
+  Object.assign(contentHeader,{parentId:contentPanel.id,resizeMode:'width'});
+  const contentIcon=addIcon({x:74,y:573,w:24,h:24,z:20,icon:'folder',color:'#ffffff',strokeWidth:1.9});
+  Object.assign(contentIcon,{parentId:contentPanel.id,resizeMode:'fixed'});
+  const contentTitle=addText({x:104,y:573,w:182,h:24,z:20,text:'NỘI DUNG CHÍNH',fontSize:20,weight:900,color:'#ffffff'});
+  Object.assign(contentTitle,{parentId:contentPanel.id,resizeMode:'width'});
+  const contentBody=addText({x:74,y:622,w:700,h:142,z:20,text:'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.4});
+  Object.assign(contentBody,{parentId:contentPanel.id,resizeMode:'inset'});
 
-  // Strategy box
-  addCard({x:850,y:564,w:430,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
-  addIcon({x:864,y:573,w:24,h:24,z:20,icon:'target',color:'#ffffff',strokeWidth:1.9});
-  addText({x:897,y:573,w:360,h:24,z:20,text:'NHẬN ĐỊNH VÀ CHIẾN LƯỢC',fontSize:20,weight:900,color:'#ffffff'});
-  addText({x:864,y:620,w:650,h:154,z:20,text:'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
+  // Strategy — children của panel phải/dưới
+  const strategyHeader=addCard({x:850,y:564,w:430,h:42,z:9,bg:'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',radius:10,borderW:0});
+  Object.assign(strategyHeader,{parentId:strategyPanel.id,resizeMode:'width'});
+  const strategyIcon=addIcon({x:864,y:573,w:24,h:24,z:20,icon:'target',color:'#ffffff',strokeWidth:1.9});
+  Object.assign(strategyIcon,{parentId:strategyPanel.id,resizeMode:'fixed'});
+  const strategyTitle=addText({x:897,y:573,w:360,h:24,z:20,text:'NHẬN ĐỊNH VÀ CHIẾN LƯỢC',fontSize:20,weight:900,color:'#ffffff'});
+  Object.assign(strategyTitle,{parentId:strategyPanel.id,resizeMode:'width'});
+  const strategyBody=addText({x:864,y:620,w:650,h:154,z:20,text:'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]',fontSize:16,weight:600,color:'#334e6f',lineHeight:1.42});
+  Object.assign(strategyBody,{parentId:strategyPanel.id,resizeMode:'inset'});
 
   addText({x:60,y:844,w:1480,h:18,z:20,text:'Nguồn: [Sở GDCK / FiinTrade / báo cáo doanh nghiệp] · Thời điểm dữ liệu: [hh:mm dd/mm/yyyy] · Nội dung chỉ mang tính tham khảo, không phải cam kết lợi nhuận.',fontSize:11,weight:600,color:'#70839a',align:'center'});
 
