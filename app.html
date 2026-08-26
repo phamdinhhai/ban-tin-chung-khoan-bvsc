@@ -2374,7 +2374,7 @@
       selectedIds.forEach(id => stage.querySelector(`[data-id="${id}"]`)?.classList.add('multi-selected'));
       if (selected) stage.querySelector(`[data-id="${selected.id}"]`)?.classList.add('selected');
       renderLayers();
-      syncInspector(false);
+      syncInspector(true);
     }
 
     function getLayoutContainers(obj) {
@@ -3170,43 +3170,39 @@
         cards: [
           {
             title: 'VNINDEX',
-            value: '1,668.53 tỷ đồng',
-            change: '-62.03',
-            percent: '-3.58%',
+            value: '1,791.41',
+            change: '+2.63',
+            percent: '+0.15%',
             stats: [
-              { label: 'Tổng giá trị', value: '15,469.06 tỷ đồng' },
-              { label: 'Khối lượng GD', value: '788,701,760' },
-              { label: 'Tham chiếu', value: '1782.12' },
-              { label: 'Khối lượng NN mua', value: '88,344,000' },
-              { label: 'Khối lượng NN bán', value: '96,184,032' }
+              { label: 'Khối lượng GD', value: '839,735,680' },
+              { label: 'Tham chiếu', value: '1788.78' },
+              { label: 'Khối lượng NN mua', value: '60,061,856' },
+              { label: 'Khối lượng NN bán', value: '52,900,280' }
             ]
           },
           {
             title: 'THANH KHOẢN',
-            value: '23,078 tỷ đồng',
-            change: '+33.00%',
-            percent: 'vs. TB20: 17,413 tỷ đồng',
+            value: '21,380.36 tỷ đồng',
+            change: '+10.33%',
+            percent: 'so với phiên liền trước',
             stats: [
-              { label: 'Giá trị khớp lệnh', value: '20,845 tỷ' },
-              { label: 'Thỏa thuận', value: '2,233 tỷ' },
-              { label: 'Số mã tăng', value: '157' },
-              { label: 'Số mã giảm', value: '64' },
-              { label: 'Số mã đứng giá', value: '141' },
+              { label: 'Số mã tăng', value: '93' },
+              { label: 'Số mã giảm', value: '225' },
+              { label: 'Số mã đứng giá', value: '58' },
               { label: 'Xu hướng', value: 'TÍCH CỰC' }
             ]
           },
           {
             title: 'KHỐI NGOẠI',
-            value: '-1,936.4 tỷ đồng',
-            change: 'BÁN RÒNG',
+            value: '+284.75 tỷ đồng',
+            change: 'MUA RÒNG',
             percent: 'trên HOSE',
             stats: [
-              { label: 'Mua ròng HNX', value: '+54 tỷ' },
-              { label: 'Mua ròng UPCOM', value: '+102 tỷ' },
-              { label: 'Bán ròng HOSE', value: '-1,936.4 tỷ' },
-              { label: 'Tập trung', value: 'bluechips' },
-              { label: 'Áp lực chính', value: 'ngân hàng / BĐS' },
-              { label: 'Xu hướng', value: 'TIÊU CỰC' }
+              { label: 'Mua ròng HNX', value: '+29.97 tỷ đồng' },
+              { label: 'Mua ròng UPCOM', value: '+12.52 tỷ đồng' },
+              { label: 'Tập trung', value: 'VIC, MCH, LPB' },
+              { label: 'Nhóm ngành chính', value: 'Bất động sản' },
+              { label: 'Xu hướng', value: 'TÍCH CỰC' }
             ]
           }
         ]
@@ -3230,7 +3226,7 @@
       Object.assign(contentIcon, { parentId: contentPanel.id, resizeMode: 'anchor-top-left' });
       const contentTitle = addText({ x: 104, y: 633, w: 182, h: 24, z: 20, text: 'NỘI DUNG CHÍNH', fontSize: 20, weight: 900, color: '#ffffff' });
       Object.assign(contentTitle, { parentId: contentPanel.id, resizeMode: 'stretch-width' });
-      const contentBody = addText({ x: 74, y: 682, w: 700, h: 182, z: 20, text: 'LUẬN ĐIỂM CHÍNH\n[1–2 câu kết luận ngắn: điều gì đang chi phối thị trường?]\n\nĐỘNG LỰC: [Thanh khoản / dòng tiền / nhóm dẫn dắt]\nRỦI RO: [Yếu tố có thể làm kịch bản thay đổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.4 });
+      const contentBody = addText({ x: 74, y: 682, w: 700, h: 182, z: 20, text: '– VNINDEX tăng 2,63 điểm (+0,15%), lên 1.791,41 điểm; trong khi HNX-Index giảm 0,54 điểm (−0,19%), xuống 282,65 điểm.\n\n– VIC, MCH và LPB là 3 mã tác động tích cực nhất lên VN-Index. Ở chiều ngược lại, HPG, GAS và BSR là 3 mã tác động tiêu cực nhất.\n\n– 3/11 nhóm ngành tăng điểm, cho thấy độ rộng thị trường vẫn khá yếu; Bất động sản (+1,81%) nhờ VIC và VHM.\n\n– Nhóm Tiêu dùng thiết yếu (+0,25%) tăng nhẹ, được hỗ trợ bởi MCH và DBC.', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.4 });
       Object.assign(contentBody, { parentId: contentPanel.id, resizeMode: 'stretch-both' });
 
       // Strategy — children của panel phải/dưới
@@ -3240,7 +3236,7 @@
       Object.assign(strategyIcon, { parentId: strategyPanel.id, resizeMode: 'anchor-top-left' });
       const strategyTitle = addText({ x: 897, y: 633, w: 360, h: 24, z: 20, text: 'NHẬN ĐỊNH VÀ CHIẾN LƯỢC', fontSize: 20, weight: 900, color: '#ffffff' });
       Object.assign(strategyTitle, { parentId: strategyPanel.id, resizeMode: 'stretch-width' });
-      const strategyBody = addText({ x: 864, y: 680, w: 650, h: 194, z: 20, text: 'KỊCH BẢN CƠ SỞ — [Điều kiện xác nhận]\n→ Hành động: [Tỷ trọng / vùng quan sát / nhóm ưu tiên]\n\nKỊCH BẢN RỦI RO — [Ngưỡng vô hiệu hoặc tín hiệu xấu]\n→ Hành động: [Quản trị vị thế / tránh mua đuổi]', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.42 });
+      const strategyBody = addText({ x: 864, y: 680, w: 650, h: 194, z: 20, text: '– Với tín hiệu giằng co và đà tăng chững lại quanh vùng cản 1.812 điểm, nhà đầu tư nên duy trì tâm lý thận trọng và hạn chế các quyết định mua đuổi giá cao.\n\n– Lực cầu tuy vẫn nâng đỡ tốt nhưng áp lực bán chốt lời đóng gia tăng khiến thị trường có thể cần thêm thời gian tích lũy để lấy lại đà bứt phá.\n\n– Chiến lược phù hợp: tiếp tục nắm giữ danh mục hiện tại, chỉ cân nhắc giải ngân mua mới hoặc gia tăng tỷ trọng khi VNINDEX bứt phá dứt khoát khỏi vùng kháng cự 1.815 điểm với sự xác nhận mạnh mẽ từ dòng tiền.', fontSize: 16, weight: 600, color: '#334e6f', lineHeight: 1.42 });
       Object.assign(strategyBody, { parentId: strategyPanel.id, resizeMode: 'stretch-both' });
 
       addText({ x: 60, y: 944, w: 1480, h: 18, z: 20, text: 'Nguồn: [Sở GDCK / FiinTrade / báo cáo doanh nghiệp] · Thời điểm dữ liệu: [hh:mm dd/mm/yyyy] · Nội dung chỉ mang tính tham khảo, không phải cam kết lợi nhuận.', fontSize: 11, weight: 600, color: '#70839a', align: 'center' });
