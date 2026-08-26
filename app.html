@@ -1027,7 +1027,7 @@
       }
     }
   </style>
-  <script>window.__INITIAL_PROJECT__ = null;</script>
+  <script id="initialProjectData" type="application/json">null</script>
 </head>
 
 <body>
@@ -3007,8 +3007,9 @@
     }
 
     function saveLocalProject() {
+      if (activeEditable?.isConnected) syncEditableToState(activeEditable);
       autoSaveLocal();
-      status('Đã lưu bản chỉnh sửa trên trình duyệt');
+      status('Đã lưu bản chỉnh sửa trên trình duyệt · Ctrl+S');
     }
 
     async function restoreLocalProject() {
@@ -3033,12 +3034,18 @@
 
     function exportEditableHTML() {
       try {
+        if (activeEditable?.isConnected) syncEditableToState(activeEditable);
         const payload = JSON.stringify(getProjectData()).replace(/</g, '\\u003c');
-        const source = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-        const output = source.replace(
-          'window.__INITIAL_PROJECT__ = null;',
-          'window.__INITIAL_PROJECT__ = ' + payload + ';'
-        );
+        const clone = document.documentElement.cloneNode(true);
+        let marker = clone.querySelector('#initialProjectData');
+        if (!marker) {
+          marker = document.createElement('script');
+          marker.id = 'initialProjectData';
+          marker.type = 'application/json';
+          clone.querySelector('head').appendChild(marker);
+        }
+        marker.textContent = payload;
+        const output = '<!DOCTYPE html>\n' + clone.outerHTML;
         const blob = new Blob([output], { type: 'text/html;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -3081,6 +3088,12 @@
       if (e.key === 'Escape' && editingTextId) {
         e.preventDefault();
         exitTextEditing({ rerender: true });
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveLocalProject();
         return;
       }
 
@@ -3249,9 +3262,23 @@
       pushHistory(true);
     }
 
+    function readInitialProject() {
+      const marker = document.getElementById('initialProjectData');
+      const raw = marker?.textContent?.trim();
+      if (raw && raw !== 'null') {
+        try {
+          return JSON.parse(raw);
+        } catch (err) {
+          console.warn('Cannot parse embedded project data', err);
+        }
+      }
+      return window.__INITIAL_PROJECT__ || null;
+    }
+
     async function initApp() {
-      if (window.__INITIAL_PROJECT__) {
-        await loadProjectData(window.__INITIAL_PROJECT__);
+      const initialProject = readInitialProject();
+      if (initialProject) {
+        await loadProjectData(initialProject);
         status('Đã mở bản HTML đã lưu');
         return;
       }
