@@ -15,8 +15,15 @@ Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duy
 6. Nhấn **+ Ảnh** để đặt ảnh tự do trực tiếp lên trang; ảnh mới giữ đúng tỷ lệ và không bị crop.
 7. Với ảnh tự do: kéo góc để phóng/thu đúng tỷ lệ; giữ `Shift` khi kéo góc hoặc tắt **Khóa tỷ lệ** để kéo dãn.
 8. Kéo nút vàng để xoay; dùng panel phải để lật ngang, lật dọc, khôi phục tỷ lệ hoặc kích thước gốc.
-9. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
-10. Nhấn **Xuất PNG** khi hoàn tất.
+9. Chọn ảnh rồi bấm **Cắt ảnh**, double-click ảnh có nội dung, hoặc chuột phải và chọn **Crop hình**.
+10. Chuột phải trên ảnh cũng mở nhanh **Lật ngang**, **Lật dọc**, **Xoay 90°** và **Tạo/Bỏ stroke**.
+11. Trong crop, kéo một trong 8 tay nắm ở 4 cạnh và 4 góc để cắt đúng phần ảnh ở mép tương ứng; cạnh đối diện được giữ nguyên.
+12. Kéo bên trong ảnh để đổi vùng nguồn đang hiển thị; con lăn/slider zoom là thao tác độc lập. Có thể chọn tỷ lệ Tự do, 1:1, 4:3, 16:9 hoặc 9:16.
+13. Click ra ngoài ảnh hoặc nhấn `Ctrl+S`/`Cmd+S` sẽ tự **Áp dụng** crop, thoát chế độ crop và lưu thay đổi; ảnh có thể thao tác tiếp ngay.
+14. Bấm **Áp dụng**/`Enter` để lưu thủ công; **Hủy**/`Escape` để phục hồi; **Đặt lại crop** để hiển thị lại toàn bộ ảnh gốc.
+15. Crop không ghi đè ảnh gốc; vùng ảnh nguồn và khung hiển thị được lưu trong IndexedDB, JSON và HTML.
+16. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
+17. Nhấn **Xuất PNG** khi hoàn tất; nếu đang crop, thao tác hiện tại được tự Áp dụng trước khi xuất.
 
 ## Báo cáo chiến lược
 

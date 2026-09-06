@@ -936,6 +936,28 @@
       display: block
     }
 
+    .element.is-cropping { cursor: grab; }
+    .element.is-cropping:active { cursor: grabbing; }
+    .element.is-cropping .handle,
+    .element.is-cropping .handle-line { display: none !important; }
+    .crop-overlay { position:absolute; inset:0; z-index:90; pointer-events:none; border:3px solid #e5bd66; background:linear-gradient(90deg,transparent 33%,#ffffff88 33%,#ffffff88 33.5%,transparent 33.5%,transparent 66%,#ffffff88 66%,#ffffff88 66.5%,transparent 66.5%),linear-gradient(transparent 33%,#ffffff88 33%,#ffffff88 33.5%,transparent 33.5%,transparent 66%,#ffffff88 66%,#ffffff88 66.5%,transparent 66.5%); }
+    .crop-handle { position:absolute; width:18px; height:18px; border:2px solid #fff; border-radius:5px; background:#e5bd66; box-shadow:0 2px 8px #02081799; pointer-events:auto; touch-action:none; user-select:none; }
+    .crop-handle.nw{left:-10px;top:-10px;cursor:nwse-resize}.crop-handle.ne{right:-10px;top:-10px;cursor:nesw-resize}.crop-handle.sw{left:-10px;bottom:-10px;cursor:nesw-resize}.crop-handle.se{right:-10px;bottom:-10px;cursor:nwse-resize}
+    .crop-handle.n{left:50%;top:-10px;transform:translateX(-50%);width:34px;cursor:ns-resize}.crop-handle.s{left:50%;bottom:-10px;transform:translateX(-50%);width:34px;cursor:ns-resize}.crop-handle.w{left:-10px;top:50%;transform:translateY(-50%);height:34px;cursor:ew-resize}.crop-handle.e{right:-10px;top:50%;transform:translateY(-50%);height:34px;cursor:ew-resize}
+
+    .image-context-menu {
+      position: fixed; z-index: 10000; display: none; width: 218px; padding: 7px;
+      border: 1px solid rgba(229,189,102,.34); border-radius: 14px;
+      background: rgba(9,18,34,.96); color: #f8fafc;
+      box-shadow: 0 20px 55px rgba(2,8,23,.5); backdrop-filter: blur(18px);
+    }
+    .image-context-menu.show { display: grid; gap: 3px; animation: contextMenuIn .14s ease-out; }
+    .image-context-menu button { display:flex; align-items:center; gap:10px; width:100%; padding:9px 10px; border:0; border-radius:9px; background:transparent; color:inherit; font:700 12px 'Be Vietnam Pro',sans-serif; text-align:left; cursor:pointer; }
+    .image-context-menu button:hover,.image-context-menu button:focus-visible { background:rgba(229,189,102,.14); color:#f5d58d; outline:none; }
+    .image-context-menu .menu-icon { width:20px; color:#e5bd66; text-align:center; font-size:15px; }
+    .image-context-menu .menu-divider { height:1px; margin:4px 5px; background:rgba(148,163,184,.18); }
+    @keyframes contextMenuIn { from { opacity:0; transform:translateY(-5px) scale(.98); } to { opacity:1; transform:none; } }
+
     .layer-list {
       display: flex;
       flex-direction: column;
@@ -1338,6 +1360,15 @@
     </div>
   </main>
   <div id="mobileBackdrop" class="mobile-backdrop" aria-hidden="true" onclick="closeMobileDrawers()"></div>
+  <div id="imageContextMenu" class="image-context-menu" role="menu" aria-label="Thao tác hình ảnh">
+    <button id="contextCropImage" type="button" role="menuitem" onclick="runImageContextAction('crop')"><span class="menu-icon">⌗</span><span>Crop hình</span></button>
+    <div class="menu-divider"></div>
+    <button id="contextFlipHorizontal" type="button" role="menuitem" onclick="runImageContextAction('flip-x')"><span class="menu-icon">↔</span><span>Lật ngang</span></button>
+    <button id="contextFlipVertical" type="button" role="menuitem" onclick="runImageContextAction('flip-y')"><span class="menu-icon">↕</span><span>Lật dọc</span></button>
+    <button id="contextRotate90" type="button" role="menuitem" onclick="runImageContextAction('rotate-90')"><span class="menu-icon">↻</span><span>Xoay 90°</span></button>
+    <div class="menu-divider"></div>
+    <button id="contextToggleStroke" type="button" role="menuitem" onclick="runImageContextAction('stroke')"><span class="menu-icon">▣</span><span id="contextStrokeLabel">Tạo stroke</span></button>
+  </div>
   <div class="workspace-actions" aria-label="Điều khiển không gian làm việc">
     <button id="toggleLeftSidebar" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ"
       aria-controls="leftSidebar" aria-expanded="false">☰ Công cụ</button>
@@ -1630,6 +1661,14 @@
               <button id="naturalImageSizeButton" class="btn" onclick="setSelectedImageNaturalSize()">Kích thước gốc</button>
             </div>
             <button id="resetImageTransformButton" class="btn full" style="margin-top:7px" onclick="resetSelectedImageTransform()">Đặt lại xoay và lật</button>
+            <button id="cropImageButton" class="btn full" style="margin-top:7px" onclick="startImageCrop()">Cắt ảnh</button>
+            <div id="cropControls" style="display:none;margin-top:8px">
+              <label>Tỷ lệ crop<select id="cropAspectSelect" onchange="applyCropAspect(this.value)"><option value="free">Tự do</option><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="16:9">16:9</option><option value="9:16">9:16</option></select></label>
+              <label>Thu phóng <span id="cropZoomValue">100%</span><input id="cropZoom" type="range" min="100" max="400" value="100" oninput="setCropZoom(this.value)"></label>
+              <div class="row"><button class="btn primary" onclick="applyImageCrop()">Áp dụng</button><button class="btn" onclick="cancelImageCrop()">Hủy</button></div>
+              <button class="btn full" style="margin-top:7px" onclick="resetImageCrop()">Đặt lại crop</button>
+            </div>
+            <button id="removeCropButton" class="btn full" style="display:none;margin-top:7px" onclick="removeImageCrop()">Bỏ crop</button>
             <div id="imageTransformHint" class="hint" style="margin-top:8px">Kéo góc để phóng/thu đúng tỷ lệ. Giữ Shift khi kéo góc để kéo dãn tự do.</div>
           </div>
 
@@ -1866,6 +1905,8 @@
     let selectedIds = new Set();
     let state = { elements: [], nextId: 1, customFonts: [], defaultFont: "'Be Vietnam Pro'" };
     let action = null;
+    let cropSession = null;
+    let contextImageId = null;
     let imageTarget = null;
     let historyStack = [];
     let redoStack = [];
@@ -2769,6 +2810,54 @@
       render(); selectById(selected.id); pushHistory();
     }
 
+    function runImageContextAction(command) {
+      const item=state.elements.find(o=>o.id===contextImageId&&o.type==='image'); closeImageContextMenu();
+      if(!item)return; selected=item; selectedIds=new Set([item.id]);
+      if(command==='crop'){startImageCrop();return;}
+      if(command==='flip-x') item.flipX=!item.flipX;
+      else if(command==='flip-y') item.flipY=!item.flipY;
+      else if(command==='rotate-90') item.rot=((Number(item.rot)||0)+90)%360;
+      else if(command==='stroke'){const hasStroke=(Number(item.borderW)||0)>0;item.borderW=hasStroke?0:2;if(!hasStroke&&!item.borderColor)item.borderColor='#e5bd66';}
+      render();selectById(item.id);pushHistory();
+    }
+    function closeImageContextMenu(){imageContextMenu.classList.remove('show');imageContextMenu.setAttribute('aria-hidden','true');contextImageId=null;}
+    function openImageContextMenu(event,item){
+      event.preventDefault();event.stopPropagation();if(cropSession&&cropSession.id!==item.id)cancelImageCrop();
+      selected=item;selectedIds=new Set([item.id]);contextImageId=item.id;render();selectById(item.id);
+      contextStrokeLabel.textContent=(Number(item.borderW)||0)>0?'Bỏ stroke':'Tạo stroke';
+      imageContextMenu.classList.add('show');imageContextMenu.setAttribute('aria-hidden','false');
+      const rect=imageContextMenu.getBoundingClientRect(),pad=10;
+      imageContextMenu.style.left=Math.max(pad,Math.min(event.clientX,window.innerWidth-rect.width-pad))+'px';
+      imageContextMenu.style.top=Math.max(pad,Math.min(event.clientY,window.innerHeight-rect.height-pad))+'px';
+      contextCropImage.focus({preventScroll:true});
+    }
+
+    function normalizedCrop(item) {
+      const c=item.crop&&typeof item.crop==='object'?item.crop:{x:0,y:0,width:1,height:1};
+      const width=clamp(Number(c.width)||1,.01,1),height=clamp(Number(c.height)||1,.01,1);
+      return {x:clamp(Number(c.x)||0,0,1-width),y:clamp(Number(c.y)||0,0,1-height),width,height};
+    }
+    function startImageCrop() {
+      if (!selected || selected.type !== 'image' || !selected.src) return;
+      if(cropSession?.id===selected.id)return;
+      selected.crop=normalizedCrop(selected);
+      cropSession={id:selected.id,snapshot:JSON.stringify({x:selected.x,y:selected.y,w:selected.w,h:selected.h,crop:selected.crop,cropEnabled:selected.cropEnabled,cropAspect:selected.cropAspect})};
+      selected.cropEnabled=true;selected.cropAspect=selected.cropAspect||'free';render();selectById(selected.id);
+    }
+    function applyImageCrop(){if(!cropSession)return;cropSession=null;render();pushHistory();}
+    function cancelImageCrop(){if(!cropSession)return;const o=state.elements.find(x=>x.id===cropSession.id);if(o)Object.assign(o,JSON.parse(cropSession.snapshot));cropSession=null;render();if(o)selectById(o.id);}
+    function resetImageCrop(){if(!selected)return;selected.crop={x:0,y:0,width:1,height:1};selected.cropEnabled=true;selected.cropAspect='free';render();selectById(selected.id);}
+    function removeImageCrop(){if(!selected)return;selected.crop={x:0,y:0,width:1,height:1};selected.cropEnabled=false;selected.cropAspect='free';cropSession=null;render();selectById(selected.id);pushHistory();}
+    function setCropZoom(v){
+      if(!selected||!cropSession)return;const old=normalizedCrop(selected),zoom=clamp(+v/100,1,4),nw=1/zoom,nh=1/zoom,cx=old.x+old.width/2,cy=old.y+old.height/2;
+      selected.crop={x:clamp(cx-nw/2,0,1-nw),y:clamp(cy-nh/2,0,1-nh),width:nw,height:nh};cropZoomValue.textContent=Math.round(zoom*100)+'%';render();selectById(selected.id);
+    }
+    function applyCropAspect(value){
+      if(!selected||!cropSession)return;selected.cropAspect=value;const ratios={'1:1':1,'4:3':4/3,'16:9':16/9,'9:16':9/16};if(!ratios[value])return;
+      const bottom=selected.y+selected.h,targetH=Math.max(20,selected.w/ratios[value]),delta=selected.h-targetH,c=normalizedCrop(selected),fraction=delta/selected.h;
+      selected.y=bottom-targetH;selected.h=targetH;selected.crop={x:c.x,y:clamp(c.y+c.height*fraction,0,c.y+c.height-.01),width:c.width,height:Math.max(.01,c.height*(1-fraction))};render();selectById(selected.id);
+    }
+
     function setSelectedImageNaturalSize() {
       if (!selected || selected.type !== 'image' || !selected.naturalW || !selected.naturalH) return;
       const size = fitNaturalImageSize(selected.naturalW, selected.naturalH);
@@ -2863,18 +2952,26 @@
           el.classList.toggle('free-image', mode === 'free');
           el.style.background = mode === 'free' ? 'transparent' : (o.bg || '#eef2f7');
           el.style.borderRadius = (o.radius || 0) + 'px';
-          el.style.border = mode === 'free' ? '0 solid transparent' : (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
+          el.style.border = (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
           el.style.overflow = 'visible';
+          if (cropSession?.id === o.id) el.classList.add('is-cropping');
           if (o.src) {
+            const viewport = document.createElement('div');
+            viewport.className = 'image-crop-viewport';
+            viewport.style.cssText = `position:absolute;inset:0;overflow:${o.cropEnabled ? 'hidden' : 'visible'};border-radius:${mode === 'free' ? 0 : (o.radius || 0)}px;`;
             const img = document.createElement('img');
             img.src = o.src; img.alt = o.filename || o.slotLabel || 'Ảnh báo cáo';
             img.draggable = false;
-            img.style.width = '100%'; img.style.height = '100%'; img.style.display = 'block';
-            img.style.objectFit = mode === 'free' ? 'fill' : (o.fit || 'cover');
+            const c=o.cropEnabled?normalizedCrop(o):{x:0,y:0,width:1,height:1};
+            img.style.width=(o.w/c.width)+'px';img.style.height=(o.h/c.height)+'px';img.style.display='block';
+            img.style.position='absolute';img.style.left=(-c.x*o.w/c.width)+'px';img.style.top=(-c.y*o.h/c.height)+'px';
+            img.style.objectFit=mode==='free'?'fill':(o.fit||'cover');
             img.style.borderRadius = mode === 'free' ? '0' : (o.radius || 0) + 'px';
             img.style.transform = imageContentTransform(o); img.style.transformOrigin = 'center';
             img.style.pointerEvents = 'none';
-            el.appendChild(img);
+            viewport.appendChild(img);
+            el.appendChild(viewport);
+            if (cropSession?.id === o.id) { const grid=document.createElement('div'); grid.dataset.editorOnly='true'; grid.className='crop-overlay'; ['nw','n','ne','e','se','s','sw','w'].forEach(h=>{const handle=document.createElement('div');handle.className='crop-handle '+h;handle.dataset.cropHandle=h;grid.appendChild(handle);}); el.appendChild(grid); }
           } else {
             el.classList.add('empty-slot');
             const empty = document.createElement('div');
@@ -2904,12 +3001,17 @@
         const rot = document.createElement('div'); rot.className = 'handle rot'; rot.dataset.handle = 'rot'; el.appendChild(rot);
 
         el.addEventListener('pointerdown', onPointerDown);
+        if(o.type==='image') el.addEventListener('contextmenu', event=>openImageContextMenu(event,o));
+        el.addEventListener('wheel', event => {
+          if (cropSession?.id !== o.id) return;
+          event.preventDefault(); event.stopPropagation();
+          const c=normalizedCrop(o),zoom=clamp(1/c.width+(event.deltaY<0?.08:-.08),1,4);setCropZoom(zoom*100);
+        }, { passive:false });
         el.addEventListener('dblclick', event => {
           if (o.locked) return;
           if (o.type === 'image') {
-            if ((o.imageMode || 'frame') !== 'frame') return;
-            event.preventDefault(); event.stopPropagation();
-            selected = o; selectedIds = new Set([o.id]); replaceSelectedImage();
+            if (o.src) { event.preventDefault(); event.stopPropagation(); selected=o; selectedIds=new Set([o.id]); startImageCrop(); return; }
+            event.preventDefault(); event.stopPropagation(); selected = o; selectedIds = new Set([o.id]); replaceSelectedImage();
           } else if (o.type === 'indexTable') {
             const cell = event.target.closest('[data-table-title],[data-table-row]');
             if (!cell) return;
@@ -3117,6 +3219,12 @@
       }
       selected = obj;
       if (obj.locked) return;
+      const cropHandle=e.target.dataset.cropHandle;
+      if(cropSession?.id===id&&(cropHandle||!e.target.dataset.handle)){
+        const rect=stage.getBoundingClientRect(),scale=rect.width/stage.offsetWidth,target=cropHandle?e.target:e.currentTarget,c=normalizedCrop(obj);
+        action={type:cropHandle?'crop-resize':'crop-pan',obj,handle:cropHandle,startX:e.clientX/scale,startY:e.clientY/scale,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,crop:{...c},scale,pointerId:e.pointerId,captureTarget:target,pendingEvent:null,raf:0};
+        target.setPointerCapture?.(e.pointerId);target.addEventListener('pointermove',onPointerMove);target.addEventListener('pointerup',onPointerUp,{once:true});target.addEventListener('pointercancel',onPointerCancel,{once:true});e.preventDefault();e.stopPropagation();return;
+      }
 
       const handle = e.target.dataset.handle;
       const rect = stage.getBoundingClientRect();
@@ -3142,20 +3250,20 @@
 
     function onPointerMove(e) {
       if (!action) return;
+      if(action.type==='crop-resize'||action.type==='crop-pan'){
+        action.pendingEvent=e;
+        if(!action.raf)action.raf=requestAnimationFrame(()=>{if(!action)return;action.raf=0;const evt=action.pendingEvent;action.pendingEvent=null;updateCropGesture(evt);});
+        return;
+      }
       const { obj, scale } = action;
       const mx = e.clientX / scale, my = e.clientY / scale;
-
       if (action.type === 'drag') {
         const dx = mx - action.startX, dy = my - action.startY;
-        action.members.forEach(({ item, ox, oy }) => {
-          item.x = Math.round(ox + dx);
-          item.y = Math.round(oy + dy);
-        });
+        action.members.forEach(({ item, ox, oy }) => {item.x = Math.round(ox + dx);item.y = Math.round(oy + dy);});
       } else if (action.type === 'resize') {
         const dx = mx - action.startX, dy = my - action.startY;
-        if (action.neighbors) {
-          resizeWithNeighbors(action.neighbors, dx, dy);
-        } else {
+        if (action.neighbors) resizeWithNeighbors(action.neighbors, dx, dy);
+        else {
           let x = action.ox, y = action.oy, w = action.ow, h = action.oh;
           const proportional = obj.type === 'image' && (obj.imageMode || 'frame') === 'free' && obj.lockAspect !== false && !e.shiftKey && action.handle.length === 2;
           if (proportional) {
@@ -3163,48 +3271,56 @@
             const widthCandidate = action.handle.includes('e') ? action.ow + dx : action.ow - dx;
             const heightCandidate = action.handle.includes('s') ? action.oh + dy : action.oh - dy;
             const widthFromHeight = heightCandidate * ratio;
-            w = Math.max(30, Math.abs(widthCandidate - action.ow) >= Math.abs(widthFromHeight - action.ow) ? widthCandidate : widthFromHeight);
-            h = Math.max(20, w / ratio);
-            if (action.handle.includes('w')) x = action.ox + action.ow - w;
-            if (action.handle.includes('n')) y = action.oy + action.oh - h;
+            w = Math.max(30, Math.abs(widthCandidate - action.ow) >= Math.abs(widthFromHeight - action.ow) ? widthCandidate : widthFromHeight);h = Math.max(20, w / ratio);
+            if (action.handle.includes('w')) x = action.ox + action.ow - w;if (action.handle.includes('n')) y = action.oy + action.oh - h;
           } else {
-            if (action.handle.includes('e')) w = Math.max(30, action.ow + dx);
-            if (action.handle.includes('s')) h = Math.max(20, action.oh + dy);
+            if (action.handle.includes('e')) w = Math.max(30, action.ow + dx);if (action.handle.includes('s')) h = Math.max(20, action.oh + dy);
             if (action.handle.includes('w')) { w = Math.max(30, action.ow - dx); x = action.ox + (action.ow - w); }
             if (action.handle.includes('n')) { h = Math.max(20, action.oh - dy); y = action.oy + (action.oh - h); }
           }
           Object.assign(obj, { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
         }
-      } else if (action.type === 'rotate') {
-        const angle = Math.atan2(my - action.cy, mx - action.cx) * 180 / Math.PI + 90;
-        obj.rot = Math.round(angle);
+      } else if (action.type === 'rotate') obj.rot = Math.round(Math.atan2(my-action.cy,mx-action.cx)*180/Math.PI+90);
+      updateSelectedDom();syncInspector(false);
+    }
+
+    function updateCropGesture(e){
+      if(!action||!e)return;const {obj,scale}=action,mx=e.clientX/scale,my=e.clientY/scale,c=action.crop;
+      if(action.type==='crop-resize'){
+        const dx=mx-action.startX,dy=my-action.startY,h=action.handle,minW=30,minH=20;
+        const fx=clamp(dx/action.ow,-c.x/c.width,(action.ow-minW)/action.ow),fy=clamp(dy/action.oh,-c.y/c.height,(action.oh-minH)/action.oh);
+        let x=action.ox,y=action.oy,w=action.ow,ht=action.oh,n={...c};
+        if(h.includes('w')){x=action.ox+action.ow*fx;w=action.ow*(1-fx);n.x=c.x+c.width*fx;n.width=c.width*(1-fx);}
+        if(h.includes('e')){const f=clamp(dx/action.ow,(minW-action.ow)/action.ow,(1-c.x-c.width)/c.width);w=action.ow*(1+f);n.width=c.width*(1+f);}
+        if(h.includes('n')){y=action.oy+action.oh*fy;ht=action.oh*(1-fy);n.y=c.y+c.height*fy;n.height=c.height*(1-fy);}
+        if(h.includes('s')){const f=clamp(dy/action.oh,(minH-action.oh)/action.oh,(1-c.y-c.height)/c.height);ht=action.oh*(1+f);n.height=c.height*(1+f);}
+        Object.assign(obj,{x,y,w,h:ht,crop:normalizedCrop({crop:n})});
+      }else{
+        const dx=(mx-action.startX)/action.ow*c.width,dy=(my-action.startY)/action.oh*c.height;
+        obj.crop={x:clamp(c.x-dx,0,1-c.width),y:clamp(c.y-dy,0,1-c.height),width:c.width,height:c.height};
       }
-      updateSelectedDom();
-      syncInspector(false);
+      updateCropDom(obj);syncInspector(false);
+    }
+
+    function updateCropDom(item){
+      const el=stage.querySelector(`[data-id="${item.id}"]`);if(!el)return;el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=item.w+'px';el.style.height=item.h+'px';
+      const img=el.querySelector('.image-crop-viewport img'),c=normalizedCrop(item);if(img){img.style.width=(item.w/c.width)+'px';img.style.height=(item.h/c.height)+'px';img.style.left=(-c.x*item.w/c.width)+'px';img.style.top=(-c.y*item.h/c.height)+'px';}
     }
 
     function onPointerUp() {
-      action = null;
-      window.removeEventListener('pointermove', onPointerMove);
-      renderLayers();
-      pushHistory();
+      const completed=action;if(!completed)return;
+      if(completed.raf){cancelAnimationFrame(completed.raf);completed.raf=0;if(completed.pendingEvent)updateCropGesture(completed.pendingEvent);}
+      completed.captureTarget?.releasePointerCapture?.(completed.pointerId);completed.captureTarget?.removeEventListener('pointermove',onPointerMove);action=null;render();renderLayers();
+      if(completed.type!=='crop-pan'&&completed.type!=='crop-resize')pushHistory();
     }
+    function onPointerCancel(){if(!action)return;const o=action.obj;Object.assign(o,{x:action.ox,y:action.oy,w:action.ow,h:action.oh,crop:action.crop});onPointerUp();}
 
     function updateSelectedDom() {
       let items;
       if (action?.type === 'drag') items = action.members.map(member => member.item);
-      else if (action?.type === 'resize' && action.neighbors) {
-        items = action.neighbors.touched.flatMap(panel => [
-          panel, ...action.neighbors.snapshots.get(panel).children.map(s => s.item)
-        ]);
-      } else items = selected ? [selected] : [];
-      [...new Set(items)].forEach(item => {
-        const el = stage.querySelector(`[data-id="${item.id}"]`);
-        if (!el) return;
-        el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
-        el.style.width = item.w + 'px'; el.style.height = item.h + 'px';
-        el.style.transform = elementTransform(item);
-      });
+      else if (action?.type === 'resize' && action.neighbors) items = action.neighbors.touched.flatMap(panel => [panel, ...action.neighbors.snapshots.get(panel).children.map(s => s.item)]);
+      else items = selected ? [selected] : [];
+      [...new Set(items)].forEach(item => {const el=stage.querySelector(`[data-id="${item.id}"]`);if(!el)return;el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=item.w+'px';el.style.height=item.h+'px';el.style.transform=elementTransform(item);});
     }
 
     stage.addEventListener('pointerdown', e => {
@@ -3320,6 +3436,8 @@
           clearImageButton.textContent = mode === 'free' ? 'Xóa ảnh' : 'Xóa ảnh trong khung';
           flipImageXButton.setAttribute('aria-pressed', String(!!selected.flipX));
           flipImageYButton.setAttribute('aria-pressed', String(!!selected.flipY));
+          const cropping=cropSession?.id===selected.id; cropControls.style.display=cropping?'block':'none'; cropImageButton.style.display=cropping?'none':'block'; removeCropButton.style.display=!cropping&&selected.cropEnabled?'block':'none';
+          if(cropping){cropZoom.value=Math.round((selected.cropScale||1)*100);cropZoomValue.textContent=cropZoom.value+'%';cropAspectSelect.value=selected.cropAspect||'free';}
         }
       }
     }
@@ -3533,6 +3651,7 @@
     }
 
     async function exportPNG() {
+      if(cropSession) applyImageCrop();
       const exportButton = document.getElementById('exportPngButton');
       const selectedId = selected?.id || null;
       const toolbarWasVisible = floatToolbar.classList.contains('show');
@@ -3555,6 +3674,7 @@
         clone.style.transform = 'none'; clone.style.transformOrigin = 'top left';
         clone.style.width = stage.offsetWidth + 'px'; clone.style.height = stage.offsetHeight + 'px';
         clone.style.background = solidBackground;
+        clone.querySelectorAll('[data-editor-only]').forEach(el => el.remove());
         clone.querySelectorAll('.selected,.multi-selected').forEach(el => el.classList.remove('selected', 'multi-selected'));
         exportHost.appendChild(clone); document.body.appendChild(exportHost);
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -3628,6 +3748,10 @@
           item.imageMode = item.imageMode === 'free' ? 'free' : 'frame';
           item.flipX = !!item.flipX; item.flipY = !!item.flipY;
           item.lockAspect = item.lockAspect !== false;
+          item.cropEnabled=!!item.cropEnabled;
+          if(!item.crop&&item.cropEnabled){const scale=clamp(Number(item.cropScale)||1,1,4),w=1/scale,h=1/scale;item.crop={x:clamp(.5-w/2,0,1-w),y:clamp(.5-h/2,0,1-h),width:w,height:h};}
+          item.crop=normalizedCrop(item);item.cropAspect=['free','1:1','4:3','16:9','9:16'].includes(item.cropAspect)?item.cropAspect:'free';
+          delete item.cropX;delete item.cropY;delete item.cropScale;delete item.cropBaseW;delete item.cropBaseH;
           if (!Number.isFinite(item.aspectRatio) && item.naturalW && item.naturalH) item.aspectRatio = item.naturalW / item.naturalH;
         }
       });
@@ -3671,7 +3795,7 @@
       if (!state.nextId) state.nextId = (state.elements?.length || 0) + 1;
       const migratedHeight = activeTemplateType === 'morning-brief' ? migrateResponsiveLayoutMetadata(data.canvas?.h) : (data.canvas?.h || TEMPLATE_META[activeTemplateType].height);
       if (data.canvas) { canvasW.value = data.canvas.w || 1600; canvasH.value = migratedHeight; canvasBg.value = data.canvas.bg || TEMPLATE_META[activeTemplateType].bg; zoomInput.value = data.canvas.zoom || zoomInput.value || 70; }
-      selected = null; selectedIds.clear(); if (!state.customFonts) state.customFonts = []; if (!state.defaultFont) state.defaultFont = "'Be Vietnam Pro'";
+      selected = null; selectedIds.clear(); cropSession=null; if (!state.customFonts) state.customFonts = []; if (!state.defaultFont) state.defaultFont = "'Be Vietnam Pro'";
       await restoreCustomFonts(); document.getElementById('globalFont').value = state.defaultFont;
       applyCanvas(); applyZoom(); render(); historyStack = []; redoStack = []; pushHistory(true);
     }
@@ -3690,7 +3814,7 @@
       pendingPersistence = writeSavedProject(type, data); await pendingPersistence;
     }
     async function saveLocalProject() {
-      try { if (activeEditable?.isConnected) syncEditableToState(activeEditable); await flushLocalSave(); updateTemplateBadges(); status('Đã lưu đầy đủ text, ảnh và bố cục · Ctrl+S'); }
+      try { if(cropSession) applyImageCrop(); if (activeEditable?.isConnected) syncEditableToState(activeEditable); await flushLocalSave(); updateTemplateBadges(); status('Đã áp dụng thay đổi và lưu đầy đủ text, ảnh, bố cục · Ctrl+S'); }
       catch (err) { console.error(err); alert('Không thể lưu bản sửa: ' + err.message); }
     }
     async function restoreLocalProject() {
@@ -3701,9 +3825,11 @@
 
     function exportEditableHTML() {
       try {
+        if(cropSession) applyImageCrop();
         if (activeEditable?.isConnected) syncEditableToState(activeEditable);
         const payload = safeProjectJSON(getProjectData());
         const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('[data-editor-only]').forEach(el => el.remove());
         clone.querySelectorAll('.selected,.multi-selected,.show').forEach(el => el.classList.remove('selected','multi-selected','show'));
         let marker = clone.querySelector('#initialProjectData');
         if (!marker) { marker = document.createElement('script'); marker.id = 'initialProjectData'; marker.type = 'application/json'; clone.querySelector('head').appendChild(marker); }
@@ -3713,7 +3839,7 @@
       } catch (err) { alert('Không thể xuất HTML: ' + err.message); }
     }
     function saveProject() {
-      try { if (activeEditable?.isConnected) syncEditableToState(activeEditable); const data = validateProjectData(getProjectData()); downloadBlob(new Blob([safeProjectJSON(data, true)], { type: 'application/json' }), `${TEMPLATE_META[activeTemplateType].filePrefix}-project.json`); status('Đã tải project JSON'); }
+      try { if(cropSession) applyImageCrop(); if (activeEditable?.isConnected) syncEditableToState(activeEditable); const data = validateProjectData(getProjectData()); downloadBlob(new Blob([safeProjectJSON(data, true)], { type: 'application/json' }), `${TEMPLATE_META[activeTemplateType].filePrefix}-project.json`); status('Đã tải project JSON'); }
       catch (err) { alert('Không thể lưu JSON: ' + err.message); }
     }
     document.getElementById('loadProjectInput').addEventListener('change', e => {
@@ -3724,19 +3850,36 @@
       r.readAsText(f);
     });
 
+    document.addEventListener('pointerdown', e => {
+      if(cropSession){
+        const cropElement=e.target.closest?.(`.element[data-id="${cropSession.id}"]`);
+        const cropControl=e.target.closest?.('#cropControls,#imageContextMenu');
+        if(!cropElement&&!cropControl) applyImageCrop();
+      }
+      if(!e.target.closest('#imageContextMenu')) closeImageContextMenu();
+    }, true);
+    window.addEventListener('blur', closeImageContextMenu);
+    window.addEventListener('resize', closeImageContextMenu);
+    document.addEventListener('scroll', closeImageContextMenu, true);
     document.addEventListener('keydown', e => {
+      if(e.key==='Escape'&&imageContextMenu.classList.contains('show')){e.preventDefault();closeImageContextMenu();return;}
       const editingInput = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
       const editingContent = !!document.activeElement?.isContentEditable;
-
-      if (e.key === 'Escape' && editingTextId) {
-        e.preventDefault();
-        exitTextEditing({ rerender: true });
-        return;
-      }
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         saveLocalProject();
+        return;
+      }
+
+      if (cropSession) {
+        if(e.key==='Escape'){e.preventDefault();cancelImageCrop();return;}
+        if(e.key==='Enter'){e.preventDefault();applyImageCrop();return;}
+        if(!['INPUT','SELECT'].includes(document.activeElement?.tagName)){e.preventDefault();return;}
+      }
+      if (e.key === 'Escape' && editingTextId) {
+        e.preventDefault();
+        exitTextEditing({ rerender: true });
         return;
       }
 
