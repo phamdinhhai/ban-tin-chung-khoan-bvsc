@@ -12,17 +12,22 @@ Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duy
 3. Click phần tử để chọn; double-click text, tiêu đề bảng hoặc từng ô bảng để sửa trực tiếp.
 4. Trong bảng, nhấn `Enter`/click ra ngoài để lưu ô hoặc `Escape` để hủy.
 5. Kéo phần tử hoặc các cạnh/góc để thay đổi vị trí và kích thước.
-6. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
-7. Nhấn **Xuất PNG** khi hoàn tất.
+6. Nhấn **+ Ảnh** để đặt ảnh tự do trực tiếp lên trang; ảnh mới giữ đúng tỷ lệ và không bị crop.
+7. Với ảnh tự do: kéo góc để phóng/thu đúng tỷ lệ; giữ `Shift` khi kéo góc hoặc tắt **Khóa tỷ lệ** để kéo dãn.
+8. Kéo nút vàng để xoay; dùng panel phải để lật ngang, lật dọc, khôi phục tỷ lệ hoặc kích thước gốc.
+9. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
+10. Nhấn **Xuất PNG** khi hoàn tất.
 
 ## Báo cáo chiến lược
 
 - **Bảng biến động**: double-click tiêu đề hoặc từng ô để sửa trực tiếp; cũng có thể nhập nhiều dòng trong panel phải theo định dạng
   `CHỈ SỐ | ĐÓNG CỬA | THAY ĐỔI | % THAY ĐỔI`.
 - Giá trị có dấu `+` tự hiển thị xanh; dấu `-` tự hiển thị đỏ sau khi hoàn tất sửa ô.
-- Template có ba khung ảnh: một biểu đồ VNINDEX và hai biểu đồ khối ngoại.
-- Double-click khung ảnh hoặc chọn **Thay ảnh** trong Thuộc tính để tải ảnh.
+- Template có ba **khung ảnh**: một biểu đồ VNINDEX và hai biểu đồ khối ngoại.
+- Double-click khung ảnh hoặc chọn **Thay ảnh** trong Thuộc tính để tải ảnh; frame hỗ trợ Cover, Contain và Fill.
 - **Xóa ảnh trong khung** đưa slot về trạng thái chờ upload.
+- Ảnh tạo bằng **+ Ảnh** là ảnh tự do, có thể chuyển sang chế độ Trong khung và ngược lại mà không mất dữ liệu ảnh.
+- Các trạng thái khóa tỷ lệ, xoay, lật, kích thước và chế độ ảnh được lưu trong IndexedDB, JSON và HTML.
 - Khoảng ngày tự tạo theo tuần làm việc thứ Hai–thứ Sáu và vẫn sửa được như text.
 
 ## Lưu và khôi phục

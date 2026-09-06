@@ -1603,15 +1603,34 @@
 
           <div id="imageProps" style="display:none">
             <div class="divider"></div>
-            <button class="btn full" onclick="replaceSelectedImage()">Thay ảnh</button>
-            <button class="btn full" style="margin-top:7px" onclick="clearSelectedImage()">Xóa ảnh trong khung</button>
-            <label style="margin-top:8px">Hiển thị ảnh
-              <select id="propFit" onchange="applyImageProps()">
-                <option value="cover">Cover</option>
-                <option value="contain">Contain</option>
-                <option value="fill">Fill</option>
+            <button id="replaceImageButton" class="btn full" onclick="replaceSelectedImage()">Thay ảnh</button>
+            <button id="clearImageButton" class="btn full" style="margin-top:7px" onclick="clearSelectedImage()">Xóa ảnh</button>
+            <label style="margin-top:8px">Chế độ ảnh
+              <select id="propImageMode" onchange="applyImageProps()">
+                <option value="free">Ảnh tự do · hiện đầy đủ</option>
+                <option value="frame">Trong khung</option>
               </select>
             </label>
+            <label id="imageFitLabel" style="margin-top:8px">Hiển thị trong khung
+              <select id="propFit" onchange="applyImageProps()">
+                <option value="cover">Cover · lấp đầy và crop</option>
+                <option value="contain">Contain · hiện đầy đủ</option>
+                <option value="fill">Fill · kéo dãn</option>
+              </select>
+            </label>
+            <label id="imageAspectLabel" style="margin-top:9px;display:flex;align-items:center;gap:8px">
+              <input id="propLockAspect" type="checkbox" onchange="applyImageProps()" style="width:auto"> Khóa tỷ lệ khi resize góc
+            </label>
+            <div class="row" style="margin-top:8px">
+              <button id="flipImageXButton" class="btn" onclick="flipSelectedImage('x')" title="Lật ảnh qua trục dọc">↔ Lật ngang</button>
+              <button id="flipImageYButton" class="btn" onclick="flipSelectedImage('y')" title="Lật ảnh qua trục ngang">↕ Lật dọc</button>
+            </div>
+            <div class="row" style="margin-top:7px">
+              <button id="restoreImageRatioButton" class="btn" onclick="restoreSelectedImageRatio()">Đúng tỷ lệ</button>
+              <button id="naturalImageSizeButton" class="btn" onclick="setSelectedImageNaturalSize()">Kích thước gốc</button>
+            </div>
+            <button id="resetImageTransformButton" class="btn full" style="margin-top:7px" onclick="resetSelectedImageTransform()">Đặt lại xoay và lật</button>
+            <div id="imageTransformHint" class="hint" style="margin-top:8px">Kéo góc để phóng/thu đúng tỷ lệ. Giữ Shift khi kéo góc để kéo dãn tự do.</div>
           </div>
 
           <div id="iconProps" style="display:none">
@@ -2170,6 +2189,12 @@
     function uid() { return 'el_' + (state.nextId++); }
     function px(v) { return parseFloat(v || 0); }
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function elementTransform(item) {
+      return `rotate(${Number(item?.rot) || 0}deg)`;
+    }
+    function imageContentTransform(item) {
+      return `scale(${item?.flipX ? -1 : 1}, ${item?.flipY ? -1 : 1})`;
+    }
     function status(msg) {
       const s = document.getElementById('status');
       s.textContent = msg; s.style.display = 'block';
@@ -2660,6 +2685,22 @@
       document.getElementById('imageInput').click();
     }
 
+    function decodeImageSource(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+        img.onerror = () => reject(new Error('File ảnh bị lỗi hoặc trình duyệt không thể giải mã.'));
+        img.src = src;
+      });
+    }
+
+    function fitNaturalImageSize(naturalW, naturalH) {
+      const maxW = (+canvasW.value || 1600) * 0.45;
+      const maxH = (+canvasH.value || 1000) * 0.45;
+      const scale = Math.min(1, maxW / naturalW, maxH / naturalH);
+      return { w: Math.max(30, Math.round(naturalW * scale)), h: Math.max(20, Math.round(naturalH * scale)) };
+    }
+
     document.getElementById('imageInput').addEventListener('change', e => {
       const input = e.target;
       const f = input.files[0]; if (!f) return;
@@ -2669,18 +2710,29 @@
       }
       const r = new FileReader();
       r.onerror = () => { alert('Không thể đọc file ảnh này.'); input.value = ''; };
-      r.onload = () => {
-        const src = String(r.result || '');
-        if (!src.startsWith('data:image/')) { alert('Dữ liệu ảnh không hợp lệ.'); input.value = ''; return; }
-        if (imageTarget === 'new') {
-          const obj = addBase('image', 100, 100, 480, 260, 10);
-          obj.src = src; obj.fit = 'cover';
-          obj.bg = '#eef2f7'; obj.radius = 8; obj.borderColor = '#cbd5e1'; obj.borderW = 1;
-          render(); selectById(obj.id); pushHistory();
-        } else if (imageTarget && selected && selected.id === imageTarget) {
-          selected.src = src; render(); selectById(selected.id); pushHistory();
-        }
-        input.value = '';
+      r.onload = async () => {
+        try {
+          const src = String(r.result || '');
+          if (!src.startsWith('data:image/')) throw new Error('Dữ liệu ảnh không hợp lệ.');
+          const natural = await decodeImageSource(src);
+          if (!natural.width || !natural.height) throw new Error('Không xác định được kích thước ảnh.');
+          if (imageTarget === 'new') {
+            const size = fitNaturalImageSize(natural.width, natural.height);
+            const x = Math.round(((+canvasW.value || 1600) - size.w) / 2);
+            const y = Math.round(((+canvasH.value || 1000) - size.h) / 2);
+            const obj = addBase('image', x, y, size.w, size.h, 10);
+            Object.assign(obj, { src, filename: f.name, imageMode: 'free', fit: 'fill', naturalW: natural.width, naturalH: natural.height,
+              aspectRatio: natural.width / natural.height, lockAspect: true, flipX: false, flipY: false,
+              bg: 'transparent', radius: 0, borderColor: 'transparent', borderW: 0 });
+            render(); selectById(obj.id); pushHistory();
+          } else if (imageTarget && selected && selected.id === imageTarget) {
+            selected.src = src; selected.filename = f.name;
+            selected.naturalW = natural.width; selected.naturalH = natural.height; selected.aspectRatio = natural.width / natural.height;
+            if ((selected.imageMode || 'frame') === 'free' && selected.lockAspect !== false) selected.h = Math.max(20, Math.round(selected.w / selected.aspectRatio));
+            render(); selectById(selected.id); pushHistory();
+          }
+        } catch (err) { alert('Không thể nhập ảnh: ' + err.message); }
+        finally { input.value = ''; imageTarget = null; }
       };
       r.readAsDataURL(f);
     });
@@ -2694,13 +2746,50 @@
 
     function clearSelectedImage() {
       if (!selected || selected.type !== 'image') return;
-      selected.src = '';
+      if ((selected.imageMode || 'frame') === 'free') {
+        const id = selected.id;
+        state.elements = state.elements.filter(item => item.id !== id);
+        selectedIds.delete(id); selected = null;
+      } else selected.src = '';
+      render(); pushHistory();
+    }
+
+    function flipSelectedImage(axis) {
+      if (!selected || selected.type !== 'image') return;
+      if (axis === 'x') selected.flipX = !selected.flipX;
+      else selected.flipY = !selected.flipY;
+      render(); selectById(selected.id); pushHistory();
+    }
+
+    function restoreSelectedImageRatio() {
+      if (!selected || selected.type !== 'image') return;
+      const ratio = selected.aspectRatio || (selected.naturalW && selected.naturalH ? selected.naturalW / selected.naturalH : null);
+      if (!ratio) { status('Ảnh này chưa có thông tin tỷ lệ gốc'); return; }
+      selected.h = Math.max(20, Math.round(selected.w / ratio)); selected.aspectRatio = ratio;
+      render(); selectById(selected.id); pushHistory();
+    }
+
+    function setSelectedImageNaturalSize() {
+      if (!selected || selected.type !== 'image' || !selected.naturalW || !selected.naturalH) return;
+      const size = fitNaturalImageSize(selected.naturalW, selected.naturalH);
+      selected.w = size.w; selected.h = size.h; selected.aspectRatio = selected.naturalW / selected.naturalH;
+      render(); selectById(selected.id); pushHistory();
+    }
+
+    function resetSelectedImageTransform() {
+      if (!selected || selected.type !== 'image') return;
+      selected.rot = 0; selected.flipX = false; selected.flipY = false;
+      if ((selected.imageMode || 'frame') === 'free') {
+        selected.lockAspect = true;
+        const ratio = selected.aspectRatio || (selected.naturalW && selected.naturalH ? selected.naturalW / selected.naturalH : null);
+        if (ratio) { selected.aspectRatio = ratio; selected.h = Math.max(20, Math.round(selected.w / ratio)); }
+      }
       render(); selectById(selected.id); pushHistory();
     }
 
     function elementName(o) {
       if (o.type === 'text') return (o.text || 'Text').replace(/\s+/g, ' ').trim().slice(0, 30) || 'Text';
-      if (o.type === 'image') return o.slotLabel || 'Hình ảnh';
+      if (o.type === 'image') return o.slotLabel || o.filename || ((o.imageMode || 'frame') === 'free' ? 'Ảnh tự do' : 'Hình ảnh');
       if (o.type === 'marketWidget') return 'Widget chỉ số';
       if (o.type === 'indexTable') return o.sectionTitle || 'Bảng biến động';
       if (o.type === 'icon') return 'Icon: ' + (o.icon || 'news');
@@ -2715,7 +2804,7 @@
         el.dataset.id = o.id;
         el.style.left = o.x + 'px'; el.style.top = o.y + 'px';
         el.style.width = o.w + 'px'; el.style.height = o.h + 'px';
-        el.style.zIndex = o.z; el.style.transform = `rotate(${o.rot || 0}deg)`;
+        el.style.zIndex = o.z; el.style.transform = elementTransform(o);
         el.style.opacity = o.opacity ?? 1;
         if (o.locked) el.classList.add('locked');
 
@@ -2770,13 +2859,21 @@
           });
           el.appendChild(ed);
         } else if (o.type === 'image') {
-          el.style.background = o.bg || '#eef2f7';
+          const mode = o.imageMode || 'frame';
+          el.classList.toggle('free-image', mode === 'free');
+          el.style.background = mode === 'free' ? 'transparent' : (o.bg || '#eef2f7');
           el.style.borderRadius = (o.radius || 0) + 'px';
-          el.style.border = (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
+          el.style.border = mode === 'free' ? '0 solid transparent' : (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
+          el.style.overflow = 'visible';
           if (o.src) {
             const img = document.createElement('img');
-            img.src = o.src;
-            img.style.objectFit = o.fit || 'cover';
+            img.src = o.src; img.alt = o.filename || o.slotLabel || 'Ảnh báo cáo';
+            img.draggable = false;
+            img.style.width = '100%'; img.style.height = '100%'; img.style.display = 'block';
+            img.style.objectFit = mode === 'free' ? 'fill' : (o.fit || 'cover');
+            img.style.borderRadius = mode === 'free' ? '0' : (o.radius || 0) + 'px';
+            img.style.transform = imageContentTransform(o); img.style.transformOrigin = 'center';
+            img.style.pointerEvents = 'none';
             el.appendChild(img);
           } else {
             el.classList.add('empty-slot');
@@ -2810,6 +2907,7 @@
         el.addEventListener('dblclick', event => {
           if (o.locked) return;
           if (o.type === 'image') {
+            if ((o.imageMode || 'frame') !== 'frame') return;
             event.preventDefault(); event.stopPropagation();
             selected = o; selectedIds = new Set([o.id]); replaceSelectedImage();
           } else if (o.type === 'indexTable') {
@@ -3059,10 +3157,22 @@
           resizeWithNeighbors(action.neighbors, dx, dy);
         } else {
           let x = action.ox, y = action.oy, w = action.ow, h = action.oh;
-          if (action.handle.includes('e')) w = Math.max(30, action.ow + dx);
-          if (action.handle.includes('s')) h = Math.max(20, action.oh + dy);
-          if (action.handle.includes('w')) { w = Math.max(30, action.ow - dx); x = action.ox + (action.ow - w); }
-          if (action.handle.includes('n')) { h = Math.max(20, action.oh - dy); y = action.oy + (action.oh - h); }
+          const proportional = obj.type === 'image' && (obj.imageMode || 'frame') === 'free' && obj.lockAspect !== false && !e.shiftKey && action.handle.length === 2;
+          if (proportional) {
+            const ratio = obj.aspectRatio || action.ow / action.oh || 1;
+            const widthCandidate = action.handle.includes('e') ? action.ow + dx : action.ow - dx;
+            const heightCandidate = action.handle.includes('s') ? action.oh + dy : action.oh - dy;
+            const widthFromHeight = heightCandidate * ratio;
+            w = Math.max(30, Math.abs(widthCandidate - action.ow) >= Math.abs(widthFromHeight - action.ow) ? widthCandidate : widthFromHeight);
+            h = Math.max(20, w / ratio);
+            if (action.handle.includes('w')) x = action.ox + action.ow - w;
+            if (action.handle.includes('n')) y = action.oy + action.oh - h;
+          } else {
+            if (action.handle.includes('e')) w = Math.max(30, action.ow + dx);
+            if (action.handle.includes('s')) h = Math.max(20, action.oh + dy);
+            if (action.handle.includes('w')) { w = Math.max(30, action.ow - dx); x = action.ox + (action.ow - w); }
+            if (action.handle.includes('n')) { h = Math.max(20, action.oh - dy); y = action.oy + (action.oh - h); }
+          }
           Object.assign(obj, { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
         }
       } else if (action.type === 'rotate') {
@@ -3093,7 +3203,7 @@
         if (!el) return;
         el.style.left = item.x + 'px'; el.style.top = item.y + 'px';
         el.style.width = item.w + 'px'; el.style.height = item.h + 'px';
-        el.style.transform = `rotate(${item.rot || 0}deg)`;
+        el.style.transform = elementTransform(item);
       });
     }
 
@@ -3198,7 +3308,19 @@
         propBorderColor.value = selected.borderColor || '#d7e0ea';
         propBorderW.value = selected.borderW || 0;
         propOpacity.value = Math.round((selected.opacity ?? 1) * 100);
-        if (selected.type === 'image') propFit.value = selected.fit || 'cover';
+        if (selected.type === 'image') {
+          const mode = selected.imageMode || 'frame';
+          propImageMode.value = mode; propFit.value = selected.fit || (mode === 'free' ? 'fill' : 'cover');
+          propLockAspect.checked = selected.lockAspect !== false;
+          imageFitLabel.style.display = mode === 'frame' ? 'block' : 'none';
+          imageAspectLabel.style.display = mode === 'free' ? 'flex' : 'none';
+          imageTransformHint.style.display = mode === 'free' ? 'block' : 'none';
+          restoreImageRatioButton.disabled = !selected.aspectRatio && !(selected.naturalW && selected.naturalH);
+          naturalImageSizeButton.disabled = !selected.naturalW || !selected.naturalH;
+          clearImageButton.textContent = mode === 'free' ? 'Xóa ảnh' : 'Xóa ảnh trong khung';
+          flipImageXButton.setAttribute('aria-pressed', String(!!selected.flipX));
+          flipImageYButton.setAttribute('aria-pressed', String(!!selected.flipY));
+        }
       }
     }
 
@@ -3291,7 +3413,16 @@
 
     function applyImageProps() {
       if (!selected || selected.type !== 'image') return;
+      const oldMode = selected.imageMode || 'frame';
+      selected.imageMode = propImageMode.value === 'free' ? 'free' : 'frame';
       selected.fit = propFit.value;
+      selected.lockAspect = propLockAspect.checked;
+      selected.flipX = !!selected.flipX; selected.flipY = !!selected.flipY;
+      if (!selected.aspectRatio && selected.naturalW && selected.naturalH) selected.aspectRatio = selected.naturalW / selected.naturalH;
+      if (oldMode !== selected.imageMode && selected.imageMode === 'free') {
+        selected.bg = 'transparent'; selected.borderW = 0;
+        if (selected.lockAspect !== false && selected.aspectRatio) selected.h = Math.max(20, Math.round(selected.w / selected.aspectRatio));
+      }
       render(); selectById(selected.id);
       scheduleHistory();
     }
@@ -3370,6 +3501,14 @@
       }));
     }
 
+    function rotatedElementBounds(item) {
+      const angle = (Number(item.rot) || 0) * Math.PI / 180;
+      const cos = Math.abs(Math.cos(angle)), sin = Math.abs(Math.sin(angle));
+      const w = item.w * cos + item.h * sin, h = item.w * sin + item.h * cos;
+      const cx = item.x + item.w / 2, cy = item.y + item.h / 2;
+      return { left: cx - w / 2, top: cy - h / 2, right: cx + w / 2, bottom: cy + h / 2 };
+    }
+
     function getExportBounds() {
       const width = +canvasW.value || stage.offsetWidth || 1600;
       const height = +canvasH.value || stage.offsetHeight || 1000;
@@ -3377,10 +3516,11 @@
       if (!visible.length) return { x: 0, y: 0, w: width, h: height };
       const background = visible.find(item => item.locked && item.x <= 0 && item.y <= 0 && item.w >= width && item.h >= height);
       if (background) return { x: 0, y: 0, w: width, h: height };
-      const left = Math.max(0, Math.floor(Math.min(...visible.map(item => item.x))));
-      const top = Math.max(0, Math.floor(Math.min(...visible.map(item => item.y))));
-      const right = Math.min(width, Math.ceil(Math.max(...visible.map(item => item.x + item.w))));
-      const bottom = Math.min(height, Math.ceil(Math.max(...visible.map(item => item.y + item.h))));
+      const bounds = visible.map(rotatedElementBounds);
+      const left = Math.max(0, Math.floor(Math.min(...bounds.map(box => box.left))));
+      const top = Math.max(0, Math.floor(Math.min(...bounds.map(box => box.top))));
+      const right = Math.min(width, Math.ceil(Math.max(...bounds.map(box => box.right))));
+      const bottom = Math.min(height, Math.ceil(Math.max(...bounds.map(box => box.bottom))));
       return { x: left, y: top, w: Math.max(1, right - left), h: Math.max(1, bottom - top) };
     }
 
@@ -3483,7 +3623,13 @@
       const allowed = new Set(['text','card','image','icon','marketWidget','indexTable']);
       projectState.elements.forEach((item, index) => {
         if (!item || !allowed.has(item.type)) throw new Error(`Phần tử ${index + 1} không hợp lệ.`);
-        if (item.type === 'image' && item.src && !/^data:image\/(png|jpe?g|webp|gif|svg\+xml)[;,]/i.test(item.src)) throw new Error(`Ảnh tại phần tử ${index + 1} không hợp lệ.`);
+        if (item.type === 'image') {
+          if (item.src && !/^data:image\/(png|jpe?g|webp|gif|svg\+xml)[;,]/i.test(item.src)) throw new Error(`Ảnh tại phần tử ${index + 1} không hợp lệ.`);
+          item.imageMode = item.imageMode === 'free' ? 'free' : 'frame';
+          item.flipX = !!item.flipX; item.flipY = !!item.flipY;
+          item.lockAspect = item.lockAspect !== false;
+          if (!Number.isFinite(item.aspectRatio) && item.naturalW && item.naturalH) item.aspectRatio = item.naturalW / item.naturalH;
+        }
       });
       (projectState.customFonts || []).forEach(font => { if (!font.name || !/^data:font\/|^data:application\/(font|x-font|octet-stream)/i.test(font.dataUrl || '')) throw new Error('Font nhúng không hợp lệ.'); });
       return data;
