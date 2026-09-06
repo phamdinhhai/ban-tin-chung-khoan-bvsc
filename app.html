@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Morning Brief Studio — Thiết kế bản tin chứng khoán</title>
+  <title>BVSC Report Studio — Bản tin sáng & Báo cáo chiến lược</title>
   <meta name="description"
-    content="Công cụ thiết kế, lưu và xuất ảnh bản tin chứng khoán buổi sáng dành cho chuyên viên tư vấn đầu tư.">
+    content="Thiết kế, chỉnh sửa và xuất PNG bản tin thị trường cùng báo cáo chiến lược chứng khoán trên một studio trực tuyến.">
   <meta name="theme-color" content="#071b3d">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,6 +26,284 @@
       --ui-muted: #94a3b8;
       --accent: #0b4a7f;
       --ui-font: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
+      --navy-950: #06142f;
+      --navy-800: #0b2b5b;
+      --gold-500: #d6a84f;
+    }
+
+    .template-chooser {
+      min-height: 100vh;
+      padding: 64px 24px;
+      color: #eef5ff;
+      background: radial-gradient(circle at 80% 10%, rgba(48, 115, 199, .28), transparent 28%), linear-gradient(145deg, #06142f, #0b2b5b 62%, #102f57);
+      overflow: auto;
+    }
+
+    .template-chooser[hidden],
+    body.chooser-open .app,
+    body.chooser-open .workspace-actions {
+      display: none !important;
+    }
+
+    .chooser-shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .chooser-eyebrow {
+      color: #e5bd66;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+    }
+
+    .chooser-title {
+      max-width: 820px;
+      margin: 14px 0 12px;
+      font-size: clamp(38px, 6vw, 70px);
+      line-height: 1.03;
+      letter-spacing: -2.8px;
+    }
+
+    .chooser-lead {
+      max-width: 690px;
+      margin: 0;
+      color: #b9cae0;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 44px;
+    }
+
+    .template-card {
+      position: relative;
+      min-height: 330px;
+      padding: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 24px;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      background: linear-gradient(150deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .045));
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(18px);
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+
+    .template-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(229, 189, 102, .72);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .34);
+    }
+
+    .template-card::after {
+      content: '';
+      position: absolute;
+      inset: auto -50px -70px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(229, 189, 102, .12);
+      filter: blur(4px);
+    }
+
+    .template-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 17px;
+      color: #071b3d;
+      font-size: 28px;
+      background: linear-gradient(135deg, #f2d588, #c8973f);
+      box-shadow: 0 12px 30px rgba(214, 168, 79, .25);
+    }
+
+    .template-card h2 {
+      margin: 46px 0 10px;
+      font-size: 27px;
+    }
+
+    .template-card p {
+      max-width: 430px;
+      margin: 0;
+      color: #b9cae0;
+      line-height: 1.6;
+    }
+
+    .template-card .template-action {
+      display: inline-flex;
+      margin-top: 24px;
+      color: #f2d588;
+      font-weight: 800;
+    }
+
+    .template-badge {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #bcd4ef;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(4, 17, 39, .5);
+    }
+
+    .index-table-el {
+      overflow: hidden;
+    }
+
+    .index-table {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      color: #163455;
+      background: transparent;
+      overflow: visible;
+    }
+
+    .it-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: fit-content;
+      max-width: 100%;
+      min-height: 42px;
+      margin: 0 0 9px;
+      padding: 8px 14px 8px 12px;
+      color: #fff;
+      font-family: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      border-radius: 9px;
+      background: linear-gradient(90deg, #071b78 0%, #0c3faa 100%);
+      box-shadow: 0 5px 14px rgba(7, 27, 120, .16);
+    }
+
+    .it-title svg {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+    }
+
+    .it-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr .9fr .9fr;
+      grid-auto-rows: minmax(29px, 1fr);
+      border: 2px solid #c5d3e2;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .it-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 7px;
+      border-top: 1px solid #dce5ef;
+      border-right: 1px solid #dce5ef;
+      font-size: var(--it-body-size, 13px);
+      font-weight: 700;
+    }
+
+    .it-cell:nth-child(4n) {
+      border-right: 0;
+    }
+
+    .it-head {
+      color: #fff;
+      border-color: rgba(255, 255, 255, .18);
+      font-size: var(--it-head-size, 12px);
+      font-weight: 800;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #09295a, #0d4b8f);
+    }
+
+    .it-symbol {
+      justify-content: flex-start;
+      color: #193b62;
+      font-weight: 900;
+    }
+
+    .it-positive {
+      color: var(--it-positive, #13803d);
+    }
+
+    .it-negative {
+      color: var(--it-negative, #d62828);
+    }
+
+    .it-neutral {
+      color: var(--it-neutral, #687b91);
+    }
+
+    .img-el.empty-slot {
+      display: grid;
+      place-items: center;
+      border-style: dashed !important;
+      cursor: pointer;
+    }
+
+    .image-slot-empty {
+      display: grid;
+      place-items: center;
+      gap: 7px;
+      width: 100%;
+      height: 100%;
+      color: #60758d;
+      text-align: center;
+      background: linear-gradient(145deg, #f8fbfe, #edf3f9);
+    }
+
+    .image-slot-empty strong {
+      color: #173c6a;
+      font-size: 15px;
+    }
+
+    .image-slot-empty span:first-child {
+      font-size: 30px;
+    }
+
+    body.is-exporting .image-slot-empty {
+      color: #8b9aad;
+      background: #f6f8fb;
+    }
+
+    body.is-exporting .image-slot-empty span:first-child,
+    body.is-exporting .image-slot-empty small {
+      display: none;
+    }
+
+    @media(max-width:768px) {
+      .template-chooser {
+        padding: 38px 18px;
+      }
+
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .template-card {
+        min-height: 285px;
+      }
+
+      .chooser-title {
+        letter-spacing: -1.5px;
+      }
     }
 
     * {
@@ -310,6 +588,7 @@
       position: absolute;
       user-select: none;
       transform-origin: center center;
+      border-radius: 4px;
     }
 
     .element.selected {
@@ -334,6 +613,9 @@
       outline: none;
       cursor: move;
       user-select: none;
+      box-sizing: border-box;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
     }
 
     .editable.is-editing {
@@ -1030,7 +1312,31 @@
   <script id="initialProjectData" type="application/json">null</script>
 </head>
 
-<body>
+<body class="chooser-open">
+  <main id="templateChooser" class="template-chooser">
+    <div class="chooser-shell">
+      <div class="chooser-eyebrow">BVSC · Investment Content Studio</div>
+      <h1 class="chooser-title">Chọn mẫu báo cáo để bắt đầu</h1>
+      <p class="chooser-lead">Một không gian thiết kế thống nhất cho nội dung thị trường hằng ngày và báo cáo chiến lược
+        chuyên sâu.</p>
+      <section class="template-grid" aria-label="Danh sách mẫu báo cáo">
+        <button id="chooseMorningBrief" class="template-card" type="button" onclick="openTemplate('morning-brief')">
+          <span class="template-badge" data-save-badge="morning-brief">Bản tin hằng ngày</span>
+          <span class="template-icon">☀</span>
+          <h2>Bản tin sáng</h2>
+          <p>Dashboard thị trường, tin tức nổi bật, nội dung chính và chiến lược giao dịch trong ngày.</p>
+          <span class="template-action">Mở không gian làm việc →</span>
+        </button>
+        <button id="chooseWeeklyStrategy" class="template-card" type="button" onclick="openTemplate('weekly-strategy')">
+          <span class="template-badge" data-save-badge="weekly-strategy">Báo cáo tuần</span>
+          <span class="template-icon">◫</span>
+          <h2>Báo cáo chiến lược</h2>
+          <p>Bảng biến động chỉ số, ba biểu đồ tải lên, chiến lược tuần và tổng hợp tin tức nổi bật.</p>
+          <span class="template-action">Tạo báo cáo chiến lược →</span>
+        </button>
+      </section>
+    </div>
+  </main>
   <div id="mobileBackdrop" class="mobile-backdrop" aria-hidden="true" onclick="closeMobileDrawers()"></div>
   <div class="workspace-actions" aria-label="Điều khiển không gian làm việc">
     <button id="toggleLeftSidebar" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ"
@@ -1042,6 +1348,10 @@
     <!-- LEFT PANEL -->
     <aside id="leftSidebar" class="sidebar left" aria-label="Công cụ thiết kế">
       <div class="panel">
+        <div class="toolbar" style="margin-bottom:8px">
+          <button id="backToTemplates" class="btn full" type="button" onclick="showTemplateChooser()">← Chọn mẫu báo
+            cáo</button>
+        </div>
         <div class="panel-title">FILE / XUẤT ẢNH</div>
         <div class="toolbar">
           <button id="exportPngButton" class="btn primary" onclick="exportPNG()">Xuất PNG</button>
@@ -1136,6 +1446,7 @@
           <button class="btn" onclick="addCard()">+ Card</button>
           <button class="btn" onclick="addImage()">+ Ảnh</button>
           <button class="btn" onclick="addMarketWidget()">+ Widget chỉ số</button>
+          <button class="btn" onclick="addIndexTable()">+ Bảng biến động</button>
           <button class="btn" onclick="addSticker()">+ Emoji</button>
           <button class="btn" onclick="addIcon()">+ Icon SVG</button>
           <button class="btn" onclick="duplicateSelected()">Nhân đôi</button>
@@ -1293,6 +1604,7 @@
           <div id="imageProps" style="display:none">
             <div class="divider"></div>
             <button class="btn full" onclick="replaceSelectedImage()">Thay ảnh</button>
+            <button class="btn full" style="margin-top:7px" onclick="clearSelectedImage()">Xóa ảnh trong khung</button>
             <label style="margin-top:8px">Hiển thị ảnh
               <select id="propFit" onchange="applyImageProps()">
                 <option value="cover">Cover</option>
@@ -1322,6 +1634,27 @@
               <label>Độ dày nét
                 <input id="propIconStroke" type="number" step="0.1" min="0.5" max="4" oninput="applyIconProps()">
               </label>
+            </div>
+          </div>
+
+          <div id="indexTableProps" style="display:none">
+            <div class="divider"></div>
+            <div class="panel-title">BẢNG BIẾN ĐỘNG</div>
+            <label>Tiêu đề
+              <input id="indexTableTitle" type="text" oninput="applyIndexTableProps()">
+            </label>
+            <label>Dữ liệu (Chỉ số | Đóng cửa | Thay đổi | % thay đổi)
+              <textarea id="indexTableRows" rows="7" oninput="applyIndexTableProps()"></textarea>
+            </label>
+            <div class="row">
+              <label>Màu tăng<input id="indexPositiveColor" type="color" oninput="applyIndexTableProps()"></label>
+              <label>Màu giảm<input id="indexNegativeColor" type="color" oninput="applyIndexTableProps()"></label>
+            </div>
+            <div class="row">
+              <label>Cỡ header<input id="indexHeadSize" type="number" min="8" max="30"
+                  oninput="applyIndexTableProps()"></label>
+              <label>Cỡ dữ liệu<input id="indexBodySize" type="number" min="8" max="30"
+                  oninput="applyIndexTableProps()"></label>
             </div>
           </div>
 
@@ -1500,6 +1833,13 @@
 
     const stage = document.getElementById('stage');
     const layerList = document.getElementById('layerList');
+    const SCHEMA_VERSION = 2;
+    const LEGACY_LOCAL_SAVE_KEY = 'vnindex_report_saved_project_v1';
+    const TEMPLATE_META = {
+      'morning-brief': { name: 'Bản tin sáng', filePrefix: 'ban-tin-sang', width: 1600, height: 1000, bg: '#eef4fb', revision: 1 },
+      'weekly-strategy': { name: 'Báo cáo chiến lược', filePrefix: 'bao-cao-chien-luoc', width: 1600, height: 900, bg: '#e8eef6', revision: 10 }
+    };
+    let activeTemplateType = 'morning-brief';
     let selected = null;
     let selectedIds = new Set();
     let state = { elements: [], nextId: 1, customFonts: [], defaultFont: "'Be Vietnam Pro'" };
@@ -2097,6 +2437,46 @@
     }
 
 
+    function indexRowsToText(rows) {
+      return (rows || []).map(row => [row.symbol, row.close, row.change, row.percent].join(' | ')).join('\n');
+    }
+
+    function indexTextToRows(text) {
+      return String(text || '').split(/\r?\n/).filter(line => line.trim()).map(line => {
+        const [symbol = '', close = '', change = '', percent = ''] = line.split('|').map(value => value.trim());
+        return { symbol, close, change, percent };
+      });
+    }
+
+    function renderIndexTableHtml(o) {
+      const headers = ['CHỈ SỐ', 'ĐÓNG CỬA', 'THAY ĐỔI', '% THAY ĐỔI'];
+      const head = headers.map(value => `<div class="it-cell it-head">${esc(value)}</div>`).join('');
+      const rows = (o.rows || []).map(row => {
+        const meta = trendMeta(row.change, row.percent);
+        const cls = meta.sign > 0 ? 'it-positive' : meta.sign < 0 ? 'it-negative' : 'it-neutral';
+        const arrow = meta.sign > 0 ? '▲' : meta.sign < 0 ? '▼' : '•';
+        return `<div class="it-cell it-symbol">${esc(row.symbol)}</div><div class="it-cell">${esc(row.close)}</div><div class="it-cell ${cls}">${esc(row.change)}</div><div class="it-cell ${cls}">${esc(row.percent)} <span style="margin-left:7px;font-size:.8em">${arrow}</span></div>`;
+      }).join('');
+      const titleIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg>`;
+      return `<div class="index-table" style="--it-positive:${o.positiveColor || '#13803d'};--it-negative:${o.negativeColor || '#d62828'};--it-neutral:${o.neutralColor || '#687b91'};--it-head-size:${o.headSize || 12}px;--it-body-size:${o.bodySize || 13}px"><div class="it-title">${titleIcon}<span>${esc(o.sectionTitle || '1. BIẾN ĐỘNG CHỈ SỐ CHÍNH')}</span></div><div class="it-grid">${head}${rows}</div></div>`;
+    }
+
+    function addIndexTable(custom = {}) {
+      const obj = addBase('indexTable', custom.x ?? 40, custom.y ?? 130, custom.w ?? 540, custom.h ?? 210, custom.z ?? 8);
+      Object.assign(obj, {
+        sectionTitle: custom.sectionTitle ?? '1. BIẾN ĐỘNG CHỈ SỐ CHÍNH',
+        positiveColor: custom.positiveColor ?? '#13803d', negativeColor: custom.negativeColor ?? '#d62828', neutralColor: custom.neutralColor ?? '#687b91',
+        headSize: custom.headSize ?? 12, bodySize: custom.bodySize ?? 13,
+        rows: custom.rows ?? [
+          { symbol: 'VNINDEX', close: '1,729.08', change: '-39.98', percent: '-2.20%' },
+          { symbol: 'VN30', close: '1,876.81', change: '-34.28', percent: '-1.79%' },
+          { symbol: 'HNXINDEX', close: '279.99', change: '-13.45', percent: '-4.58%' },
+          { symbol: 'UPINDEX', close: '127.17', change: '+0.18', percent: '+0.14%' }
+        ]
+      });
+      render(); selectById(obj.id); pushHistory(); return obj;
+    }
+
     function addSticker(custom = {}) {
       return addText({
         x: custom.x ?? 80,
@@ -2214,7 +2594,13 @@
         letterSpacing: custom.letterSpacing ?? 0,
         upper: custom.upper ?? false,
         verticalAlign: custom.verticalAlign ?? 'top',
-        baselineY: custom.baselineY ?? null
+        baselineY: custom.baselineY ?? null,
+        paddingTop: custom.paddingTop ?? 0,
+        paddingRight: custom.paddingRight ?? 0,
+        paddingBottom: custom.paddingBottom ?? 0,
+        paddingLeft: custom.paddingLeft ?? 0,
+        minW: custom.minW ?? null,
+        minH: custom.minH ?? null
       });
       render(); selectById(obj.id); pushHistory(); return obj;
     }
@@ -2225,7 +2611,8 @@
         bg: custom.bg ?? '#ffffff',
         radius: custom.radius ?? 14,
         borderColor: custom.borderColor ?? '#d7e0ea',
-        borderW: custom.borderW ?? 1
+        borderW: custom.borderW ?? 1,
+        rot: custom.rot ?? obj.rot
       });
       render(); selectById(obj.id); pushHistory(); return obj;
     }
@@ -2259,10 +2646,17 @@
       document.getElementById('imageInput').click();
     }
 
+    function clearSelectedImage() {
+      if (!selected || selected.type !== 'image') return;
+      selected.src = '';
+      render(); selectById(selected.id); pushHistory();
+    }
+
     function elementName(o) {
       if (o.type === 'text') return (o.text || 'Text').replace(/\s+/g, ' ').trim().slice(0, 30) || 'Text';
-      if (o.type === 'image') return 'Hình ảnh';
+      if (o.type === 'image') return o.slotLabel || 'Hình ảnh';
       if (o.type === 'marketWidget') return 'Widget chỉ số';
+      if (o.type === 'indexTable') return o.sectionTitle || 'Bảng biến động';
       if (o.type === 'icon') return 'Icon: ' + (o.icon || 'news');
       return 'Card';
     }
@@ -2271,7 +2665,7 @@
       stage.innerHTML = '';
       [...state.elements].sort((a, b) => a.z - b.z).forEach(o => {
         const el = document.createElement('div');
-        el.className = 'element ' + (o.type === 'text' ? 'text-el' : o.type === 'card' ? 'card-el' : o.type === 'image' ? 'img-el' : o.type === 'icon' ? 'icon-el' : 'market-widget-el');
+        el.className = 'element ' + (o.type === 'text' ? 'text-el' : o.type === 'card' ? 'card-el' : o.type === 'image' ? 'img-el' : o.type === 'icon' ? 'icon-el' : o.type === 'indexTable' ? 'index-table-el' : 'market-widget-el');
         el.dataset.id = o.id;
         el.style.left = o.x + 'px'; el.style.top = o.y + 'px';
         el.style.width = o.w + 'px'; el.style.height = o.h + 'px';
@@ -2293,6 +2687,15 @@
           ed.style.lineHeight = o.lineHeight || 1.2;
           ed.style.letterSpacing = (o.letterSpacing || 0) + 'px';
           ed.style.textTransform = o.upper ? 'uppercase' : 'none';
+          if (o.noWrap) {
+            ed.style.whiteSpace = 'nowrap';
+            ed.style.textOverflow = 'clip';
+          }
+          const safeTop = Math.max(0, Number(o.paddingTop) || 0);
+          const safeRight = Math.max(0, Number(o.paddingRight) || 0);
+          const safeBottom = Math.max(0, Number(o.paddingBottom) || 0);
+          const safeLeft = Math.max(0, Number(o.paddingLeft) || 0);
+          ed.style.padding = `${safeTop}px ${safeRight}px ${safeBottom}px ${safeLeft}px`;
           if (Number.isFinite(o.baselineY)) {
             const measureCanvas = render._fontMeasureCanvas || (render._fontMeasureCanvas = document.createElement('canvas'));
             const ctx = measureCanvas.getContext('2d');
@@ -2305,7 +2708,7 @@
             const fontDescent = metrics.fontBoundingBoxDescent || metrics.actualBoundingBoxDescent || fontSize * 0.2;
             const halfLeading = Math.max(0, lineHeightPx - fontAscent - fontDescent) / 2;
             const cssBaselineOffset = halfLeading + fontAscent;
-            ed.style.paddingTop = Math.max(0, o.baselineY - o.y - cssBaselineOffset) + 'px';
+            ed.style.paddingTop = Math.max(safeTop, o.baselineY - o.y - cssBaselineOffset) + 'px';
           } else if (o.verticalAlign === 'middle') {
             ed.style.display = 'flex';
             ed.style.flexDirection = 'column';
@@ -2324,12 +2727,22 @@
           el.style.background = o.bg || '#eef2f7';
           el.style.borderRadius = (o.radius || 0) + 'px';
           el.style.border = (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
-          const img = document.createElement('img');
-          img.src = o.src || '';
-          img.style.objectFit = o.fit || 'cover';
-          el.appendChild(img);
+          if (o.src) {
+            const img = document.createElement('img');
+            img.src = o.src;
+            img.style.objectFit = o.fit || 'cover';
+            el.appendChild(img);
+          } else {
+            el.classList.add('empty-slot');
+            const empty = document.createElement('div');
+            empty.className = 'image-slot-empty';
+            empty.innerHTML = `<span>⇧</span><strong>${esc(o.slotLabel || 'Tải ảnh')}</strong><small>Click đúp để chọn hình</small>`;
+            el.appendChild(empty);
+          }
         } else if (o.type === 'marketWidget') {
           el.innerHTML = renderMarketWidgetHtml(o);
+        } else if (o.type === 'indexTable') {
+          el.innerHTML = renderIndexTableHtml(o);
         } else if (o.type === 'icon') {
           el.innerHTML = renderIconSVG(o);
         } else {
@@ -2348,6 +2761,13 @@
         const rot = document.createElement('div'); rot.className = 'handle rot'; rot.dataset.handle = 'rot'; el.appendChild(rot);
 
         el.addEventListener('pointerdown', onPointerDown);
+        el.addEventListener('dblclick', event => {
+          if (o.type === 'text' || o.locked) return;
+          if (o.type === 'image') {
+            event.preventDefault(); event.stopPropagation();
+            selected = o; selectedIds = new Set([o.id]); replaceSelectedImage();
+          }
+        });
         if (o.type === 'text') {
           el.addEventListener('dblclick', event => {
             if (o.locked) return;
@@ -2644,7 +3064,7 @@
         row.onclick = event => selectById(o.id, event.shiftKey);
 
         const vis = document.createElement('span');
-        vis.textContent = o.type === 'text' ? 'T' : o.type === 'image' ? '🖼' : o.type === 'marketWidget' ? '📊' : '▣';
+        vis.textContent = o.type === 'text' ? 'T' : o.type === 'image' ? '🖼' : o.type === 'marketWidget' ? '📊' : o.type === 'indexTable' ? '▤' : '▣';
         vis.className = 'badge';
         const name = document.createElement('div');
         name.className = 'layer-name'; name.textContent = elementName(o);
@@ -2669,11 +3089,13 @@
 
       const text = selected.type === 'text';
       const market = selected.type === 'marketWidget';
+      const indexTable = selected.type === 'indexTable';
       const icon = selected.type === 'icon';
       document.getElementById('textProps').style.display = text ? 'block' : 'none';
-      document.getElementById('boxProps').style.display = (!text && !market && !icon) ? 'block' : 'none';
+      document.getElementById('boxProps').style.display = (!text && !market && !indexTable && !icon) ? 'block' : 'none';
       document.getElementById('imageProps').style.display = selected.type === 'image' ? 'block' : 'none';
       document.getElementById('marketProps').style.display = market ? 'block' : 'none';
+      document.getElementById('indexTableProps').style.display = indexTable ? 'block' : 'none';
       document.getElementById('iconProps').style.display = icon ? 'block' : 'none';
 
       if (text) {
@@ -2707,6 +3129,13 @@
           window['market' + idx + 'Percent'].value = c.percent || '';
           window['market' + idx + 'Stats'].value = statsArrayToText(c.stats || []);
         });
+      } else if (indexTable) {
+        indexTableTitle.value = selected.sectionTitle || '';
+        indexTableRows.value = indexRowsToText(selected.rows || []);
+        indexPositiveColor.value = selected.positiveColor || '#13803d';
+        indexNegativeColor.value = selected.negativeColor || '#d62828';
+        indexHeadSize.value = selected.headSize || 12;
+        indexBodySize.value = selected.bodySize || 13;
       } else if (icon) {
         propIconType.value = selected.icon || 'news';
         propIconColor.value = selected.color || '#ffffff';
@@ -2724,12 +3153,17 @@
 
     function applyProps() {
       if (!selected) return;
+      const oldBounds = { x: selected.x, y: selected.y, w: selected.w, h: selected.h };
+      const childSnapshot = selected.layoutRole === 'container' ? snapshotContainer(selected) : null;
       selected.x = +propX.value || 0;
       selected.y = +propY.value || 0;
-      selected.w = Math.max(20, +propW.value || 20);
-      selected.h = Math.max(20, +propH.value || 20);
+      selected.w = Math.max(selected.minW || 20, +propW.value || 20);
+      selected.h = Math.max(selected.minH || 20, +propH.value || 20);
       selected.rot = +propRot.value || 0;
       selected.z = +propZ.value || 1;
+      if (childSnapshot && (oldBounds.x !== selected.x || oldBounds.y !== selected.y || oldBounds.w !== selected.w || oldBounds.h !== selected.h)) {
+        reflowContainerChildren(childSnapshot, { x: selected.x, y: selected.y, w: selected.w, h: selected.h });
+      }
       render(); selectById(selected.id);
       scheduleHistory();
     }
@@ -2772,6 +3206,17 @@
       scheduleHistory();
     }
 
+    function applyIndexTableProps() {
+      if (!selected || selected.type !== 'indexTable') return;
+      selected.sectionTitle = indexTableTitle.value;
+      selected.rows = indexTextToRows(indexTableRows.value);
+      selected.positiveColor = indexPositiveColor.value || '#13803d';
+      selected.negativeColor = indexNegativeColor.value || '#d62828';
+      selected.headSize = +indexHeadSize.value || 12;
+      selected.bodySize = +indexBodySize.value || 13;
+      render(); selectById(selected.id); scheduleHistory();
+    }
+
     function applyIconProps() {
       if (!selected || selected.type !== 'icon') return;
       selected.icon = propIconType.value;
@@ -2782,7 +3227,7 @@
     }
 
     function applyBoxProps() {
-      if (!selected || selected.type === 'text' || selected.type === 'marketWidget') return;
+      if (!selected || selected.type === 'text' || selected.type === 'marketWidget' || selected.type === 'indexTable') return;
       selected.bg = propBg.value;
       selected.radius = +propRadius.value || 0;
       selected.borderColor = propBorderColor.value;
@@ -2901,7 +3346,7 @@
         const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
         const a = document.createElement('a');
         a.href = canvas.toDataURL('image/png', 1);
-        a.download = `ban-tin-sang-${date}.png`;
+        a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-${date}.png`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -2922,10 +3367,15 @@
     }
 
 
-    const LOCAL_SAVE_KEY = 'vnindex_report_saved_project_v1';
+    function getLocalSaveKey(type = activeTemplateType) {
+      return `vnindex_report_saved_project_v2:${type}`;
+    }
 
     function getProjectData() {
       return {
+        schemaVersion: SCHEMA_VERSION,
+        templateType: activeTemplateType,
+        templateRevision: TEMPLATE_META[activeTemplateType].revision,
         canvas: {
           w: +canvasW.value || 1600,
           h: +canvasH.value || 1000,
@@ -2975,9 +3425,10 @@
     }
 
     async function loadProjectData(data) {
+      activeTemplateType = data.templateType || 'morning-brief';
       state = data.state || data;
       if (!state.nextId) state.nextId = (state.elements?.length || 0) + 1;
-      const migratedCanvasHeight = migrateResponsiveLayoutMetadata(data.canvas?.h);
+      const migratedCanvasHeight = activeTemplateType === 'morning-brief' ? migrateResponsiveLayoutMetadata(data.canvas?.h) : (data.canvas?.h || TEMPLATE_META[activeTemplateType].height);
       if (data.canvas) {
         canvasW.value = data.canvas.w || 1600;
         canvasH.value = migratedCanvasHeight;
@@ -3000,7 +3451,7 @@
 
     function autoSaveLocal() {
       try {
-        localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(getProjectData()));
+        localStorage.setItem(getLocalSaveKey(), JSON.stringify(getProjectData()));
       } catch (err) {
         console.warn('Local save failed:', err);
       }
@@ -3013,7 +3464,7 @@
     }
 
     async function restoreLocalProject() {
-      const raw = localStorage.getItem(LOCAL_SAVE_KEY);
+      const raw = localStorage.getItem(getLocalSaveKey());
       if (!raw) {
         alert('Chưa có bản lưu nào trên trình duyệt này.');
         return;
@@ -3028,7 +3479,7 @@
     }
 
     function clearLocalProject() {
-      localStorage.removeItem(LOCAL_SAVE_KEY);
+      localStorage.removeItem(getLocalSaveKey());
       status('Đã xóa bản lưu trên trình duyệt');
     }
 
@@ -3049,7 +3500,7 @@
         const blob = new Blob([output], { type: 'text/html;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'VNINDEX-report-custom.html';
+        a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-custom.html`;
         a.click();
         URL.revokeObjectURL(a.href);
         status('Đã xuất HTML đã chỉnh');
@@ -3063,7 +3514,7 @@
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'VNINDEX-report-project.json';
+      a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-project.json`;
       a.click();
       URL.revokeObjectURL(a.href);
     }
@@ -3128,7 +3579,7 @@
 
 
 
-    function resetTemplate() {
+    function resetMorningBriefTemplate() {
       const savedFonts = Array.isArray(state.customFonts) ? state.customFonts : [];
       const savedDefault = "'Be Vietnam Pro'";
       state = { elements: [], nextId: 1, customFonts: savedFonts, defaultFont: savedDefault };
@@ -3262,6 +3713,140 @@
       pushHistory(true);
     }
 
+    function getWorkWeekRange() {
+      const now = new Date();
+      const day = now.getDay() || 7;
+      const monday = new Date(now); monday.setDate(now.getDate() - day + 1);
+      const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+      const format = value => new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(value);
+      return `${format(monday)} - ${format(friday)}`;
+    }
+
+    function resetWeeklyStrategyTemplate() {
+      const savedFonts = Array.isArray(state.customFonts) ? state.customFonts : [];
+      state = { elements: [], nextId: 1, customFonts: savedFonts, defaultFont: "'Be Vietnam Pro'" };
+      selected = null; selectedIds.clear(); editingTextId = null; activeEditable = null;
+      document.getElementById('globalFont').value = state.defaultFont;
+      canvasW.value = 1600; canvasH.value = 900; canvasBg.value = '#e8eef6'; applyCanvas();
+
+      const bind = (item, parent, mode = 'stretch-both') => Object.assign(item, { parentId: parent.id, resizeMode: mode });
+      const panel = (x, y, w, h, minW, minH) => {
+        const item = addCard({ x, y, w, h, z: 2, bg: 'linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)', radius: 12, borderColor: '#bdccdc', borderW: 1 });
+        Object.assign(item, { layoutRole: 'container', minW, minH }); return item;
+      };
+      const bodyText = (parent, options, mode = 'stretch-both') => bind(addText({
+        z: 20, fontSize: 12.5, weight: 600, color: '#263f5c', lineHeight: 1.48,
+        paddingTop: 5, paddingBottom: 5, minH: 34, ...options
+      }), parent, mode);
+      const singleLine = (parent, options, mode = 'stretch-width') => bind(addText({
+        z: 20, fontSize: 14, weight: 900, color: '#123d72', lineHeight: 1.25,
+        verticalAlign: 'middle', paddingTop: 3, paddingBottom: 3, minH: 30, ...options
+      }), parent, mode);
+      const sectionTitle = (parent, number, label, icon, x, y) => {
+        const titleText = `${number}. ${label}`;
+        const measureCanvas = document.createElement('canvas');
+        const measureContext = measureCanvas.getContext('2d');
+        measureContext.font = `900 15px 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif`;
+        const measuredWidth = Math.ceil(measureContext.measureText(titleText).width);
+        const headerWidth = Math.min(parent.w - 20, measuredWidth + 70);
+        const header = bind(addCard({ x, y, w: headerWidth, h: 42, z: 9, bg: 'linear-gradient(90deg,#071b78 0%,#124fb0 100%)', radius: 10, borderW: 0 }), parent, 'anchor-top-left');
+        const headerIcon = bind(addIcon({ x: x + 13, y: y + 10, w: 22, h: 22, z: 20, icon, color: '#ffffff', strokeWidth: 1.9 }), parent, 'anchor-top-left');
+        const headerText = bind(addText({ x: x + 44, y: y + 4, w: headerWidth - 56, h: 34, z: 20, text: titleText, font: "'Be Vietnam Pro'", fontSize: 15, weight: 900, color: '#ffffff', lineHeight: 1.25, verticalAlign: 'middle', paddingTop: 3, paddingBottom: 3, minH: 34, noWrap: true }), parent, 'anchor-top-left');
+        return { header, headerIcon, headerText };
+      };
+      const divider = (parent, x, y, w) => bind(addCard({ x, y, w, h: 1, z: 10, bg: '#d5dee8', radius: 0, borderW: 0 }), parent, 'stretch-width');
+      const imageSlot = (parent, x, y, w, h, label) => {
+        const item = addBase('image', x, y, w, h, 12);
+        Object.assign(item, { src: '', fit: 'contain', bg: '#f5f8fb', radius: 7, borderColor: '#9eb2c8', borderW: 1, role: 'chart-slot', slotLabel: label, minW: 120, minH: 100 });
+        return bind(item, parent, 'stretch-both');
+      };
+
+      // Nền xanh xám dịu giúp năm panel trắng nổi rõ và tách biệt
+      const reportBg = addCard({ x: 0, y: 0, w: 1600, h: 900, z: 0, bg: 'radial-gradient(circle at 88% 5%,rgba(42,104,180,.12),transparent 30%),linear-gradient(145deg,#eef3f9 0%,#e4ebf4 100%)', radius: 0, borderW: 0 });
+      reportBg.locked = true;
+
+      // Hero masthead — đồng bộ phong cách navy + vàng đồng của Bản tin sáng
+      addCard({ x: 20, y: 12, w: 1560, h: 68, z: 2, bg: 'linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)', radius: 13, borderW: 0 });
+      addCard({ x: 20, y: 78, w: 1560, h: 3, z: 3, bg: 'linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)', radius: 0, borderW: 0 });
+      addIcon({ x: 54, y: 31, w: 36, h: 36, z: 25, icon: 'chart', color: '#e8c165', strokeWidth: 1.7 });
+      addText({ x: 104, y: 18, w: 650, h: 25, z: 30, text: 'WEEKLY STRATEGY REPORT · BÁO CÁO THỊ TRƯỜNG', fontSize: 10.5, weight: 800, color: '#e8c165', letterSpacing: 1.35, lineHeight: 1.25, verticalAlign: 'middle', paddingTop: 3, paddingBottom: 3 });
+      addText({ x: 103, y: 37, w: 760, h: 39, z: 30, text: 'BÁO CÁO CHIẾN LƯỢC TUẦN', fontSize: 25, weight: 900, color: '#ffffff', letterSpacing: 0.25, lineHeight: 1.15, baselineY: 67, paddingTop: 3, paddingBottom: 3 });
+      // Cụm B — áp dụng đúng hệ baseline của Bản tin sáng: icon và text cùng đáy y=67
+      addIcon({ x: 950, y: 40.8, w: 30, h: 30, z: 30, icon: 'calendar', color: '#ffffff', strokeWidth: 1.9 });
+      addText({ x: 990, y: 25, w: 550, h: 52, z: 30, text: `CẬP NHẬT · ${getWorkWeekRange()}`, font: "'Be Vietnam Pro'", fontSize: 22, weight: 900, color: '#ffffff', align: 'left', lineHeight: 1.15, baselineY: 67, noWrap: true });
+
+      const indices = panel(20, 94, 550, 330, 420, 250);
+      const vnChart = panel(588, 94, 992, 330, 720, 250);
+      const foreign = panel(20, 442, 550, 416, 420, 310);
+      const strategy = panel(588, 442, 600, 416, 520, 310);
+      const news = panel(1206, 442, 374, 416, 350, 310);
+
+      const table = addIndexTable({ x: 30, y: 104, w: 530, h: 200, z: 10 }); bind(table, indices);
+      bodyText(indices, { x: 38, y: 314, w: 514, h: 100, text: '• Nhóm Vingroup là nhóm chính gây áp lực lên chỉ số; thanh khoản và độ rộng thị trường cần tiếp tục được theo dõi.\n• Lực đỡ tại nhóm vốn hóa lớn chưa đồng đều, diễn biến phân hóa vẫn chiếm ưu thế.\n• Chỉnh sửa phần nhận xét này theo dữ liệu tuần thực tế.' });
+
+      sectionTitle(vnChart, '2', 'BIỂU ĐỒ VNINDEX', 'chart', 598, 104);
+      imageSlot(vnChart, 604, 156, 680, 250, 'Tải biểu đồ VNINDEX');
+      bodyText(vnChart, { x: 1302, y: 151, w: 258, h: 258, text: '• VNIndex trải qua một tuần giao dịch với biên độ lớn và thanh khoản biến động.\n\n• Sau những phiên giằng co đầu tuần, chỉ số có nhịp hồi nhưng áp lực bán gia tăng tại vùng cản.\n\n• Điểm số đóng cửa cần được đánh giá cùng độ rộng và dòng tiền.' });
+
+      sectionTitle(foreign, '3', 'XU HƯỚNG MUA BÁN RÒNG KHỐI NGOẠI', 'chart', 30, 452);
+      imageSlot(foreign, 38, 504, 248, 196, 'Biểu đồ lũy kế');
+      imageSlot(foreign, 304, 504, 248, 196, 'Biểu đồ theo ngày');
+      bodyText(foreign, { x: 38, y: 712, w: 514, h: 132, text: '• Áp lực bán ròng từ khối ngoại duy trì xuyên suốt tuần.\n• Đà bán gia tăng mạnh tại các phiên cuối tuần.\n• Lũy kế tuần và nhóm cổ phiếu tập trung cần được cập nhật theo số liệu mới.' });
+
+      sectionTitle(strategy, '4', `CHIẾN LƯỢC TUẦN ${getWorkWeekRange()}`, 'target', 598, 452);
+      singleLine(strategy, { x: 608, y: 504, w: 550, h: 34, text: '▣  TRẠNG THÁI THỊ TRƯỜNG' });
+      bodyText(strategy, { x: 612, y: 544, w: 544, h: 99, text: '• VN-Index đang dao động quanh vùng hỗ trợ/kháng cự quan trọng.\n• Vị thế chỉ số được duy trì ổn định khi thanh khoản cải thiện và dòng tiền lan tỏa.' });
+      divider(strategy, 606, 656, 554);
+      singleLine(strategy, { x: 608, y: 668, w: 550, h: 34, text: '⚖  KỊCH BẢN THỊ TRƯỜNG' });
+      bodyText(strategy, { x: 612, y: 708, w: 544, h: 136, text: '• Kịch bản 1: duy trì trên vùng hỗ trợ với thanh khoản cải thiện.\n• Kịch bản 2: mất ngưỡng hỗ trợ, ưu tiên quản trị rủi ro và giảm tỷ trọng.' });
+
+      sectionTitle(news, '5', 'TIN TỨC NỔI BẬT', 'news', 1216, 452);
+      singleLine(news, { x: 1224, y: 504, w: 334, h: 34, text: '🌐  QUỐC TẾ' });
+      bodyText(news, { x: 1228, y: 544, w: 326, h: 106, text: '• Cập nhật diễn biến lãi suất, giá hàng hóa và dữ liệu kinh tế quốc tế.\n• Nêu ngắn gọn tác động dự kiến tới thị trường trong nước.' });
+      divider(news, 1222, 660, 334);
+      singleLine(news, { x: 1224, y: 672, w: 334, h: 34, text: '★  TRONG NƯỚC' });
+      bodyText(news, { x: 1228, y: 712, w: 326, h: 132, text: '• Cập nhật chính sách, vĩ mô và thông tin doanh nghiệp nổi bật.\n• Nêu ngành/cổ phiếu có khả năng chịu tác động.' });
+
+      selected = null; render(); applyZoom(); historyStack = []; redoStack = []; pushHistory(true);
+    }
+
+    function resetTemplate() {
+      if (activeTemplateType === 'weekly-strategy') resetWeeklyStrategyTemplate();
+      else resetMorningBriefTemplate();
+    }
+
+    function updateTemplateBadges() {
+      document.querySelectorAll('[data-save-badge]').forEach(badge => {
+        const type = badge.dataset.saveBadge;
+        badge.textContent = localStorage.getItem(getLocalSaveKey(type)) ? 'Có bản lưu · Click để tiếp tục' : TEMPLATE_META[type].name;
+      });
+    }
+
+    async function openTemplate(type) {
+      activeTemplateType = TEMPLATE_META[type] ? type : 'morning-brief';
+      document.body.classList.remove('chooser-open');
+      document.getElementById('templateChooser').hidden = true;
+      const raw = localStorage.getItem(getLocalSaveKey());
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          const currentRevision = TEMPLATE_META[activeTemplateType].revision;
+          if ((saved.templateRevision || 0) >= currentRevision) {
+            await loadProjectData(saved); status('Đã tiếp tục bản lưu gần nhất'); return;
+          }
+          localStorage.removeItem(getLocalSaveKey());
+          status('Đã cập nhật mẫu sang thiết kế mới');
+        } catch (err) { console.warn('Cannot restore selected template', err); }
+      }
+      resetTemplate(); autoSaveLocal(); applyResponsiveWorkspace(isMobileViewport());
+    }
+
+    function showTemplateChooser() {
+      exitTextEditing(); closeMobileDrawers(); updateTemplateBadges();
+      document.body.classList.add('chooser-open');
+      document.getElementById('templateChooser').hidden = false;
+    }
+
     function readInitialProject() {
       const marker = document.getElementById('initialProjectData');
       const raw = marker?.textContent?.trim();
@@ -3279,22 +3864,17 @@
       const initialProject = readInitialProject();
       if (initialProject) {
         await loadProjectData(initialProject);
+        document.body.classList.remove('chooser-open');
+        document.getElementById('templateChooser').hidden = true;
         status('Đã mở bản HTML đã lưu');
         return;
       }
-      const raw = localStorage.getItem(LOCAL_SAVE_KEY);
-      if (raw) {
-        try {
-          await loadProjectData(JSON.parse(raw));
-          status('Đã khôi phục bản lưu gần nhất');
-          return;
-        } catch (err) {
-          console.warn('Cannot restore local project', err);
-        }
+      const legacy = localStorage.getItem(LEGACY_LOCAL_SAVE_KEY);
+      if (legacy && !localStorage.getItem(getLocalSaveKey('morning-brief'))) {
+        localStorage.setItem(getLocalSaveKey('morning-brief'), legacy);
       }
-      resetTemplate();
-      applyCanvas();
-      applyResponsiveWorkspace(isMobileViewport());
+      updateTemplateBadges();
+      showTemplateChooser();
     }
     let responsiveResizeTimer = null;
     window.addEventListener('resize', () => {
