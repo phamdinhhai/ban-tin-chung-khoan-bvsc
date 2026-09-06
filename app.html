@@ -1833,8 +1833,11 @@
 
     const stage = document.getElementById('stage');
     const layerList = document.getElementById('layerList');
-    const SCHEMA_VERSION = 2;
+    const SCHEMA_VERSION = 3;
     const LEGACY_LOCAL_SAVE_KEY = 'vnindex_report_saved_project_v1';
+    const PROJECT_DB_NAME = 'bvsc-report-studio';
+    const PROJECT_DB_VERSION = 1;
+    const PROJECT_STORE = 'projects';
     const TEMPLATE_META = {
       'morning-brief': { name: 'Bản tin sáng', filePrefix: 'ban-tin-sang', width: 1600, height: 1000, bg: '#eef4fb', revision: 1 },
       'weekly-strategy': { name: 'Báo cáo chiến lược', filePrefix: 'bao-cao-chien-luoc', width: 1600, height: 900, bg: '#e8eef6', revision: 10 }
@@ -1848,6 +1851,8 @@
     let historyStack = [];
     let redoStack = [];
     let historyTimer = null;
+    let persistenceTimer = null;
+    let pendingPersistence = Promise.resolve();
     let isRestoringHistory = false;
     let activeEditable = null; // .editable div đang được focus để rich-text
     let editingTextId = null; // chỉ double click mới bật chế độ sửa/bôi đen text
@@ -2450,15 +2455,47 @@
 
     function renderIndexTableHtml(o) {
       const headers = ['CHỈ SỐ', 'ĐÓNG CỬA', 'THAY ĐỔI', '% THAY ĐỔI'];
+      const fields = ['symbol', 'close', 'change', 'percent'];
       const head = headers.map(value => `<div class="it-cell it-head">${esc(value)}</div>`).join('');
-      const rows = (o.rows || []).map(row => {
+      const rows = (o.rows || []).map((row, rowIndex) => {
         const meta = trendMeta(row.change, row.percent);
         const cls = meta.sign > 0 ? 'it-positive' : meta.sign < 0 ? 'it-negative' : 'it-neutral';
         const arrow = meta.sign > 0 ? '▲' : meta.sign < 0 ? '▼' : '•';
-        return `<div class="it-cell it-symbol">${esc(row.symbol)}</div><div class="it-cell">${esc(row.close)}</div><div class="it-cell ${cls}">${esc(row.change)}</div><div class="it-cell ${cls}">${esc(row.percent)} <span style="margin-left:7px;font-size:.8em">${arrow}</span></div>`;
+        return fields.map((field, colIndex) => {
+          const classes = ['it-cell', colIndex === 0 ? 'it-symbol' : '', colIndex >= 2 ? cls : ''].filter(Boolean).join(' ');
+          const arrowHtml = colIndex === 3 ? ` <span class="it-trend-arrow" style="margin-left:7px;font-size:.8em">${arrow}</span>` : '';
+          return `<div class="${classes}" data-table-row="${rowIndex}" data-table-field="${field}" title="Double-click để sửa">${esc(row[field])}${arrowHtml}</div>`;
+        }).join('');
       }).join('');
       const titleIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg>`;
-      return `<div class="index-table" style="--it-positive:${o.positiveColor || '#13803d'};--it-negative:${o.negativeColor || '#d62828'};--it-neutral:${o.neutralColor || '#687b91'};--it-head-size:${o.headSize || 12}px;--it-body-size:${o.bodySize || 13}px"><div class="it-title">${titleIcon}<span>${esc(o.sectionTitle || '1. BIẾN ĐỘNG CHỈ SỐ CHÍNH')}</span></div><div class="it-grid">${head}${rows}</div></div>`;
+      return `<div class="index-table" style="--it-positive:${o.positiveColor || '#13803d'};--it-negative:${o.negativeColor || '#d62828'};--it-neutral:${o.neutralColor || '#687b91'};--it-head-size:${o.headSize || 12}px;--it-body-size:${o.bodySize || 13}px"><div class="it-title"><span>${titleIcon}</span><span data-table-title title="Double-click để sửa">${esc(o.sectionTitle || '1. BIẾN ĐỘNG CHỈ SỐ CHÍNH')}</span></div><div class="it-grid">${head}${rows}</div></div>`;
+    }
+
+    function beginIndexTableEdit(tableObject, target) {
+      const isTitle = target.hasAttribute('data-table-title');
+      const rowIndex = Number(target.dataset.tableRow);
+      const field = target.dataset.tableField;
+      if (!isTitle && (!Number.isInteger(rowIndex) || !tableObject.rows?.[rowIndex] || !['symbol','close','change','percent'].includes(field))) return;
+      const original = isTitle ? tableObject.sectionTitle : tableObject.rows[rowIndex][field];
+      target.querySelector('.it-trend-arrow')?.remove();
+      target.contentEditable = 'true'; target.spellcheck = false;
+      target.style.cssText += ';outline:2px solid #e8c165;outline-offset:-2px;background:#fffdf3;color:#132f52;cursor:text;';
+      target.focus({ preventScroll: true });
+      const range = document.createRange(); range.selectNodeContents(target); const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      let finished = false;
+      const finish = cancel => {
+        if (finished) return; finished = true;
+        const value = cancel ? original : target.innerText.trim();
+        if (isTitle) tableObject.sectionTitle = value || original;
+        else tableObject.rows[rowIndex][field] = value;
+        render(); selectById(tableObject.id); syncInspector();
+        if (!cancel && value !== original) pushHistory();
+      };
+      target.addEventListener('blur', () => finish(false), { once: true });
+      target.addEventListener('keydown', event => {
+        if (event.key === 'Enter') { event.preventDefault(); target.blur(); }
+        else if (event.key === 'Escape') { event.preventDefault(); finish(true); }
+      });
     }
 
     function addIndexTable(custom = {}) {
@@ -2624,17 +2661,26 @@
     }
 
     document.getElementById('imageInput').addEventListener('change', e => {
-      const f = e.target.files[0]; if (!f) return;
+      const input = e.target;
+      const f = input.files[0]; if (!f) return;
+      if (!/^image\/(png|jpe?g|webp|gif|svg\+xml)$/i.test(f.type)) {
+        alert('Định dạng ảnh không được hỗ trợ. Hãy chọn PNG, JPG, WEBP, GIF hoặc SVG.');
+        input.value = ''; return;
+      }
       const r = new FileReader();
+      r.onerror = () => { alert('Không thể đọc file ảnh này.'); input.value = ''; };
       r.onload = () => {
+        const src = String(r.result || '');
+        if (!src.startsWith('data:image/')) { alert('Dữ liệu ảnh không hợp lệ.'); input.value = ''; return; }
         if (imageTarget === 'new') {
           const obj = addBase('image', 100, 100, 480, 260, 10);
-          obj.src = r.result; obj.fit = 'cover';
+          obj.src = src; obj.fit = 'cover';
           obj.bg = '#eef2f7'; obj.radius = 8; obj.borderColor = '#cbd5e1'; obj.borderW = 1;
           render(); selectById(obj.id); pushHistory();
         } else if (imageTarget && selected && selected.id === imageTarget) {
-          selected.src = r.result; render(); selectById(selected.id); pushHistory();
+          selected.src = src; render(); selectById(selected.id); pushHistory();
         }
+        input.value = '';
       };
       r.readAsDataURL(f);
     });
@@ -2762,10 +2808,16 @@
 
         el.addEventListener('pointerdown', onPointerDown);
         el.addEventListener('dblclick', event => {
-          if (o.type === 'text' || o.locked) return;
+          if (o.locked) return;
           if (o.type === 'image') {
             event.preventDefault(); event.stopPropagation();
             selected = o; selectedIds = new Set([o.id]); replaceSelectedImage();
+          } else if (o.type === 'indexTable') {
+            const cell = event.target.closest('[data-table-title],[data-table-row]');
+            if (!cell) return;
+            event.preventDefault(); event.stopPropagation();
+            selected = o; selectedIds = new Set([o.id]);
+            beginIndexTableEdit(o, cell);
           }
         });
         if (o.type === 'text') {
@@ -3318,79 +3370,132 @@
       }));
     }
 
+    function getExportBounds() {
+      const width = +canvasW.value || stage.offsetWidth || 1600;
+      const height = +canvasH.value || stage.offsetHeight || 1000;
+      const visible = state.elements.filter(item => item.opacity !== 0 && item.w > 0 && item.h > 0);
+      if (!visible.length) return { x: 0, y: 0, w: width, h: height };
+      const background = visible.find(item => item.locked && item.x <= 0 && item.y <= 0 && item.w >= width && item.h >= height);
+      if (background) return { x: 0, y: 0, w: width, h: height };
+      const left = Math.max(0, Math.floor(Math.min(...visible.map(item => item.x))));
+      const top = Math.max(0, Math.floor(Math.min(...visible.map(item => item.y))));
+      const right = Math.min(width, Math.ceil(Math.max(...visible.map(item => item.x + item.w))));
+      const bottom = Math.min(height, Math.ceil(Math.max(...visible.map(item => item.y + item.h))));
+      return { x: left, y: top, w: Math.max(1, right - left), h: Math.max(1, bottom - top) };
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
     async function exportPNG() {
       const exportButton = document.getElementById('exportPngButton');
       const selectedId = selected?.id || null;
       const toolbarWasVisible = floatToolbar.classList.contains('show');
       if (exportButton?.disabled) return;
+      if (activeEditable?.isConnected) syncEditableToState(activeEditable);
       if (exportButton) { exportButton.disabled = true; exportButton.textContent = 'Đang xuất…'; }
       document.body.classList.add('is-exporting');
       floatToolbar.classList.remove('show');
-      stage.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+      stage.querySelectorAll('.selected,.multi-selected').forEach(el => el.classList.remove('selected', 'multi-selected'));
       status('Đang tạo ảnh chất lượng cao…');
+      let exportHost = null;
       try {
-        if (typeof html2canvas === 'undefined') {
-          throw new Error('Không tải được thư viện html2canvas. Hãy kiểm tra kết nối Internet rồi thử lại.');
-        }
+        if (typeof html2canvas === 'undefined') throw new Error('Không tải được thư viện html2canvas. Hãy kiểm tra kết nối Internet rồi thử lại.');
         await Promise.all([document.fonts.ready, waitForStageImages()]);
+        const bounds = getExportBounds();
+        const solidBackground = canvasBg.value || TEMPLATE_META[activeTemplateType].bg || '#ffffff';
+        exportHost = document.createElement('div');
+        exportHost.style.cssText = `position:fixed;left:-20000px;top:0;width:${stage.offsetWidth}px;height:${stage.offsetHeight}px;overflow:hidden;background:${solidBackground};z-index:-1;`;
+        const clone = stage.cloneNode(true);
+        clone.style.transform = 'none'; clone.style.transformOrigin = 'top left';
+        clone.style.width = stage.offsetWidth + 'px'; clone.style.height = stage.offsetHeight + 'px';
+        clone.style.background = solidBackground;
+        clone.querySelectorAll('.selected,.multi-selected').forEach(el => el.classList.remove('selected', 'multi-selected'));
+        exportHost.appendChild(clone); document.body.appendChild(exportHost);
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        const canvas = await html2canvas(stage, {
-          scale: 2,
-          width: stage.offsetWidth,
-          height: stage.offsetHeight,
-          backgroundColor: null,
-          useCORS: true,
-          logging: false,
-          imageTimeout: 5000
-        });
+        const rendered = await html2canvas(clone, { scale: 2, width: stage.offsetWidth, height: stage.offsetHeight, backgroundColor: solidBackground, useCORS: true, logging: false, imageTimeout: 8000 });
+        const output = document.createElement('canvas');
+        output.width = bounds.w * 2; output.height = bounds.h * 2;
+        const context = output.getContext('2d', { alpha: false });
+        context.fillStyle = solidBackground; context.fillRect(0, 0, output.width, output.height);
+        context.drawImage(rendered, bounds.x * 2, bounds.y * 2, bounds.w * 2, bounds.h * 2, 0, 0, output.width, output.height);
+        const blob = await new Promise((resolve, reject) => output.toBlob(value => value ? resolve(value) : reject(new Error('Không thể mã hóa PNG.')), 'image/png'));
         const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
-        const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png', 1);
-        a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-${date}.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        status(`Đã xuất PNG ${canvas.width} × ${canvas.height}px`);
+        downloadBlob(blob, `${TEMPLATE_META[activeTemplateType].filePrefix}-${date}.png`);
+        status(`Đã xuất PNG ${output.width} × ${output.height}px · nền đặc`);
       } catch (err) {
-        console.error('Export PNG failed', err);
-        alert('Lỗi xuất PNG: ' + err.message);
+        console.error('Export PNG failed', err); alert('Lỗi xuất PNG: ' + err.message);
       } finally {
-        document.body.classList.remove('is-exporting');
+        exportHost?.remove(); document.body.classList.remove('is-exporting');
         if (exportButton) { exportButton.disabled = false; exportButton.textContent = 'Xuất PNG'; }
         selectedIds.forEach(id => stage.querySelector(`[data-id="${id}"]`)?.classList.add('multi-selected'));
-        if (selectedId) {
-          selected = state.elements.find(item => item.id === selectedId) || null;
-          stage.querySelector(`[data-id="${selectedId}"]`)?.classList.add('selected');
-        }
+        if (selectedId) { selected = state.elements.find(item => item.id === selectedId) || null; stage.querySelector(`[data-id="${selectedId}"]`)?.classList.add('selected'); }
         if (toolbarWasVisible && getSelectionInsideEditable()) floatToolbar.classList.add('show');
       }
     }
 
 
-    function getLocalSaveKey(type = activeTemplateType) {
-      return `vnindex_report_saved_project_v2:${type}`;
+    function getLocalSaveKey(type = activeTemplateType) { return `vnindex_report_saved_project_v2:${type}`; }
+
+    function openProjectDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(PROJECT_DB_NAME, PROJECT_DB_VERSION);
+        request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(PROJECT_STORE)) request.result.createObjectStore(PROJECT_STORE); };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Không mở được IndexedDB.'));
+      });
     }
+    async function dbProject(action, type, value) {
+      const db = await openProjectDB();
+      try {
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(PROJECT_STORE, action === 'get' ? 'readonly' : 'readwrite');
+          const store = tx.objectStore(PROJECT_STORE);
+          const request = action === 'get' ? store.get(type) : action === 'put' ? store.put(value, type) : store.delete(type);
+          let result;
+          request.onsuccess = () => { result = request.result; };
+          request.onerror = () => reject(request.error || new Error('Giao dịch IndexedDB thất bại.'));
+          tx.oncomplete = () => resolve(result);
+          tx.onabort = () => reject(tx.error || new Error('Giao dịch IndexedDB bị hủy.'));
+          tx.onerror = () => reject(tx.error || new Error('Giao dịch IndexedDB thất bại.'));
+        });
+      } finally { db.close(); }
+    }
+    const readSavedProject = type => dbProject('get', type);
+    const writeSavedProject = (type, data) => dbProject('put', type, data);
+    const deleteSavedProject = type => dbProject('delete', type);
 
     function getProjectData() {
-      return {
-        schemaVersion: SCHEMA_VERSION,
-        templateType: activeTemplateType,
-        templateRevision: TEMPLATE_META[activeTemplateType].revision,
-        canvas: {
-          w: +canvasW.value || 1600,
-          h: +canvasH.value || 1000,
-          bg: canvasBg.value || '#f7f9fc',
-          zoom: +zoomInput.value || 70
-        },
-        state
-      };
+      return { schemaVersion: SCHEMA_VERSION, templateType: activeTemplateType, templateRevision: TEMPLATE_META[activeTemplateType].revision,
+        savedAt: new Date().toISOString(), canvas: { w: +canvasW.value || 1600, h: +canvasH.value || 1000, bg: canvasBg.value || '#f7f9fc', zoom: +zoomInput.value || 70 }, state };
+    }
+    function validateProjectData(data) {
+      if (!data || typeof data !== 'object') throw new Error('Project phải là một object JSON.');
+      const projectState = data.state || data;
+      if (!Array.isArray(projectState.elements)) throw new Error('Project thiếu danh sách phần tử.');
+      if (data.schemaVersion && data.schemaVersion > SCHEMA_VERSION) throw new Error('Project được tạo bởi phiên bản mới hơn.');
+      if (data.templateType && !TEMPLATE_META[data.templateType]) throw new Error('Loại template không được hỗ trợ.');
+      const allowed = new Set(['text','card','image','icon','marketWidget','indexTable']);
+      projectState.elements.forEach((item, index) => {
+        if (!item || !allowed.has(item.type)) throw new Error(`Phần tử ${index + 1} không hợp lệ.`);
+        if (item.type === 'image' && item.src && !/^data:image\/(png|jpe?g|webp|gif|svg\+xml)[;,]/i.test(item.src)) throw new Error(`Ảnh tại phần tử ${index + 1} không hợp lệ.`);
+      });
+      (projectState.customFonts || []).forEach(font => { if (!font.name || !/^data:font\/|^data:application\/(font|x-font|octet-stream)/i.test(font.dataUrl || '')) throw new Error('Font nhúng không hợp lệ.'); });
+      return data;
+    }
+    function safeProjectJSON(data, pretty = false) {
+      return JSON.stringify(data, null, pretty ? 2 : 0).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
     }
 
     function migrateResponsiveLayoutMetadata(canvasHeight) {
-      const containers = (state.elements || []).filter(item =>
-        item.layoutRole === 'container' ||
-        (item.type === 'card' && item.w >= 500 && item.h >= 200 && item.y >= 130 && item.y < 950)
-      ).sort((a, b) => a.y - b.y || a.x - b.x).slice(0, 4);
+      const containers = (state.elements || []).filter(item => item.layoutRole === 'container' ||
+        (item.type === 'card' && item.w >= 500 && item.h >= 200 && item.y >= 130 && item.y < 950))
+        .sort((a, b) => a.y - b.y || a.x - b.x).slice(0, 4);
       if (containers.length !== 4) return canvasHeight || 1000;
       const [topLeft, topRight, bottomLeft, bottomRight] = containers;
       const legacyTemplate = Number(canvasHeight) === 900 &&
@@ -3398,25 +3503,15 @@
         Math.abs(bottomLeft.y - 548) <= 1 && Math.abs(bottomRight.y - 548) <= 1 &&
         Math.abs(topLeft.h - 388) <= 1 && Math.abs(topRight.h - 388) <= 1 &&
         Math.abs(bottomLeft.h - 276) <= 1 && Math.abs(bottomRight.h - 276) <= 1;
-
       if (legacyTemplate) {
-        const changes = [
-          [topLeft, { x: topLeft.x, y: 142, w: topLeft.w, h: 448 }],
-          [topRight, { x: topRight.x, y: 142, w: topRight.w, h: 448 }],
-          [bottomLeft, { x: bottomLeft.x, y: 608, w: bottomLeft.w, h: 316 }],
-          [bottomRight, { x: bottomRight.x, y: 608, w: bottomRight.w, h: 316 }]
-        ];
-        changes.forEach(([panel, bounds]) => {
-          const snapshot = snapshotContainer(panel);
-          Object.assign(panel, bounds);
-          reflowContainerChildren(snapshot, bounds);
-        });
+        [[topLeft, { x: topLeft.x, y: 142, w: topLeft.w, h: 448 }], [topRight, { x: topRight.x, y: 142, w: topRight.w, h: 448 }],
+        [bottomLeft, { x: bottomLeft.x, y: 608, w: bottomLeft.w, h: 316 }], [bottomRight, { x: bottomRight.x, y: 608, w: bottomRight.w, h: 316 }]]
+          .forEach(([panel, bounds]) => { const snapshot = snapshotContainer(panel); Object.assign(panel, bounds); reflowContainerChildren(snapshot, bounds); });
         state.elements.forEach(item => {
           if (item.locked && item.type === 'card' && item.x === 0 && item.y === 0 && item.w === 1600 && item.h === 900) item.h = 1000;
           if (item.type === 'text' && Math.abs(item.y - 844) <= 1 && item.w >= 1400) item.y = 944;
         });
       }
-
       Object.assign(topLeft, { layoutRole: 'container', minW: 620, minH: 380 });
       Object.assign(topRight, { layoutRole: 'container', minW: 560, minH: 380 });
       Object.assign(bottomLeft, { layoutRole: 'container', minW: 620, minH: 250 });
@@ -3424,111 +3519,62 @@
       return legacyTemplate ? 1000 : (canvasHeight || 1000);
     }
 
-    async function loadProjectData(data) {
-      activeTemplateType = data.templateType || 'morning-brief';
-      state = data.state || data;
+    async function loadProjectData(input) {
+      const data = validateProjectData(input);
+      activeTemplateType = data.templateType || 'morning-brief'; state = data.state || data;
       if (!state.nextId) state.nextId = (state.elements?.length || 0) + 1;
-      const migratedCanvasHeight = activeTemplateType === 'morning-brief' ? migrateResponsiveLayoutMetadata(data.canvas?.h) : (data.canvas?.h || TEMPLATE_META[activeTemplateType].height);
-      if (data.canvas) {
-        canvasW.value = data.canvas.w || 1600;
-        canvasH.value = migratedCanvasHeight;
-        canvasBg.value = data.canvas.bg || '#f7f9fc';
-        zoomInput.value = data.canvas.zoom || zoomInput.value || 70;
-      }
-      selected = null;
-      selectedIds.clear();
-      if (!state.customFonts) state.customFonts = [];
-      if (!state.defaultFont) state.defaultFont = "'Be Vietnam Pro'";
-      await restoreCustomFonts();
-      document.getElementById('globalFont').value = state.defaultFont;
-      applyCanvas();
-      applyZoom();
-      render();
-      historyStack = [];
-      redoStack = [];
-      pushHistory(true);
+      const migratedHeight = activeTemplateType === 'morning-brief' ? migrateResponsiveLayoutMetadata(data.canvas?.h) : (data.canvas?.h || TEMPLATE_META[activeTemplateType].height);
+      if (data.canvas) { canvasW.value = data.canvas.w || 1600; canvasH.value = migratedHeight; canvasBg.value = data.canvas.bg || TEMPLATE_META[activeTemplateType].bg; zoomInput.value = data.canvas.zoom || zoomInput.value || 70; }
+      selected = null; selectedIds.clear(); if (!state.customFonts) state.customFonts = []; if (!state.defaultFont) state.defaultFont = "'Be Vietnam Pro'";
+      await restoreCustomFonts(); document.getElementById('globalFont').value = state.defaultFont;
+      applyCanvas(); applyZoom(); render(); historyStack = []; redoStack = []; pushHistory(true);
     }
 
     function autoSaveLocal() {
-      try {
-        localStorage.setItem(getLocalSaveKey(), JSON.stringify(getProjectData()));
-      } catch (err) {
-        console.warn('Local save failed:', err);
-      }
+      clearTimeout(persistenceTimer);
+      persistenceTimer = setTimeout(() => {
+        const type = activeTemplateType; const data = getProjectData();
+        pendingPersistence = writeSavedProject(type, data).catch(err => { console.error('Autosave failed', err); status('Không thể tự lưu: ' + err.message); });
+      }, 500);
+      return pendingPersistence;
     }
-
-    function saveLocalProject() {
-      if (activeEditable?.isConnected) syncEditableToState(activeEditable);
-      autoSaveLocal();
-      status('Đã lưu bản chỉnh sửa trên trình duyệt · Ctrl+S');
+    async function flushLocalSave() {
+      clearTimeout(persistenceTimer);
+      const type = activeTemplateType; const data = getProjectData();
+      pendingPersistence = writeSavedProject(type, data); await pendingPersistence;
     }
-
+    async function saveLocalProject() {
+      try { if (activeEditable?.isConnected) syncEditableToState(activeEditable); await flushLocalSave(); updateTemplateBadges(); status('Đã lưu đầy đủ text, ảnh và bố cục · Ctrl+S'); }
+      catch (err) { console.error(err); alert('Không thể lưu bản sửa: ' + err.message); }
+    }
     async function restoreLocalProject() {
-      const raw = localStorage.getItem(getLocalSaveKey());
-      if (!raw) {
-        alert('Chưa có bản lưu nào trên trình duyệt này.');
-        return;
-      }
-      try {
-        const data = JSON.parse(raw);
-        await loadProjectData(data);
-        status('Đã khôi phục bản lưu gần nhất');
-      } catch (err) {
-        alert('Không thể khôi phục bản lưu.');
-      }
+      try { const data = await readSavedProject(activeTemplateType); if (!data) { alert('Chưa có bản lưu nào trên trình duyệt này.'); return; } await loadProjectData(data); status('Đã khôi phục đầy đủ bản lưu gần nhất'); }
+      catch (err) { alert('Không thể khôi phục bản lưu: ' + err.message); }
     }
-
-    function clearLocalProject() {
-      localStorage.removeItem(getLocalSaveKey());
-      status('Đã xóa bản lưu trên trình duyệt');
-    }
+    async function clearLocalProject() { try { await deleteSavedProject(activeTemplateType); localStorage.removeItem(getLocalSaveKey()); await updateTemplateBadges(); status('Đã xóa bản lưu trên trình duyệt'); } catch (err) { alert('Không thể xóa bản lưu: ' + err.message); } }
 
     function exportEditableHTML() {
       try {
         if (activeEditable?.isConnected) syncEditableToState(activeEditable);
-        const payload = JSON.stringify(getProjectData()).replace(/</g, '\\u003c');
+        const payload = safeProjectJSON(getProjectData());
         const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('.selected,.multi-selected,.show').forEach(el => el.classList.remove('selected','multi-selected','show'));
         let marker = clone.querySelector('#initialProjectData');
-        if (!marker) {
-          marker = document.createElement('script');
-          marker.id = 'initialProjectData';
-          marker.type = 'application/json';
-          clone.querySelector('head').appendChild(marker);
-        }
+        if (!marker) { marker = document.createElement('script'); marker.id = 'initialProjectData'; marker.type = 'application/json'; clone.querySelector('head').appendChild(marker); }
         marker.textContent = payload;
-        const output = '<!DOCTYPE html>\n' + clone.outerHTML;
-        const blob = new Blob([output], { type: 'text/html;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-custom.html`;
-        a.click();
-        URL.revokeObjectURL(a.href);
+        downloadBlob(new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html;charset=utf-8' }), `${TEMPLATE_META[activeTemplateType].filePrefix}-custom.html`);
         status('Đã xuất HTML đã chỉnh');
-      } catch (err) {
-        alert('Không thể xuất HTML: ' + err.message);
-      }
+      } catch (err) { alert('Không thể xuất HTML: ' + err.message); }
     }
-
     function saveProject() {
-      const data = getProjectData();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${TEMPLATE_META[activeTemplateType].filePrefix}-project.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      try { if (activeEditable?.isConnected) syncEditableToState(activeEditable); const data = validateProjectData(getProjectData()); downloadBlob(new Blob([safeProjectJSON(data, true)], { type: 'application/json' }), `${TEMPLATE_META[activeTemplateType].filePrefix}-project.json`); status('Đã tải project JSON'); }
+      catch (err) { alert('Không thể lưu JSON: ' + err.message); }
     }
-
     document.getElementById('loadProjectInput').addEventListener('change', e => {
-      const f = e.target.files[0]; if (!f) return;
+      const input = e.target; const f = input.files[0]; if (!f) return;
       const r = new FileReader();
-      r.onload = async () => {
-        try {
-          const data = JSON.parse(r.result);
-          await loadProjectData(data);
-          status('Đã mở project');
-        } catch (err) { alert('File JSON không hợp lệ'); }
-      };
+      r.onerror = () => { alert('Không thể đọc file JSON.'); input.value = ''; };
+      r.onload = async () => { try { const data = validateProjectData(JSON.parse(r.result)); await loadProjectData(data); await flushLocalSave(); enterEditorHistory(activeTemplateType, true); status('Đã mở và lưu project'); } catch (err) { alert('Không thể mở project: ' + err.message); } finally { input.value = ''; } };
       r.readAsText(f);
     });
 
@@ -3815,74 +3861,69 @@
       else resetMorningBriefTemplate();
     }
 
-    function updateTemplateBadges() {
-      document.querySelectorAll('[data-save-badge]').forEach(badge => {
-        const type = badge.dataset.saveBadge;
-        badge.textContent = localStorage.getItem(getLocalSaveKey(type)) ? 'Có bản lưu · Click để tiếp tục' : TEMPLATE_META[type].name;
-      });
-    }
-
-    async function openTemplate(type) {
-      activeTemplateType = TEMPLATE_META[type] ? type : 'morning-brief';
-      document.body.classList.remove('chooser-open');
-      document.getElementById('templateChooser').hidden = true;
-      const raw = localStorage.getItem(getLocalSaveKey());
-      if (raw) {
-        try {
-          const saved = JSON.parse(raw);
-          const currentRevision = TEMPLATE_META[activeTemplateType].revision;
-          if ((saved.templateRevision || 0) >= currentRevision) {
-            await loadProjectData(saved); status('Đã tiếp tục bản lưu gần nhất'); return;
-          }
-          localStorage.removeItem(getLocalSaveKey());
-          status('Đã cập nhật mẫu sang thiết kế mới');
-        } catch (err) { console.warn('Cannot restore selected template', err); }
+    async function migrateLegacySaves() {
+      const legacy = localStorage.getItem(LEGACY_LOCAL_SAVE_KEY);
+      if (legacy && !localStorage.getItem(getLocalSaveKey('morning-brief'))) localStorage.setItem(getLocalSaveKey('morning-brief'), legacy);
+      for (const type of Object.keys(TEMPLATE_META)) {
+        if (await readSavedProject(type)) continue;
+        const raw = localStorage.getItem(getLocalSaveKey(type));
+        if (!raw) continue;
+        try { const data = validateProjectData(JSON.parse(raw)); await writeSavedProject(type, data); localStorage.removeItem(getLocalSaveKey(type)); }
+        catch (err) { console.warn('Legacy save migration failed', type, err); }
       }
+    }
+    async function updateTemplateBadges() {
+      for (const badge of document.querySelectorAll('[data-save-badge]')) {
+        const type = badge.dataset.saveBadge; let saved = null;
+        try { saved = await readSavedProject(type); } catch (err) { console.warn(err); }
+        badge.textContent = saved ? 'Có bản lưu · Click để tiếp tục' : TEMPLATE_META[type].name;
+      }
+    }
+    function enterEditorHistory(type, replace = false) {
+      const method = replace ? 'replaceState' : 'pushState';
+      history[method]({ view: 'editor', templateType: type }, '', `#${type}`);
+    }
+    function enterChooserHistory(replace = false) {
+      const method = replace ? 'replaceState' : 'pushState';
+      history[method]({ view: 'chooser' }, '', location.pathname + location.search);
+    }
+    async function openTemplate(type, fromHistory = false) {
+      activeTemplateType = TEMPLATE_META[type] ? type : 'morning-brief';
+      document.body.classList.remove('chooser-open'); document.getElementById('templateChooser').hidden = true;
+      if (!fromHistory) enterEditorHistory(activeTemplateType);
+      try {
+        const saved = await readSavedProject(activeTemplateType);
+        if (saved) { await loadProjectData(saved); status('Đã tiếp tục bản lưu gần nhất'); applyResponsiveWorkspace(isMobileViewport()); return; }
+      } catch (err) { console.warn('Cannot restore selected template', err); status('Không thể đọc bản lưu: ' + err.message); }
       resetTemplate(); autoSaveLocal(); applyResponsiveWorkspace(isMobileViewport());
     }
-
-    function showTemplateChooser() {
-      exitTextEditing(); closeMobileDrawers(); updateTemplateBadges();
-      document.body.classList.add('chooser-open');
-      document.getElementById('templateChooser').hidden = false;
+    async function showTemplateChooser(fromHistory = false) {
+      exitTextEditing(); closeMobileDrawers();
+      if (!document.body.classList.contains('chooser-open')) autoSaveLocal();
+      await updateTemplateBadges(); document.body.classList.add('chooser-open'); document.getElementById('templateChooser').hidden = false;
+      if (!fromHistory) history.back();
     }
-
     function readInitialProject() {
-      const marker = document.getElementById('initialProjectData');
-      const raw = marker?.textContent?.trim();
-      if (raw && raw !== 'null') {
-        try {
-          return JSON.parse(raw);
-        } catch (err) {
-          console.warn('Cannot parse embedded project data', err);
-        }
-      }
+      const marker = document.getElementById('initialProjectData'); const raw = marker?.textContent?.trim();
+      if (raw && raw !== 'null') { try { return validateProjectData(JSON.parse(raw)); } catch (err) { console.warn('Cannot parse embedded project data', err); } }
       return window.__INITIAL_PROJECT__ || null;
     }
-
     async function initApp() {
+      await migrateLegacySaves();
       const initialProject = readInitialProject();
-      if (initialProject) {
-        await loadProjectData(initialProject);
-        document.body.classList.remove('chooser-open');
-        document.getElementById('templateChooser').hidden = true;
-        status('Đã mở bản HTML đã lưu');
-        return;
-      }
-      const legacy = localStorage.getItem(LEGACY_LOCAL_SAVE_KEY);
-      if (legacy && !localStorage.getItem(getLocalSaveKey('morning-brief'))) {
-        localStorage.setItem(getLocalSaveKey('morning-brief'), legacy);
-      }
-      updateTemplateBadges();
-      showTemplateChooser();
+      if (initialProject) { await loadProjectData(initialProject); document.body.classList.remove('chooser-open'); document.getElementById('templateChooser').hidden = true; enterEditorHistory(activeTemplateType, true); status('Đã mở bản HTML đã lưu'); return; }
+      await updateTemplateBadges(); document.body.classList.add('chooser-open'); document.getElementById('templateChooser').hidden = false; enterChooserHistory(true);
     }
-    let responsiveResizeTimer = null;
-    window.addEventListener('resize', () => {
-      clearTimeout(responsiveResizeTimer);
-      responsiveResizeTimer = setTimeout(() => applyResponsiveWorkspace(isMobileViewport()), 160);
+    window.addEventListener('popstate', async event => {
+      const route = event.state || {};
+      if (route.view === 'editor' && TEMPLATE_META[route.templateType]) await openTemplate(route.templateType, true);
+      else await showTemplateChooser(true);
     });
+    window.addEventListener('pagehide', () => { if (!document.body.classList.contains('chooser-open')) autoSaveLocal(); });
+    let responsiveResizeTimer = null;
+    window.addEventListener('resize', () => { clearTimeout(responsiveResizeTimer); responsiveResizeTimer = setTimeout(() => applyResponsiveWorkspace(isMobileViewport()), 160); });
     window.addEventListener('orientationchange', () => setTimeout(() => applyResponsiveWorkspace(true), 220));
-    initApp().then(() => applyResponsiveWorkspace(isMobileViewport()));
+    initApp().then(() => applyResponsiveWorkspace(isMobileViewport())).catch(err => { console.error(err); alert('Không thể khởi động ứng dụng: ' + err.message); });
   </script>
 
 

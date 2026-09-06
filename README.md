@@ -9,16 +9,17 @@ Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duy
 
 1. Mở `app.html` hoặc URL Vercel.
 2. Chọn **Bản tin sáng** hoặc **Báo cáo chiến lược**.
-3. Click phần tử để chọn; double-click text để sửa trực tiếp.
-4. Kéo phần tử hoặc các cạnh/góc để thay đổi vị trí và kích thước.
-5. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
-6. Nhấn **Xuất PNG** khi hoàn tất.
+3. Click phần tử để chọn; double-click text, tiêu đề bảng hoặc từng ô bảng để sửa trực tiếp.
+4. Trong bảng, nhấn `Enter`/click ra ngoài để lưu ô hoặc `Escape` để hủy.
+5. Kéo phần tử hoặc các cạnh/góc để thay đổi vị trí và kích thước.
+6. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
+7. Nhấn **Xuất PNG** khi hoàn tất.
 
 ## Báo cáo chiến lược
 
-- **Bảng biến động**: nhập mỗi dòng theo định dạng
+- **Bảng biến động**: double-click tiêu đề hoặc từng ô để sửa trực tiếp; cũng có thể nhập nhiều dòng trong panel phải theo định dạng
   `CHỈ SỐ | ĐÓNG CỬA | THAY ĐỔI | % THAY ĐỔI`.
-- Giá trị có dấu `+` tự hiển thị xanh; dấu `-` tự hiển thị đỏ.
+- Giá trị có dấu `+` tự hiển thị xanh; dấu `-` tự hiển thị đỏ sau khi hoàn tất sửa ô.
 - Template có ba khung ảnh: một biểu đồ VNINDEX và hai biểu đồ khối ngoại.
 - Double-click khung ảnh hoặc chọn **Thay ảnh** trong Thuộc tính để tải ảnh.
 - **Xóa ảnh trong khung** đưa slot về trạng thái chờ upload.
@@ -26,16 +27,17 @@ Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duy
 
 ## Lưu và khôi phục
 
-- `Ctrl+S` / `Cmd+S` hoặc **Lưu bản sửa** lưu vào trình duyệt.
-- Hai template có vùng lưu riêng, không ghi đè lẫn nhau.
+- `Ctrl+S` / `Cmd+S` hoặc **Lưu bản sửa** lưu toàn bộ text, ảnh, font và bố cục vào IndexedDB của trình duyệt.
+- Hai template có vùng lưu riêng, không ghi đè lẫn nhau; bản lưu cũ trong `localStorage` được tự động chuyển đổi.
+- Nút Back của trình duyệt từ editor quay về màn hình chọn mẫu; Forward mở lại template.
 - **Lưu JSON** tải project để sao lưu hoặc chuyển máy.
-- **Xuất HTML đã chỉnh** tạo file độc lập có thể mở, sửa và xuất lại nhiều vòng.
+- **Xuất HTML đã chỉnh** tạo file độc lập có payload được escape an toàn và có thể mở, sửa, xuất lại.
 - Màn hình chọn mẫu hiển thị khi template đã có bản lưu trên trình duyệt.
 
 ## Kích thước xuất
 
-- Bản tin sáng: canvas `1600 × 1000px`, PNG `3200 × 2000px`.
-- Báo cáo chiến lược: canvas `1600 × 900px`, PNG `3200 × 1800px`.
+- PNG được render ở độ phân giải 2×, crop theo khung nội dung và luôn có nền đặc, không còn pixel trong suốt bị hiển thị thành đen.
+- Với template phủ kín canvas, Bản tin sáng xuất `3200 × 2000px`; Báo cáo chiến lược xuất `3200 × 1800px`.
 
 ## Chạy local
 
@@ -54,6 +56,8 @@ npx -y serve .
 ## Quyền riêng tư và giới hạn
 
 - Ứng dụng không có backend và không tự gửi nội dung lên máy chủ.
-- Font/ảnh upload được nhúng vào project nên file JSON/HTML có thể lớn.
+- Bản lưu IndexedDB gắn với đúng trình duyệt và domain hiện tại; hãy dùng JSON/HTML để chuyển máy hoặc sao lưu ngoài trình duyệt.
+- Font/ảnh upload được nhúng vào project nên bản lưu và file JSON/HTML có thể lớn.
+- Nếu trình duyệt chặn IndexedDB hoặc hết dung lượng, ứng dụng sẽ báo lỗi thay vì báo lưu thành công.
 - `html2canvas` tải từ jsDelivr; cần truy cập CDN khi mở ứng dụng lần đầu.
 - Nội dung và chiến lược chỉ mang tính tham khảo; người dùng chịu trách nhiệm kiểm tra số liệu và nguồn trước khi gửi khách hàng.
