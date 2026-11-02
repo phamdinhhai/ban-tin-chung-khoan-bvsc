@@ -1,55 +1,45 @@
 # BVSC Report Studio
 
-Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duyệt, gồm hai mẫu:
+Studio thiết kế báo cáo chứng khoán chạy hoàn toàn trên trình duyệt, gồm hai mẫu chính:
 
-- **Bản tin sáng**: tổng quan thị trường, tin tức, nội dung và chiến lược trong ngày.
-- **Báo cáo chiến lược**: biến động chỉ số, biểu đồ, chiến lược tuần và tin tức nổi bật.
+- **Bản tin sáng**: tổng quan thị trường, tin tức, nội dung và chiến lược trong ngày (`1600 × 1000px`).
+- **Báo cáo chiến lược**: biến động chỉ số, biểu đồ, chiến lược tuần và tin tức nổi bật (`1600 × 900px`).
 
-## Sử dụng
+## Điểm nổi bật & Cơ chế thao tác
 
-1. Mở `app.html` hoặc URL Vercel.
-2. Chọn **Bản tin sáng** hoặc **Báo cáo chiến lược**.
-3. Click phần tử để chọn; double-click text, tiêu đề bảng hoặc từng ô bảng để sửa trực tiếp.
-4. Trong bảng, nhấn `Enter`/click ra ngoài để lưu ô hoặc `Escape` để hủy.
-5. Kéo phần tử hoặc các cạnh/góc để thay đổi vị trí và kích thước.
-6. Nhấn **+ Ảnh** để đặt ảnh tự do trực tiếp lên trang; ảnh mới giữ đúng tỷ lệ và không bị crop.
-7. Với ảnh tự do: kéo góc để phóng/thu đúng tỷ lệ; giữ `Shift` khi kéo góc hoặc tắt **Khóa tỷ lệ** để kéo dãn.
-8. Kéo nút vàng để xoay; dùng panel phải để lật ngang, lật dọc, khôi phục tỷ lệ hoặc kích thước gốc.
-9. Chọn ảnh rồi bấm **Cắt ảnh**, double-click ảnh có nội dung, hoặc chuột phải và chọn **Crop hình**.
-10. Chuột phải trên ảnh cũng mở nhanh **Lật ngang**, **Lật dọc**, **Xoay 90°** và **Tạo/Bỏ stroke**.
-11. Trong crop, kéo một trong 8 tay nắm ở 4 cạnh và 4 góc để cắt đúng phần ảnh ở mép tương ứng; cạnh đối diện được giữ nguyên.
-12. Kéo bên trong ảnh để đổi vùng nguồn đang hiển thị; con lăn/slider zoom là thao tác độc lập. Có thể chọn tỷ lệ Tự do, 1:1, 4:3, 16:9 hoặc 9:16.
-13. Click ra ngoài ảnh hoặc nhấn `Ctrl+S`/`Cmd+S` sẽ tự **Áp dụng** crop, thoát chế độ crop và lưu thay đổi; ảnh có thể thao tác tiếp ngay.
-14. Bấm **Áp dụng**/`Enter` để lưu thủ công; **Hủy**/`Escape` để phục hồi; **Đặt lại crop** để hiển thị lại toàn bộ ảnh gốc.
-15. Crop không ghi đè ảnh gốc; vùng ảnh nguồn và khung hiển thị được lưu trong IndexedDB, JSON và HTML.
-16. Dùng panel phải để chỉnh nội dung, hình thức và geometry chính xác.
-17. Nhấn **Xuất PNG** khi hoàn tất; nếu đang crop, thao tác hiện tại được tự Áp dụng trước khi xuất.
+### 1. Giao diện Studio & Điều hướng nhanh
+- **Studio Topbar**: chuyển đổi tức thì giữa **Bản tin sáng** và **Chiến lược tuần**, theo dõi trạng thái tự động lưu thời gian thực (`Đã lưu · hh:mm`), Undo/Redo, bật/tắt **Snap** (bắt dính thông minh), bật/tắt **Lưới (Grid)**, chọn độ phân giải xuất PNG (`1×`, `2×`, `3×`) và bảng phím tắt (`?`).
+- **Sidebar theo Tab khoa học**:
+  - Tab **+ Thêm & Bố cục**: thêm nhanh Text, Card, Ảnh, Widget chỉ số, Bảng biến động, Nhãn tiêu đề (Pill), Đường kẻ, 16 Icon SVG tài chính, Emoji; chọn **Chủ đề màu (Theme Presets)** (BVSC Navy Gold, Ocean Blue, Emerald Finance, Slate Minimal) và kích thước trang nhanh.
+  - Tab **Lớp & Kiểm tra**: tìm kiếm/lọc Layer theo tên, Ẩn/Hiện (`👁`), Khóa/Mở (`🔒`), double-click tên Layer để đổi tên, cùng checklist kiểm duyệt chất lượng trước khi gửi.
+- **Floating Zoom HUD**: thu/phóng nhanh ở góc dưới phải, bấm vào `%` để về `100%`, bấm **Vừa màn hình** để tự căn khít vùng làm việc, giữ `Ctrl + Con lăn chuột` để zoom hoặc giữ `Space + Kéo chuột` để trượt (pan) vùng nhìn.
 
-## Báo cáo chiến lược
+### 2. Chỉnh sửa trực tiếp & Căn chỉnh thông minh
+- **Smart Snap Guides**: tự động bắt dính và hiển thị đường gióng khi di chuyển phần tử trùng mép hoặc tâm với Canvas và các phần tử khác (giữ `Alt` khi kéo để tạm tắt bắt dính).
+- **Quét chọn nhiều mục (Marquee Selection)**: kéo chuột trên vùng nền trống hoặc giữ `Shift + Click` để chọn nhiều phần tử; hỗ trợ `Ctrl+A` (chọn tất cả), `Ctrl+C` / `Ctrl+V` (sao chép & dán phần tử).
+- **Căn chỉnh & Phân bổ (Align & Distribute)**: căn lề trái/giữa/phải/trên/giữa dọc/dưới theo Canvas hoặc theo nhóm đang chọn; chia đều khoảng cách ngang/dọc khi chọn từ 3 phần tử trở lên.
+- **Rich-text nâng cao**: double-click vào văn bản và bôi đen cụm từ để mở thanh định dạng nổi (Đậm `B`, Nghiêng `I`, Gạch chân `U`, Đổi màu chữ, Highlight nền vàng, Tăng/Giảm cỡ chữ từng cụm).
+- **Sửa trực tiếp trên Widget chỉ số & Bảng biến động**:
+  - Double-click trực tiếp vào bất kỳ con số, tiêu đề hoặc dòng thống kê nào trong **Widget chỉ số** (`marketWidget`) và **Bảng biến động** (`indexTable`) ngay trên Canvas để sửa nhanh.
+  - Hỗ trợ nút **+ Thêm dòng** / **− Xóa dòng cuối** cho Bảng biến động trong bảng thuộc tính.
 
-- **Bảng biến động**: double-click tiêu đề hoặc từng ô để sửa trực tiếp; cũng có thể nhập nhiều dòng trong panel phải theo định dạng
-  `CHỈ SỐ | ĐÓNG CỬA | THAY ĐỔI | % THAY ĐỔI`.
-- Giá trị có dấu `+` tự hiển thị xanh; dấu `-` tự hiển thị đỏ sau khi hoàn tất sửa ô.
-- Template có ba **khung ảnh**: một biểu đồ VNINDEX và hai biểu đồ khối ngoại.
-- Double-click khung ảnh hoặc chọn **Thay ảnh** trong Thuộc tính để tải ảnh; frame hỗ trợ Cover, Contain và Fill.
-- **Xóa ảnh trong khung** đưa slot về trạng thái chờ upload.
-- Ảnh tạo bằng **+ Ảnh** là ảnh tự do, có thể chuyển sang chế độ Trong khung và ngược lại mà không mất dữ liệu ảnh.
-- Các trạng thái khóa tỷ lệ, xoay, lật, kích thước và chế độ ảnh được lưu trong IndexedDB, JSON và HTML.
-- Khoảng ngày tự tạo theo tuần làm việc thứ Hai–thứ Sáu và vẫn sửa được như text.
+### 3. Quy trình Hình ảnh & Biểu đồ
+- **Dán thẳng từ Clipboard (`Ctrl+V`)**: chụp màn hình biểu đồ (TradingView, FiinTrade, Vietstock...) và nhấn `Ctrl+V` để dán thẳng vào khung ảnh đang chọn hoặc tạo ảnh mới trên trang.
+- **Kéo-thả file ảnh (Drag & Drop)**: kéo file ảnh từ máy tính thả trực tiếp vào khung biểu đồ bất kỳ trên Canvas (hoặc thả file `.json` để mở project).
+- **Biến đổi & Cắt ảnh (Crop)**:
+  - Kéo góc để phóng/thu đúng tỷ lệ; giữ `Shift` khi kéo góc hoặc tắt **Khóa tỷ lệ** để kéo dãn tự do.
+  - Kéo nút vàng để xoay (giữ `Shift` để bắt góc mỗi `15°`).
+  - Chọn ảnh rồi bấm **Cắt ảnh**, double-click ảnh có nội dung, hoặc chuột phải chọn **Crop hình** (hỗ trợ tỷ lệ Tự do, 1:1, 4:3, 16:9, 9:16 và thanh trượt zoom).
+
+## Tối ưu hiệu năng
+- `html2canvas` tải không chặn luồng (`defer` + lazy-load fallback khi xuất).
+- **DOM Selection & Inspector Patching**: chọn phần tử, di chuyển và đổi thuộc tính cập nhật trực tiếp lên node DOM mục tiêu thay vì dựng lại toàn bộ cây DOM.
+- **Asset Vault Deduplication**: tách riêng dữ liệu ảnh Base64 và font nhúng khỏi chuỗi JSON của từng bước Undo/Redo, giúp thao tác hoàn tác/làm lại tức thì và tiết kiệm bộ nhớ.
+- **IndexedDB Singleton**: tái sử dụng kết nối IndexedDB xuyên suốt phiên làm việc.
 
 ## Lưu và khôi phục
-
-- `Ctrl+S` / `Cmd+S` hoặc **Lưu bản sửa** lưu toàn bộ text, ảnh, font và bố cục vào IndexedDB của trình duyệt.
-- Hai template có vùng lưu riêng, không ghi đè lẫn nhau; bản lưu cũ trong `localStorage` được tự động chuyển đổi.
-- Nút Back của trình duyệt từ editor quay về màn hình chọn mẫu; Forward mở lại template.
-- **Lưu JSON** tải project để sao lưu hoặc chuyển máy.
-- **Xuất HTML đã chỉnh** tạo file độc lập có payload được escape an toàn và có thể mở, sửa, xuất lại.
-- Màn hình chọn mẫu hiển thị khi template đã có bản lưu trên trình duyệt.
-
-## Kích thước xuất
-
-- PNG được render ở độ phân giải 2×, crop theo khung nội dung và luôn có nền đặc, không còn pixel trong suốt bị hiển thị thành đen.
-- Với template phủ kín canvas, Bản tin sáng xuất `3200 × 2000px`; Báo cáo chiến lược xuất `3200 × 1800px`.
+- `Ctrl+S` / `Cmd+S` hoặc nút **💾 Lưu** lưu toàn bộ text, ảnh, font và bố cục vào IndexedDB của trình duyệt.
+- Hai template có vùng lưu độc lập; hỗ trợ **Lưu file JSON**, **Mở file JSON** và **Xuất HTML** độc lập.
 
 ## Chạy local
 
@@ -64,12 +54,3 @@ npx -y serve .
 - Import repository vào Vercel và chọn **Other** / không dùng framework.
 - Không cần build command.
 - `vercel.json` chuyển URL gốc `/` tới `app.html`.
-
-## Quyền riêng tư và giới hạn
-
-- Ứng dụng không có backend và không tự gửi nội dung lên máy chủ.
-- Bản lưu IndexedDB gắn với đúng trình duyệt và domain hiện tại; hãy dùng JSON/HTML để chuyển máy hoặc sao lưu ngoài trình duyệt.
-- Font/ảnh upload được nhúng vào project nên bản lưu và file JSON/HTML có thể lớn.
-- Nếu trình duyệt chặn IndexedDB hoặc hết dung lượng, ứng dụng sẽ báo lỗi thay vì báo lưu thành công.
-- `html2canvas` tải từ jsDelivr; cần truy cập CDN khi mở ứng dụng lần đầu.
-- Nội dung và chiến lược chỉ mang tính tham khảo; người dùng chịu trách nhiệm kiểm tra số liệu và nguồn trước khi gửi khách hàng.

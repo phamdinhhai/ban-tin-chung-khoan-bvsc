@@ -16,7 +16,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans:wght@400;500;600;700;800;900&family=Noto+Serif:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap"
     rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root {
       --ui-bg: #0f172a;
@@ -41,8 +41,508 @@
 
     .template-chooser[hidden],
     body.chooser-open .app,
+    body.chooser-open .studio-topbar,
+    body.chooser-open .zoom-hud,
     body.chooser-open .workspace-actions {
       display: none !important;
+    }
+
+    /* ===== STUDIO TOPBAR ===== */
+    .studio-topbar {
+      height: 50px;
+      background: linear-gradient(90deg, #071327 0%, #0d1d3a 55%, #09172e 100%);
+      border-bottom: 1px solid #1e2d45;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      gap: 10px;
+      z-index: 95;
+      color: #f1f5f9;
+      user-select: none;
+    }
+
+    .topbar-left,
+    .topbar-center,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(229, 189, 102, .28);
+      color: #f8fafc;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+
+    .topbar-brand:hover {
+      background: rgba(229, 189, 102, .14);
+      border-color: rgba(229, 189, 102, .6);
+    }
+
+    .topbar-brand-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f3d689, #c8952f);
+      box-shadow: 0 0 8px rgba(229, 189, 102, .7);
+    }
+
+    .template-pills {
+      display: inline-flex;
+      background: #060e1d;
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid #22314a;
+      gap: 3px;
+    }
+
+    .template-pill {
+      padding: 5px 11px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .template-pill:hover {
+      color: #e2e8f0;
+    }
+
+    .template-pill.active {
+      background: linear-gradient(135deg, #0e4386, #185db3);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(14, 67, 134, .45);
+    }
+
+    .save-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .65);
+      border: 1px solid #1e293b;
+    }
+
+    .save-pill::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .save-pill.saving::before {
+      background: #eab308;
+    }
+
+    .tb-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: #162235;
+      color: #e2e8f0;
+      border: 1px solid #283750;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+
+    .tb-icon-btn:hover:not(:disabled) {
+      background: #1f304a;
+      border-color: #3b5278;
+    }
+
+    .tb-icon-btn.active {
+      background: rgba(37, 99, 235, .28);
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+
+    .tb-icon-btn.gold {
+      background: linear-gradient(135deg, #d8a748, #b88222);
+      color: #061326;
+      border-color: #ecc978;
+      font-weight: 800;
+    }
+
+    .tb-icon-btn.gold:hover:not(:disabled) {
+      filter: brightness(1.07);
+    }
+
+    .tb-divider {
+      width: 1px;
+      height: 20px;
+      background: #24344d;
+      margin: 0 2px;
+    }
+
+    .export-scale-select {
+      width: auto;
+      height: 32px;
+      margin: 0;
+      padding: 0 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: #162235;
+      border: 1px solid #283750;
+      color: #e2e8f0;
+      border-radius: 8px;
+    }
+
+    /* ===== SIDEBAR TABS & SEARCH ===== */
+    .sidebar-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      background: #09101d;
+      border: 1px solid #223044;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 15;
+    }
+
+    .sidebar-tab {
+      padding: 7px 8px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #94a3b8;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .sidebar-tab.active {
+      background: #1e293b;
+      color: #f8fafc;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+    }
+
+    .layer-toolbar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .layer-search {
+      margin: 0 !important;
+      padding: 6px 9px !important;
+      font-size: 11.5px !important;
+    }
+
+    .layer-item.is-hidden {
+      opacity: .48;
+    }
+
+    /* ===== SMART SNAP GUIDES, GRID & MARQUEE ===== */
+    #stage.show-grid::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9990;
+      background-image:
+        linear-gradient(to right, rgba(37, 99, 235, .11) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(37, 99, 235, .11) 1px, transparent 1px),
+        linear-gradient(to right, rgba(37, 99, 235, .22) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(37, 99, 235, .22) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+
+    body.is-exporting #stage.show-grid::after,
+    body.is-exporting .snap-guide,
+    body.is-exporting .marquee-box,
+    body.is-exporting .size-hud {
+      display: none !important;
+    }
+
+    .snap-guide {
+      position: absolute;
+      pointer-events: none;
+      z-index: 9995;
+      background: #f43f5e;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .65);
+    }
+
+    .snap-guide.v {
+      top: 0;
+      bottom: 0;
+      width: 1.5px;
+    }
+
+    .snap-guide.h {
+      left: 0;
+      right: 0;
+      height: 1.5px;
+    }
+
+    .snap-guide.center {
+      background: #eab308;
+    }
+
+    .snap-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f43f5e;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .marquee-box {
+      position: absolute;
+      border: 1.5px solid #3b82f6;
+      background: rgba(59, 130, 246, .14);
+      pointer-events: none;
+      z-index: 9996;
+      display: none;
+    }
+
+    .size-hud {
+      position: fixed;
+      z-index: 10005;
+      pointer-events: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(9, 18, 34, .92);
+      border: 1px solid rgba(229, 189, 102, .45);
+      color: #f8fafc;
+      font-size: 11px;
+      font-weight: 700;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+    }
+
+    /* ===== FLOATING ZOOM HUD ===== */
+    .zoom-hud {
+      position: fixed;
+      right: 334px;
+      bottom: 14px;
+      z-index: 85;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 7px;
+      border-radius: 11px;
+      background: rgba(15, 23, 42, .92);
+      border: 1px solid rgba(148, 163, 184, .24);
+      box-shadow: 0 10px 30px rgba(2, 8, 23, .35);
+      backdrop-filter: blur(10px);
+      color: #e2e8f0;
+      transition: right .2s ease;
+    }
+
+    body.right-collapsed .zoom-hud {
+      right: 16px;
+    }
+
+    .zoom-hud button {
+      min-height: 26px;
+      height: 26px;
+      padding: 0 8px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .zoom-hud button:hover {
+      background: #2b3b54;
+    }
+
+    .zoom-hud-label {
+      min-width: 44px;
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #f8fafc;
+      cursor: pointer;
+    }
+
+    /* ===== ALIGNMENT & THEME GRIDS ===== */
+    .align-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .align-btn {
+      padding: 7px 4px;
+      font-size: 12px;
+      background: #172133;
+      border: 1px solid #2a3952;
+      color: #cbd5e1;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .align-btn:hover {
+      background: #24344f;
+      color: #fff;
+      border-color: #3b82f6;
+    }
+
+    .theme-swatches {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .theme-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: #0b1220;
+      border: 1px solid #2b394d;
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .theme-chip:hover {
+      border-color: #e5bd66;
+    }
+
+    .theme-dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .theme-dots span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .25);
+    }
+
+    /* ===== DROPZONE OVERLAY & SHORTCUTS MODAL ===== */
+    .img-el.drag-over {
+      outline: 3px dashed #eab308 !important;
+      outline-offset: -3px;
+      filter: brightness(1.04);
+    }
+
+    .workspace.is-panning,
+    .workspace.is-panning * {
+      cursor: grab !important;
+    }
+
+    .workspace.is-panning-active,
+    .workspace.is-panning-active * {
+      cursor: grabbing !important;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+      background: rgba(2, 8, 23, .68);
+      backdrop-filter: blur(5px);
+      display: none;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: grid;
+    }
+
+    .modal-card {
+      width: min(640px, 100%);
+      max-height: 85vh;
+      overflow: auto;
+      background: #0f172a;
+      border: 1px solid #2a3a54;
+      border-radius: 18px;
+      padding: 22px;
+      color: #e2e8f0;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .55);
+    }
+
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 18px;
+      margin-top: 14px;
+      font-size: 12px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    kbd {
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    [data-mw-field],
+    [data-mw-stat-label],
+    [data-mw-stat-value],
+    [data-mw-section-title] {
+      border-radius: 4px;
+      transition: background-color .12s;
+    }
+
+    .element.selected [data-mw-field]:hover,
+    .element.selected [data-mw-stat-label]:hover,
+    .element.selected [data-mw-stat-value]:hover,
+    .element.selected [data-mw-section-title]:hover {
+      background: rgba(37, 99, 235, .08);
+      cursor: text;
     }
 
     .chooser-shell {
@@ -440,7 +940,7 @@
     .app {
       display: grid;
       grid-template-columns: 330px 1fr 310px;
-      height: 100vh;
+      height: calc(100vh - 50px);
     }
 
     .sidebar {
@@ -1329,6 +1829,33 @@
         bottom: calc(12px + env(safe-area-inset-bottom));
         text-align: center
       }
+
+      .studio-topbar {
+        height: auto;
+        min-height: 52px;
+        padding: 6px 8px;
+        overflow-x: auto;
+        gap: 6px;
+      }
+
+      .topbar-center,
+      .export-scale-select,
+      .save-pill {
+        display: none;
+      }
+
+      .studio-topbar button {
+        min-height: 36px;
+      }
+
+      .zoom-hud {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+      }
+
+      .shortcut-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
   <script id="initialProjectData" type="application/json">null</script>
@@ -1360,148 +1887,197 @@
     </div>
   </main>
   <div id="mobileBackdrop" class="mobile-backdrop" aria-hidden="true" onclick="closeMobileDrawers()"></div>
-  <div id="imageContextMenu" class="image-context-menu" role="menu" aria-label="Thao tác hình ảnh">
+  <div id="imageContextMenu" class="image-context-menu" role="menu" aria-label="Thao tác nhanh">
     <button id="contextCropImage" type="button" role="menuitem" onclick="runImageContextAction('crop')"><span class="menu-icon">⌗</span><span>Crop hình</span></button>
-    <div class="menu-divider"></div>
+    <button id="contextReplaceImage" type="button" role="menuitem" onclick="runImageContextAction('replace')"><span class="menu-icon">⇧</span><span>Thay ảnh…</span></button>
+    <div id="contextImageTransformDivider" class="menu-divider"></div>
     <button id="contextFlipHorizontal" type="button" role="menuitem" onclick="runImageContextAction('flip-x')"><span class="menu-icon">↔</span><span>Lật ngang</span></button>
     <button id="contextFlipVertical" type="button" role="menuitem" onclick="runImageContextAction('flip-y')"><span class="menu-icon">↕</span><span>Lật dọc</span></button>
     <button id="contextRotate90" type="button" role="menuitem" onclick="runImageContextAction('rotate-90')"><span class="menu-icon">↻</span><span>Xoay 90°</span></button>
-    <div class="menu-divider"></div>
     <button id="contextToggleStroke" type="button" role="menuitem" onclick="runImageContextAction('stroke')"><span class="menu-icon">▣</span><span id="contextStrokeLabel">Tạo stroke</span></button>
+    <div class="menu-divider"></div>
+    <button id="contextDuplicate" type="button" role="menuitem" onclick="runImageContextAction('duplicate')"><span class="menu-icon">⧉</span><span>Nhân đôi (Ctrl+D)</span></button>
+    <button id="contextBringFront" type="button" role="menuitem" onclick="runImageContextAction('front')"><span class="menu-icon">⤒</span><span>Đưa lên trên cùng</span></button>
+    <button id="contextSendBack" type="button" role="menuitem" onclick="runImageContextAction('back')"><span class="menu-icon">⤓</span><span>Đưa xuống dưới cùng</span></button>
+    <button id="contextToggleLock" type="button" role="menuitem" onclick="runImageContextAction('lock')"><span class="menu-icon">🔒</span><span id="contextLockLabel">Khóa / Mở khóa</span></button>
+    <button id="contextDelete" type="button" role="menuitem" onclick="runImageContextAction('delete')" style="color:#fca5a5"><span class="menu-icon" style="color:#f87171">✕</span><span>Xóa phần tử</span></button>
   </div>
-  <div class="workspace-actions" aria-label="Điều khiển không gian làm việc">
-    <button id="toggleLeftSidebar" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ"
-      aria-controls="leftSidebar" aria-expanded="false">☰ Công cụ</button>
-    <button id="toggleRightSidebar" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện thuộc tính"
-      aria-controls="rightSidebar" aria-expanded="false">Thuộc tính ☰</button>
-  </div>
+
+  <!-- STUDIO TOP HEADER BAR -->
+  <header class="studio-topbar" aria-label="Thanh điều khiển Studio">
+    <div class="topbar-left">
+      <button id="toggleLeftSidebar" class="tb-icon-btn" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ (Trái)" aria-controls="leftSidebar" aria-expanded="true">☰ Công cụ</button>
+      <button id="backToTemplates" class="topbar-brand" type="button" onclick="showTemplateChooser()" title="Quay về màn hình chọn mẫu">
+        <span class="topbar-brand-dot"></span>
+        <span>BVSC Studio</span>
+      </button>
+      <div class="template-pills" role="tablist" aria-label="Chuyển nhanh mẫu báo cáo">
+        <button id="pillMorningBrief" class="template-pill active" type="button" onclick="openTemplate('morning-brief')">☀ Bản tin sáng</button>
+        <button id="pillWeeklyStrategy" class="template-pill" type="button" onclick="openTemplate('weekly-strategy')">◫ Chiến lược tuần</button>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <button id="topUndoBtn" class="tb-icon-btn" type="button" onclick="undoAction()" title="Hoàn tác (Ctrl+Z)">↶ Undo</button>
+      <button id="topRedoBtn" class="tb-icon-btn" type="button" onclick="redoAction()" title="Làm lại (Ctrl+Y)">↷ Redo</button>
+      <div class="tb-divider"></div>
+      <button id="toggleSnapBtn" class="tb-icon-btn active" type="button" onclick="toggleSnapGuides()" title="Bật/tắt đường gióng bắt dính thông minh (Giữ Alt để tạm bỏ)">⊞ Snap</button>
+      <button id="toggleGridBtn" class="tb-icon-btn" type="button" onclick="toggleCanvasGrid()" title="Hiện/ẩn lưới căn chỉnh trên Canvas (Ctrl+')"># Lưới</button>
+      <div class="tb-divider"></div>
+      <span id="saveStatePill" class="save-pill" title="Trạng thái tự động lưu IndexedDB">Đã lưu tự động</span>
+    </div>
+
+    <div class="topbar-right">
+      <button class="tb-icon-btn" type="button" onclick="saveLocalProject()" title="Lưu ngay vào trình duyệt (Ctrl+S)">💾 Lưu</button>
+      <select id="exportScaleSelect" class="export-scale-select" title="Độ phân giải ảnh PNG xuất ra">
+        <option value="1">PNG 1× (Nhanh)</option>
+        <option value="2" selected>PNG 2× (Chuẩn HD)</option>
+        <option value="3">PNG 3× (Siêu nét)</option>
+      </select>
+      <button id="exportPngButton" class="tb-icon-btn gold" type="button" onclick="exportPNG()">⬇ Xuất PNG</button>
+      <button class="tb-icon-btn" type="button" onclick="toggleShortcutsModal(true)" title="Bảng phím tắt & hướng dẫn nhanh (?)">?</button>
+      <button id="toggleRightSidebar" class="tb-icon-btn" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện thuộc tính (Phải)" aria-controls="rightSidebar" aria-expanded="true">Thuộc tính ☰</button>
+    </div>
+  </header>
+
   <div class="app">
     <!-- LEFT PANEL -->
     <aside id="leftSidebar" class="sidebar left" aria-label="Công cụ thiết kế">
-      <div class="panel">
-        <div class="toolbar" style="margin-bottom:8px">
-          <button id="backToTemplates" class="btn full" type="button" onclick="showTemplateChooser()">← Chọn mẫu báo
-            cáo</button>
-        </div>
-        <div class="panel-title">FILE / XUẤT ẢNH</div>
-        <div class="toolbar">
-          <button id="exportPngButton" class="btn primary" onclick="exportPNG()">Xuất PNG</button>
-          <button class="btn" onclick="saveProject()">Lưu JSON</button>
-          <button class="btn" onclick="document.getElementById('loadProjectInput').click()">Mở JSON</button>
-          <button class="btn" onclick="resetTemplate()">Mẫu mặc định</button>
-        </div>
-        <div class="toolbar" style="margin-top:8px">
-          <button class="btn" onclick="undoAction()">Undo</button>
-          <button class="btn" onclick="redoAction()">Redo</button>
-        </div>
-        <div class="toolbar" style="margin-top:8px">
-          <button class="btn" onclick="saveLocalProject()">Lưu bản sửa</button>
-          <button class="btn" onclick="restoreLocalProject()">Khôi phục bản lưu</button>
-        </div>
-        <div class="toolbar" style="margin-top:8px">
-          <button class="btn" onclick="exportEditableHTML()">Xuất HTML đã chỉnh</button>
-          <button class="btn" onclick="clearLocalProject()">Xóa bản lưu</button>
-        </div>
-        <input id="loadProjectInput" type="file" accept=".json" hidden="">
+      <div class="sidebar-tabs" role="tablist">
+        <button id="leftTabBuildBtn" class="sidebar-tab active" type="button" onclick="switchLeftTab('build')">+ Thêm &amp; Bố cục</button>
+        <button id="leftTabLayersBtn" class="sidebar-tab" type="button" onclick="switchLeftTab('layers')">Lớp &amp; Kiểm tra</button>
       </div>
 
-      <div class="panel">
-        <div class="panel-title">KIỂM TRA TRƯỚC KHI GỬI</div>
-        <div class="quality-list" id="qualityChecklist">
-          <label class="quality-item"><input type="checkbox" data-quality> Số liệu có đơn vị và dấu +/- rõ ràng</label>
-          <label class="quality-item"><input type="checkbox" data-quality> Có thời điểm cập nhật và nguồn dữ
-            liệu</label>
-          <label class="quality-item"><input type="checkbox" data-quality> Nhận định tách biệt với sự kiện</label>
-          <label class="quality-item"><input type="checkbox" data-quality> Có cả kịch bản tích cực và rủi ro</label>
-          <label class="quality-item"><input type="checkbox" data-quality> Chiến lược nêu điều kiện, không kích thích
-            FOMO</label>
-          <label class="quality-item"><input type="checkbox" data-quality> Đã xem ảnh ở kích thước điện thoại</label>
+      <div id="leftTabBuild">
+        <div class="panel">
+          <div class="panel-title">THÊM PHẦN TỬ</div>
+          <div class="toolbar">
+            <button class="btn" onclick="addText()">+ Text</button>
+            <button class="btn" onclick="addCard()">+ Card / Khung</button>
+            <button class="btn" onclick="addImage()">+ Ảnh tự do</button>
+            <button class="btn" onclick="addMarketWidget()">+ Widget chỉ số</button>
+            <button class="btn" onclick="addIndexTable()">+ Bảng biến động</button>
+            <button class="btn" onclick="addBadgePreset()">+ Nhãn / Pill</button>
+            <button class="btn" onclick="addDividerPreset()">+ Đường kẻ</button>
+            <button class="btn" onclick="addIcon()">+ Icon SVG</button>
+            <button class="btn" onclick="addSticker()">+ Emoji</button>
+            <button class="btn" onclick="duplicateSelected()">⧉ Nhân đôi</button>
+          </div>
+          <input id="imageInput" type="file" accept="image/*" hidden="">
+          <div class="hint" style="margin-top:8px">
+            💡 <b>Mẹo nhanh:</b> Bạn có thể <b>Ctrl+V</b> để dán thẳng ảnh chụp màn hình (chart TradingView/FiinTrade) hoặc <b>kéo-thả file ảnh</b> từ máy tính vào bất kỳ khung biểu đồ nào.
+          </div>
         </div>
-        <div id="qualityScore" class="quality-score">0/6 mục đã kiểm tra</div>
-      </div>
 
-      <div class="panel">
-        <div class="panel-title">CANVAS</div>
-        <div class="row">
-          <label>Rộng
-            <input id="canvasW" type="number" value="1600" oninput="applyCanvas()">
+        <div class="panel">
+          <div class="panel-title">CHỦ ĐỀ MÀU (THEME PRESETS)</div>
+          <div class="theme-swatches">
+            <button type="button" class="theme-chip" onclick="applyThemePreset('bvsc-navy')">
+              <span class="theme-dots"><span style="background:#071b5c"></span><span style="background:#e8c165"></span></span>
+              <span>BVSC Navy Gold</span>
+            </button>
+            <button type="button" class="theme-chip" onclick="applyThemePreset('ocean-blue')">
+              <span class="theme-dots"><span style="background:#0c4a6e"></span><span style="background:#38bdf8"></span></span>
+              <span>Ocean Blue</span>
+            </button>
+            <button type="button" class="theme-chip" onclick="applyThemePreset('emerald-wealth')">
+              <span class="theme-dots"><span style="background:#064e3b"></span><span style="background:#fbbf24"></span></span>
+              <span>Emerald Finance</span>
+            </button>
+            <button type="button" class="theme-chip" onclick="applyThemePreset('slate-minimal')">
+              <span class="theme-dots"><span style="background:#1e293b"></span><span style="background:#94a3b8"></span></span>
+              <span>Slate Minimal</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">CANVAS &amp; KHUNG TRANG</div>
+          <label>Kích thước nhanh
+            <select id="canvasPresetSelect" onchange="applyCanvasPreset(this.value)">
+              <option value="custom">Tùy chỉnh</option>
+              <option value="1600x1000">1600 × 1000 · Bản tin sáng (16:10)</option>
+              <option value="1600x900">1600 × 900 · Chiến lược tuần (16:9)</option>
+              <option value="1920x1080">1920 × 1080 · Full HD Presentation</option>
+              <option value="1200x1200">1200 × 1200 · Vuông Social / Zalo</option>
+            </select>
           </label>
-          <label>Cao
-            <input id="canvasH" type="number" value="1000" oninput="applyCanvas()">
+          <div class="row">
+            <label>Rộng (px)
+              <input id="canvasW" type="number" value="1600" oninput="applyCanvas()">
+            </label>
+            <label>Cao (px)
+              <input id="canvasH" type="number" value="1000" oninput="applyCanvas()">
+            </label>
+          </div>
+          <div class="row">
+            <label>Màu nền
+              <input id="canvasBg" type="color" value="#f7f9fc" oninput="applyCanvas()">
+            </label>
+            <label>Zoom (%)
+              <input id="zoomInput" type="number" min="20" max="200" value="70" oninput="applyZoom()">
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">FONT CHỮ TOÀN BỘ</div>
+          <label>Font mặc định
+            <select id="globalFont">
+              <option value="'Be Vietnam Pro'">Be Vietnam Pro · Khuyên dùng</option>
+              <option value="Inter">Inter · Hiện đại</option>
+              <option value="Roboto">Roboto · Trung tính</option>
+              <option value="'Noto Sans'">Noto Sans · Unicode an toàn</option>
+              <option value="'Noto Serif'">Noto Serif · Phong cách báo chí</option>
+              <option value="'Segoe UI'">Segoe UI · Font hệ thống</option>
+              <option value="Arial">Arial · Font hệ thống</option>
+            </select>
           </label>
-        </div>
-        <div class="row">
-          <label>Màu nền
-            <input id="canvasBg" type="color" value="#f7f9fc" oninput="applyCanvas()">
-          </label>
-          <label>Zoom
-            <input id="zoomInput" type="number" min="25" max="150" value="70" oninput="applyZoom()">
-          </label>
-        </div>
-      </div>
-
-
-      <div class="panel">
-        <div class="panel-title">FONT CHỮ TOÀN BỘ</div>
-
-        <label>Font mặc định
-          <select id="globalFont">
-            <option value="'Be Vietnam Pro'">Be Vietnam Pro · Khuyên dùng</option>
-            <option value="Inter">Inter · Hiện đại</option>
-            <option value="Roboto">Roboto · Trung tính</option>
-            <option value="'Noto Sans'">Noto Sans · Unicode an toàn</option>
-            <option value="'Noto Serif'">Noto Serif · Phong cách báo chí</option>
-            <option value="'Segoe UI'">Segoe UI · Font hệ thống</option>
-            <option value="Arial">Arial · Font hệ thống</option>
-          </select>
-        </label>
-
-        <div class="toolbar">
-          <button class="btn" onclick="applyGlobalFont()">Áp dụng tất cả chữ</button>
-          <button class="btn" onclick="document.getElementById('fontUploadInput').click()">+ Upload font</button>
+          <div class="toolbar">
+            <button class="btn" onclick="applyGlobalFont()">Áp dụng tất cả chữ</button>
+            <button class="btn" onclick="document.getElementById('fontUploadInput').click()">+ Upload font</button>
+          </div>
+          <input id="fontUploadInput" type="file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" hidden="">
+          <div id="customFontInfo" class="hint" style="margin-top:8px">
+            Font mặc định hỗ trợ đầy đủ tiếng Việt. Có thể tải thêm TTF/OTF/WOFF/WOFF2.
+          </div>
         </div>
 
-        <input id="fontUploadInput" type="file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2"
-          hidden="">
-
-        <div id="customFontInfo" class="hint" style="margin-top:8px">
-          Font mặc định đã hỗ trợ đầy đủ tiếng Việt. Khi upload font riêng, hãy kiểm tra đủ các ký tự: ă â đ ê ô ơ ư và
-          dấu sắc/huyền/hỏi/ngã/nặng.
+        <div class="panel">
+          <div class="panel-title">DỰ ÁN / SAO LƯU</div>
+          <div class="toolbar">
+            <button class="btn" onclick="saveProject()">Lưu file JSON</button>
+            <button class="btn" onclick="document.getElementById('loadProjectInput').click()">Mở file JSON</button>
+            <button class="btn" onclick="exportEditableHTML()">Xuất HTML</button>
+            <button class="btn" onclick="restoreLocalProject()">Khôi phục lưu</button>
+            <button class="btn" onclick="resetTemplate()">Mẫu mặc định</button>
+            <button class="btn danger" onclick="clearLocalProject()">Xóa bản lưu</button>
+          </div>
+          <input id="loadProjectInput" type="file" accept=".json" hidden="">
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-title">THÊM PHẦN TỬ</div>
-        <div class="toolbar">
-          <button class="btn" onclick="addText()">+ Text</button>
-          <button class="btn" onclick="addCard()">+ Card</button>
-          <button class="btn" onclick="addImage()">+ Ảnh</button>
-          <button class="btn" onclick="addMarketWidget()">+ Widget chỉ số</button>
-          <button class="btn" onclick="addIndexTable()">+ Bảng biến động</button>
-          <button class="btn" onclick="addSticker()">+ Emoji</button>
-          <button class="btn" onclick="addIcon()">+ Icon SVG</button>
-          <button class="btn" onclick="duplicateSelected()">Nhân đôi</button>
+      <div id="leftTabLayers" style="display:none">
+        <div class="panel">
+          <div class="panel-title">QUẢN LÝ LAYER (<span id="layerCountBadge">0</span>)</div>
+          <div class="layer-toolbar">
+            <input id="layerSearchInput" class="layer-search" type="search" placeholder="Tìm theo tên hoặc loại layer..." oninput="renderLayers()">
+          </div>
+          <div id="layerList" class="layer-list"></div>
         </div>
-        <input id="imageInput" type="file" accept="image/*" hidden="">
-      </div>
 
-      <div class="panel">
-        <div class="panel-title">LAYER</div>
-        <div id="layerList" class="layer-list"></div>
-      </div>
-
-      <div class="hint">
-        <b>Cách dùng:</b><br>
-        • Click một phần tử để chọn; giữ <b>Shift + click</b> để thêm/bỏ nhiều item khỏi nhóm chọn.<br>
-        • Kéo một item trong nhóm để di chuyển cả nhóm; Delete, nhân đôi và phím mũi tên cũng áp dụng cho nhóm.<br>
-        • Kéo phần tử để thay đổi vị trí.<br>
-        • Kéo 4 nút góc để đổi cả rộng &amp; cao.<br>
-        • Kéo 4 nút giữa cạnh để giãn riêng 1 chiều (rộng hoặc cao).<br>
-        • Bôi đen chữ trong ô văn bản để hiện thanh định dạng nhanh (màu/đậm/nhạt riêng từng cụm).<br>
-        • Kéo nút vàng phía trên để xoay.<br>
-        • Double click vào chữ để sửa trực tiếp.<br>• Có thể upload font TTF/OTF/WOFF/WOFF2 và áp dụng toàn bộ.<br>
-        • Ảnh có thể thay thế từ panel bên phải.<br>
-        • Delete = xóa, Ctrl+D = nhân đôi, mũi tên = dịch 1px.
+        <div class="panel">
+          <div class="panel-title">KIỂM TRA TRƯỚC KHI GỬI</div>
+          <div class="quality-list" id="qualityChecklist">
+            <label class="quality-item"><input type="checkbox" data-quality> Số liệu có đơn vị và dấu +/- rõ ràng</label>
+            <label class="quality-item"><input type="checkbox" data-quality> Có thời điểm cập nhật và nguồn dữ liệu</label>
+            <label class="quality-item"><input type="checkbox" data-quality> Nhận định tách biệt với sự kiện</label>
+            <label class="quality-item"><input type="checkbox" data-quality> Có cả kịch bản tích cực và rủi ro</label>
+            <label class="quality-item"><input type="checkbox" data-quality> Chiến lược nêu điều kiện, không kích thích FOMO</label>
+            <label class="quality-item"><input type="checkbox" data-quality> Đã xem ảnh ở kích thước điện thoại</label>
+          </div>
+          <div id="qualityScore" class="quality-score">0/6 mục đã kiểm tra</div>
+        </div>
       </div>
     </aside>
 
@@ -1515,9 +2091,32 @@
     <!-- RIGHT PANEL -->
     <aside id="rightSidebar" class="sidebar right" aria-label="Thuộc tính phần tử">
       <div class="panel">
-        <div class="panel-title">PHẦN TỬ ĐANG CHỌN</div>
-        <div id="noneSelected" class="hint" style="display: none;">Chưa chọn phần tử nào.</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px">
+          <div class="panel-title" style="margin:0">THUỘC TÍNH</div>
+          <span id="selectedTypeBadge" class="badge">Chưa chọn</span>
+        </div>
+        <div id="noneSelected" class="hint" style="display: none;">
+          Chưa chọn phần tử nào.<br><br>
+          • <b>Click</b> vào phần tử trên trang để chỉnh sửa.<br>
+          • <b>Kéo chuột trên nền trống</b> để quét chọn nhiều phần tử.<br>
+          • <b>Double-click</b> vào chữ, ô bảng hoặc chỉ số để sửa trực tiếp.<br>
+          • Giữ <b>Space + kéo chuột</b> để di chuyển vùng nhìn.
+        </div>
         <div id="properties" style="display: block;">
+
+          <div class="panel-title" style="font-size:11px;color:#94a3b8;margin-top:2px">CĂN CHỈNH &amp; PHÂN BỔ (CANVAS / NHÓM)</div>
+          <div class="align-grid">
+            <button type="button" class="align-btn" onclick="alignSelected('left')" title="Căn lề trái">⫷</button>
+            <button type="button" class="align-btn" onclick="alignSelected('center-x')" title="Căn giữa ngang">⫿</button>
+            <button type="button" class="align-btn" onclick="alignSelected('right')" title="Căn lề phải">⫸</button>
+            <button type="button" class="align-btn" onclick="alignSelected('top')" title="Căn mép trên">⊤</button>
+            <button type="button" class="align-btn" onclick="alignSelected('center-y')" title="Căn giữa dọc">⊶</button>
+            <button type="button" class="align-btn" onclick="alignSelected('bottom')" title="Căn mép dưới">⊥</button>
+          </div>
+          <div class="row" style="margin-bottom:8px">
+            <button type="button" class="btn" onclick="distributeSelected('horizontal')" title="Chia đều khoảng cách ngang (cần chọn ≥ 3 phần tử)">↔ Chia đều ngang</button>
+            <button type="button" class="btn" onclick="distributeSelected('vertical')" title="Chia đều khoảng cách dọc (cần chọn ≥ 3 phần tử)">↕ Chia đều dọc</button>
+          </div>
 
           <div class="row">
             <label>X
@@ -1541,7 +2140,7 @@
             <label>Xoay (°)
               <input id="propRot" type="number" oninput="applyProps()">
             </label>
-            <label>Layer
+            <label>Layer (Z)
               <input id="propZ" type="number" oninput="applyProps()">
             </label>
           </div>
@@ -1603,22 +2202,43 @@
               </label>
             </div>
 
-            <label>
-              <input id="propUpper" type="checkbox" onchange="applyTextProps()" style="width:auto;margin-right:6px">
-              Viết hoa
-            </label>
+            <div class="row">
+              <label>Căn dọc trong khung
+                <select id="propVerticalAlign" onchange="applyTextProps()">
+                  <option value="top">Trên</option>
+                  <option value="middle">Giữa</option>
+                  <option value="bottom">Dưới</option>
+                </select>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding-top:18px">
+                <input id="propUpper" type="checkbox" onchange="applyTextProps()" style="width:auto;margin:0">
+                Viết hoa
+              </label>
+            </div>
           </div>
 
           <div id="boxProps" style="display: block;">
             <div class="divider"></div>
             <div class="row">
-              <label>Nền
+              <label>Nền (Màu đơn)
                 <input id="propBg" type="color" oninput="applyBoxProps()">
               </label>
-              <label>Bo góc
+              <label>Bo góc (px)
                 <input id="propRadius" type="number" oninput="applyBoxProps()">
               </label>
             </div>
+            <label>Mẫu nền nhanh (Gradient / Màu)
+              <select id="propBgPreset" onchange="applyBoxBgPreset(this.value)">
+                <option value="">-- Chọn mẫu nền --</option>
+                <option value="#ffffff">Trắng tinh (#ffffff)</option>
+                <option value="linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)">Trắng ánh xanh dịu</option>
+                <option value="linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)">BVSC Navy Masthead</option>
+                <option value="linear-gradient(90deg,#071b78 0%,#0c3faa 100%)">Tiêu đề Xanh Hoàng Gia</option>
+                <option value="linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)">Vàng đồng (Gold Line)</option>
+                <option value="linear-gradient(135deg,#064e3b 0%,#047857 100%)">Xanh Ngọc lục bảo</option>
+                <option value="#eef4fb">Xám xanh nền trang</option>
+              </select>
+            </label>
             <div class="row">
               <label>Màu viền
                 <input id="propBorderColor" type="color" oninput="applyBoxProps()">
@@ -1627,14 +2247,23 @@
                 <input id="propBorderW" type="number" oninput="applyBoxProps()">
               </label>
             </div>
-            <label>Độ trong suốt
+            <label>Đổ bóng (Shadow)
+              <select id="propShadow" onchange="applyBoxProps()">
+                <option value="default">Mặc định</option>
+                <option value="none">Không đổ bóng</option>
+                <option value="soft">Bóng dịu (Soft)</option>
+                <option value="elevated">Bóng nổi cao (Elevated)</option>
+                <option value="gold-glow">Viền sáng vàng (Gold Glow)</option>
+              </select>
+            </label>
+            <label>Độ trong suốt (<span id="propOpacityLabel">100%</span>)
               <input id="propOpacity" type="range" min="0" max="100" value="100" oninput="applyBoxProps()">
             </label>
           </div>
 
           <div id="imageProps" style="display:none">
             <div class="divider"></div>
-            <button id="replaceImageButton" class="btn full" onclick="replaceSelectedImage()">Thay ảnh</button>
+            <button id="replaceImageButton" class="btn full primary" onclick="replaceSelectedImage()">⇧ Tải / Thay ảnh</button>
             <button id="clearImageButton" class="btn full" style="margin-top:7px" onclick="clearSelectedImage()">Xóa ảnh</button>
             <label style="margin-top:8px">Chế độ ảnh
               <select id="propImageMode" onchange="applyImageProps()">
@@ -1661,7 +2290,7 @@
               <button id="naturalImageSizeButton" class="btn" onclick="setSelectedImageNaturalSize()">Kích thước gốc</button>
             </div>
             <button id="resetImageTransformButton" class="btn full" style="margin-top:7px" onclick="resetSelectedImageTransform()">Đặt lại xoay và lật</button>
-            <button id="cropImageButton" class="btn full" style="margin-top:7px" onclick="startImageCrop()">Cắt ảnh</button>
+            <button id="cropImageButton" class="btn full" style="margin-top:7px" onclick="startImageCrop()">⌗ Cắt ảnh (Crop)</button>
             <div id="cropControls" style="display:none;margin-top:8px">
               <label>Tỷ lệ crop<select id="cropAspectSelect" onchange="applyCropAspect(this.value)"><option value="free">Tự do</option><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="16:9">16:9</option><option value="9:16">9:16</option></select></label>
               <label>Thu phóng <span id="cropZoomValue">100%</span><input id="cropZoom" type="range" min="100" max="400" value="100" oninput="setCropZoom(this.value)"></label>
@@ -1674,14 +2303,23 @@
 
           <div id="iconProps" style="display:none">
             <div class="divider"></div>
-            <label>Chọn icon
+            <label>Chọn icon SVG
               <select id="propIconType" onchange="applyIconProps()">
                 <option value="news">Loa tin tức</option>
-                <option value="target">Mục tiêu</option>
-                <option value="folder">Thư mục</option>
+                <option value="target">Mục tiêu chiến lược</option>
+                <option value="folder">Thư mục nội dung</option>
                 <option value="chart">Biểu đồ cột</option>
-                <option value="bell">Chuông</option>
-                <option value="calendar">Lịch</option>
+                <option value="trendUp">Xu hướng tăng (Bullish)</option>
+                <option value="trendDown">Xu hướng giảm (Bearish)</option>
+                <option value="globe">Quốc tế / Toàn cầu</option>
+                <option value="shield">Quản trị rủi ro (Khiên)</option>
+                <option value="bolt">Tín hiệu nhanh (Tia sét)</option>
+                <option value="pie">Cơ cấu danh mục (Pie)</option>
+                <option value="dollar">Dòng tiền / Tài chính</option>
+                <option value="bank">Ngân hàng / Vĩ mô</option>
+                <option value="star">Điểm nhấn (Ngôi sao)</option>
+                <option value="bell">Chuông thông báo</option>
+                <option value="calendar">Lịch sự kiện</option>
                 <option value="flag">Cờ hiệu</option>
               </select>
             </label>
@@ -1701,8 +2339,12 @@
             <label>Tiêu đề
               <input id="indexTableTitle" type="text" oninput="applyIndexTableProps()">
             </label>
+            <div class="row" style="margin-bottom:6px">
+              <button type="button" class="btn" onclick="addIndexTableRow()">+ Thêm dòng</button>
+              <button type="button" class="btn" onclick="removeLastIndexTableRow()">− Xóa dòng cuối</button>
+            </div>
             <label>Dữ liệu (Chỉ số | Đóng cửa | Thay đổi | % thay đổi)
-              <textarea id="indexTableRows" rows="7" oninput="applyIndexTableProps()"></textarea>
+              <textarea id="indexTableRows" rows="6" oninput="applyIndexTableProps()"></textarea>
             </label>
             <div class="row">
               <label>Màu tăng<input id="indexPositiveColor" type="color" oninput="applyIndexTableProps()"></label>
@@ -1718,23 +2360,21 @@
 
           <div id="marketProps" style="display: none;">
             <div class="divider"></div>
+            <div class="hint" style="margin-bottom:8px">💡 Bạn có thể <b>double-click trực tiếp</b> vào bất kỳ con số hoặc nhãn nào trên Widget ở Canvas để sửa nhanh!</div>
             <label>Tiêu đề section
               <input id="marketSectionTitle" type="text" oninput="applyMarketProps()">
             </label>
 
             <div class="divider"></div>
-            <div class="panel-title">TIÊU ĐỀ CARD</div>
+            <div class="panel-title">TIÊU ĐỀ CARD &amp; THÔNG SỐ</div>
             <div class="row">
-              <label>Cỡ chữ tiêu đề
+              <label>Cỡ tiêu đề card
                 <input id="marketCardTitleSize" type="number" oninput="applyMarketProps()">
               </label>
-              <label>Màu tiêu đề
+              <label>Màu tiêu đề card
                 <input id="marketCardTitleColor" type="color" oninput="applyMarketProps()">
               </label>
             </div>
-
-            <div class="divider"></div>
-            <div class="panel-title">THÔNG SỐ NHỎ</div>
             <div class="row">
               <label>Cỡ chữ nhãn
                 <input id="marketStatLabelSize" type="number" oninput="applyMarketProps()">
@@ -1817,6 +2457,8 @@
           <div class="toolbar">
             <button class="btn" onclick="bringForward()">Lên 1 lớp</button>
             <button class="btn" onclick="sendBackward()">Xuống 1 lớp</button>
+            <button class="btn" onclick="bringToFront()">Lên trên cùng</button>
+            <button class="btn" onclick="sendToBack()">Xuống dưới cùng</button>
             <button class="btn" onclick="toggleLock()">Khóa/Mở</button>
             <button class="btn danger" onclick="deleteSelected()">Xóa</button>
           </div>
@@ -1825,11 +2467,51 @@
     </aside>
   </div>
 
+  <!-- FLOATING ZOOM HUD -->
+  <div id="zoomHud" class="zoom-hud" aria-label="Điều khiển thu phóng">
+    <button type="button" onclick="stepZoom(-10)" title="Thu nhỏ (Ctrl + Lăn xuống)">−</button>
+    <span id="zoomHudLabel" class="zoom-hud-label" onclick="zoomTo100()" title="Click để về 100%">70%</span>
+    <button type="button" onclick="stepZoom(10)" title="Phóng to (Ctrl + Lăn lên)">+</button>
+    <button type="button" onclick="fitZoomToWorkspace()" title="Vừa khít khung nhìn">Vừa màn hình</button>
+  </div>
+
+  <div id="sizeHud" class="size-hud" data-editor-only="true"></div>
   <div id="status" class="status" style="display: none;">Đã undo</div>
+
+  <!-- SHORTCUTS & HELP MODAL -->
+  <div id="shortcutsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="shortcutsTitle" onclick="if(event.target===this)toggleShortcutsModal(false)">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 id="shortcutsTitle" style="font-size:18px;color:#fff">Phím tắt &amp; Thao tác thông minh</h3>
+        <button type="button" class="tiny" onclick="toggleShortcutsModal(false)">✕</button>
+      </div>
+      <p class="hint" style="margin:0 0 12px">Tối ưu tốc độ thiết kế bản tin chứng khoán với các thao tác chuẩn Studio:</p>
+      <div class="shortcut-grid">
+        <div class="shortcut-row"><span>Lưu nhanh vào trình duyệt</span><kbd>Ctrl + S</kbd></div>
+        <div class="shortcut-row"><span>Hoàn tác / Làm lại</span><span><kbd>Ctrl + Z</kbd> / <kbd>Y</kbd></span></div>
+        <div class="shortcut-row"><span>Sao chép / Dán phần tử</span><span><kbd>Ctrl + C</kbd> / <kbd>V</kbd></span></div>
+        <div class="shortcut-row"><span>Dán ảnh từ Clipboard</span><kbd>Ctrl + V</kbd></div>
+        <div class="shortcut-row"><span>Nhân đôi phần tử đang chọn</span><kbd>Ctrl + D</kbd></div>
+        <div class="shortcut-row"><span>Chọn tất cả phần tử</span><kbd>Ctrl + A</kbd></div>
+        <div class="shortcut-row"><span>Chọn / Bỏ chọn nhiều mục</span><kbd>Shift + Click</kbd></div>
+        <div class="shortcut-row"><span>Quét chọn vùng (Marquee)</span><kbd>Kéo trên nền</kbd></div>
+        <div class="shortcut-row"><span>Di chuyển tinh chỉnh 1px / 10px</span><span><kbd>↑↓←→</kbd> / <kbd>+Shift</kbd></span></div>
+        <div class="shortcut-row"><span>Kéo trượt vùng nhìn (Pan)</span><kbd>Space + Kéo</kbd></div>
+        <div class="shortcut-row"><span>Phóng to / Thu nhỏ Canvas</span><kbd>Ctrl + Lăn chuột</kbd></div>
+        <div class="shortcut-row"><span>Tạm bỏ bắt dính (Snap)</span><kbd>Giữ phím Alt</kbd></div>
+        <div class="shortcut-row"><span>Bật / Tắt lưới Canvas</span><kbd>Ctrl + '</kbd></div>
+        <div class="shortcut-row"><span>Xóa phần tử đang chọn</span><kbd>Delete / Backspace</kbd></div>
+      </div>
+    </div>
+  </div>
 
   <div id="floatToolbar" class="float-toolbar">
     <button class="ft-btn bold" title="Đậm / bỏ đậm cụm đã chọn" onmousedown="event.preventDefault()"
       onclick="richToggleBold()">B</button>
+    <button class="ft-btn" style="font-style:italic;font-weight:700" title="In nghiêng cụm đã chọn" onmousedown="event.preventDefault()"
+      onclick="richToggleItalic()">I</button>
+    <button class="ft-btn" style="text-decoration:underline;font-weight:700" title="Gạch chân cụm đã chọn" onmousedown="event.preventDefault()"
+      onclick="richToggleUnderline()">U</button>
     <div class="ft-sep"></div>
     <input id="ftColor" class="ft-color" type="color" title="Màu chữ tùy chọn" onmousedown="event.stopPropagation()"
       oninput="richColor(ftColor.value)">
@@ -1844,6 +2526,8 @@
         onclick="richColor('#153452')" title="Xanh đen (mặc định)"></span>
       <span class="ft-swatch" style="background:#ffffff" onmousedown="event.preventDefault()"
         onclick="richColor('#ffffff')" title="Trắng"></span>
+      <span class="ft-swatch" style="background:#fef08a;border-color:#eab308" onmousedown="event.preventDefault()"
+        onclick="richHighlight('#fef08a')" title="Highlight nền vàng"></span>
     </div>
     <div class="ft-sep"></div>
     <button class="ft-btn" title="Giảm cỡ chữ cụm này" onmousedown="event.preventDefault()"
@@ -1990,7 +2674,7 @@
     // Rich-text dùng offset ký tự tuyệt đối thay vì tìm lại bằng nội dung text.
     // Nội dung được chuẩn hóa thành các "run" phẳng, vì vậy text trùng nhau, selection
     // cắt giữa span và thao tác lặp lại đều không tạo span lồng hoặc làm mất style bên ngoài.
-    const RICH_STYLE_PROPS = ['fontWeight', 'color', 'fontSize'];
+    const RICH_STYLE_PROPS = ['fontWeight', 'color', 'fontSize', 'fontStyle', 'textDecoration', 'backgroundColor'];
 
     function getTextOffset(root, container, offset) {
       const range = document.createRange();
@@ -2020,6 +2704,8 @@
         if (!(el instanceof HTMLElement)) return;
         RICH_STYLE_PROPS.forEach(prop => { if (el.style[prop]) style[prop] = el.style[prop]; });
         if (el.tagName === 'B' || el.tagName === 'STRONG') style.fontWeight = '900';
+        if (el.tagName === 'I' || el.tagName === 'EM') style.fontStyle = 'italic';
+        if (el.tagName === 'U') style.textDecoration = 'underline';
         if (el.tagName === 'FONT' && el.getAttribute('color')) style.color = el.getAttribute('color');
       });
       return style;
@@ -2139,6 +2825,24 @@
       mutateRichSelection(style => { style.fontWeight = next; });
     }
 
+    function richToggleItalic() {
+      const current = computedStyleAtSelectionStart('fontStyle') || 'normal';
+      const next = current === 'italic' ? 'normal' : 'italic';
+      mutateRichSelection(style => { style.fontStyle = next; });
+    }
+
+    function richToggleUnderline() {
+      const current = computedStyleAtSelectionStart('textDecorationLine') || computedStyleAtSelectionStart('textDecoration') || '';
+      const next = String(current).includes('underline') ? 'none' : 'underline';
+      mutateRichSelection(style => { style.textDecoration = next; });
+    }
+
+    function richHighlight(bgHex) {
+      mutateRichSelection(style => {
+        style.backgroundColor = style.backgroundColor ? '' : bgHex;
+      });
+    }
+
     function richColor(hex) {
       mutateRichSelection(style => { style.color = hex; });
     }
@@ -2153,11 +2857,42 @@
       mutateRichSelection(style => { style.fontSize = next + 'px'; });
     }
 
+    /* ===== ASSET DEDUPLICATION STORE FOR FAST UNDO/REDO ===== */
+    const assetVault = new Map();
+    let assetSeq = 1;
+    const assetReverse = new Map();
 
+    function internAsset(dataUrl) {
+      if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.length < 512) return dataUrl;
+      let key = assetReverse.get(dataUrl);
+      if (!key) {
+        key = `__asset_ref_${assetSeq++}__`;
+        assetVault.set(key, dataUrl);
+        assetReverse.set(dataUrl, key);
+      }
+      return key;
+    }
+
+    function resolveAsset(val) {
+      if (typeof val === 'string' && val.startsWith('__asset_ref_')) {
+        return assetVault.get(val) || '';
+      }
+      return val;
+    }
 
     function serializeSnapshot() {
+      const lightElements = (state.elements || []).map(el => {
+        if (el.type === 'image' && el.src) {
+          return { ...el, src: internAsset(el.src) };
+        }
+        return el;
+      });
+      const lightFonts = (state.customFonts || []).map(f => ({
+        ...f,
+        dataUrl: internAsset(f.dataUrl)
+      }));
       return JSON.stringify({
-        state,
+        state: { ...state, elements: lightElements, customFonts: lightFonts },
         selectedId: selected?.id || null,
         selectedIds: [...selectedIds],
         canvas: {
@@ -2173,6 +2908,16 @@
       try {
         isRestoringHistory = true;
         const data = JSON.parse(snapshot);
+        if (data.state) {
+          data.state.elements = (data.state.elements || []).map(el => {
+            if (el.type === 'image' && el.src) return { ...el, src: resolveAsset(el.src) };
+            return el;
+          });
+          data.state.customFonts = (data.state.customFonts || []).map(f => ({
+            ...f,
+            dataUrl: resolveAsset(f.dataUrl)
+          }));
+        }
         state = data.state || state;
         canvasW.value = data.canvas?.w || 1600;
         canvasH.value = data.canvas?.h || 1000;
@@ -2190,9 +2935,17 @@
           }
         }
         render();
+        syncHistoryButtons();
       } finally {
         isRestoringHistory = false;
       }
+    }
+
+    function syncHistoryButtons() {
+      const undoBtn = document.getElementById('topUndoBtn');
+      const redoBtn = document.getElementById('topRedoBtn');
+      if (undoBtn) undoBtn.disabled = historyStack.length <= 1;
+      if (redoBtn) redoBtn.disabled = redoStack.length === 0;
     }
 
     function pushHistory(force = false) {
@@ -2202,12 +2955,13 @@
       historyStack.push(snap);
       if (historyStack.length > 120) historyStack.shift();
       redoStack = [];
+      syncHistoryButtons();
       autoSaveLocal();
     }
 
     function scheduleHistory() {
       clearTimeout(historyTimer);
-      historyTimer = setTimeout(() => pushHistory(), 250);
+      historyTimer = setTimeout(() => pushHistory(), 220);
     }
 
     function undoAction() {
@@ -2215,7 +2969,7 @@
       const current = historyStack.pop();
       redoStack.push(current);
       restoreSnapshot(historyStack[historyStack.length - 1]);
-      status('Đã undo');
+      status('Đã hoàn tác (Undo)');
     }
 
     function redoAction() {
@@ -2223,7 +2977,7 @@
       const snap = redoStack.pop();
       historyStack.push(snap);
       restoreSnapshot(snap);
-      status('Đã redo');
+      status('Đã làm lại (Redo)');
     }
 
 
@@ -2470,18 +3224,18 @@
       const title = esc(o.sectionTitle || 'TỔNG QUAN THỊ TRƯỜNG');
       const cardsData = o.cards || [];
       const maxStats = Math.max(0, ...cardsData.map(card => (card.stats || []).length));
-      const cards = cardsData.map(card => {
+      const cards = cardsData.map((card, cardIdx) => {
         const meta = trendMeta(card.change, card.percent);
         const stats = [...(card.stats || [])];
         while (stats.length < maxStats) {
           stats.push({ label: '', value: '' });
         }
-        const rows = stats.map(row => {
+        const rows = stats.map((row, statIdx) => {
           const statColor = pickMarketStatValueColor(card.title || '', row.label || '', row.value || '', o.statValueColor || '#173456');
           return `
       <div class="mw-row">
-        <div class="mw-label" style="font-size:${o.statLabelSize || 12}px;color:${o.statLabelColor || '#4b6788'}">${esc(row.label || ' ')}</div>
-        <div class="mw-stat" style="font-size:${o.statValueSize || 12}px;color:${statColor}">${esc(row.value || ' ')}</div>
+        <div class="mw-label" data-mw-card="${cardIdx}" data-mw-stat-label="${statIdx}" title="Double-click để sửa nhãn" style="font-size:${o.statLabelSize || 12}px;color:${o.statLabelColor || '#4b6788'}">${esc(row.label || ' ')}</div>
+        <div class="mw-stat" data-mw-card="${cardIdx}" data-mw-stat-value="${statIdx}" title="Double-click để sửa giá trị" style="font-size:${o.statValueSize || 12}px;color:${statColor}">${esc(row.value || ' ')}</div>
       </div>`;
         }).join('');
         const subMeta = trendMeta(card.percent || '');
@@ -2493,18 +3247,77 @@
       <div class="mw-card" style="--mw-card-title-size:${o.cardTitleSize || 14}px;--mw-card-title-color:${o.cardTitleColor || '#143f79'};">
         <div class="mw-head">
           <div class="mw-top">
-            <div class="mw-name">${esc(card.title || '')}</div>
+            <div class="mw-name" data-mw-card="${cardIdx}" data-mw-field="title" title="Double-click để sửa tiêu đề card">${esc(card.title || '')}</div>
             ${sparklineSVG(meta.sign, meta.color)}
           </div>
-          <div class="mw-value-block"><span class="mw-value ${meta.cls}">${esc(vu.main)}</span>${unitHtml}</div>
-          <div class="mw-change ${meta.cls}">${arrowHtml}<span>${esc(card.change || '')}</span></div>
-          <div class="mw-percent ${percentClass}">${esc(card.percent || '')}</div>
+          <div class="mw-value-block" data-mw-card="${cardIdx}" data-mw-field="value" title="Double-click để sửa chỉ số"><span class="mw-value ${meta.cls}">${esc(vu.main)}</span>${unitHtml}</div>
+          <div class="mw-change ${meta.cls}">${arrowHtml}<span data-mw-card="${cardIdx}" data-mw-field="change" title="Double-click để sửa biến động">${esc(card.change || '')}</span></div>
+          <div class="mw-percent ${percentClass}" data-mw-card="${cardIdx}" data-mw-field="percent" title="Double-click để sửa % biến động">${esc(card.percent || '')}</div>
         </div>
         <div class="mw-divider"></div>
         <div class="mw-stats">${rows}</div>
       </div>`;
       }).join('');
-      return `<div class="market-widget"><div class="mw-title">${title}</div><div class="mw-grid">${cards}</div></div>`;
+      return `<div class="market-widget"><div class="mw-title" data-mw-section-title title="Double-click để sửa tiêu đề">${title}</div><div class="mw-grid">${cards}</div></div>`;
+    }
+
+    function beginMarketWidgetEdit(widgetObj, target) {
+      const isSection = target.hasAttribute('data-mw-section-title');
+      const cardIdx = Number(target.dataset.mwCard);
+      const field = target.dataset.mwField;
+      const statLabelIdx = target.dataset.mwStatLabel !== undefined ? Number(target.dataset.mwStatLabel) : null;
+      const statValueIdx = target.dataset.mwStatValue !== undefined ? Number(target.dataset.mwStatValue) : null;
+
+      let original = '';
+      if (isSection) {
+        original = widgetObj.sectionTitle || '';
+      } else if (Number.isInteger(cardIdx) && widgetObj.cards?.[cardIdx]) {
+        const card = widgetObj.cards[cardIdx];
+        if (field && ['title', 'value', 'change', 'percent'].includes(field)) {
+          original = card[field] || '';
+        } else if (statLabelIdx !== null) {
+          while ((card.stats || []).length <= statLabelIdx) card.stats.push({ label: '', value: '' });
+          original = card.stats[statLabelIdx].label || '';
+        } else if (statValueIdx !== null) {
+          while ((card.stats || []).length <= statValueIdx) card.stats.push({ label: '', value: '' });
+          original = card.stats[statValueIdx].value || '';
+        } else return;
+      } else return;
+
+      target.textContent = original;
+      target.contentEditable = 'true';
+      target.spellcheck = false;
+      target.style.cssText += ';outline:2px solid #e8c165;outline-offset:1px;background:#fffdf3;color:#0f172a;cursor:text;padding:1px 4px;border-radius:4px;';
+      target.focus({ preventScroll: true });
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      let finished = false;
+      const finish = cancel => {
+        if (finished) return;
+        finished = true;
+        const val = cancel ? original : target.innerText.replace(/\r?\n/g, ' ').trim();
+        if (isSection) {
+          widgetObj.sectionTitle = val || original;
+        } else {
+          const card = widgetObj.cards[cardIdx];
+          if (field) card[field] = val;
+          else if (statLabelIdx !== null) card.stats[statLabelIdx].label = val;
+          else if (statValueIdx !== null) card.stats[statValueIdx].value = val;
+        }
+        render();
+        selectById(widgetObj.id);
+        syncInspector();
+        if (!cancel && val !== original) pushHistory();
+      };
+      target.addEventListener('blur', () => finish(false), { once: true });
+      target.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); target.blur(); }
+        else if (ev.key === 'Escape') { ev.preventDefault(); finish(true); }
+      });
     }
 
 
@@ -2517,6 +3330,19 @@
         const [symbol = '', close = '', change = '', percent = ''] = line.split('|').map(value => value.trim());
         return { symbol, close, change, percent };
       });
+    }
+
+    function addIndexTableRow() {
+      if (!selected || selected.type !== 'indexTable') return;
+      if (!Array.isArray(selected.rows)) selected.rows = [];
+      selected.rows.push({ symbol: 'MÃ MỚI', close: '1,000.00', change: '+0.00', percent: '+0.00%' });
+      render(); selectById(selected.id); pushHistory();
+    }
+
+    function removeLastIndexTableRow() {
+      if (!selected || selected.type !== 'indexTable' || !Array.isArray(selected.rows) || selected.rows.length <= 1) return;
+      selected.rows.pop();
+      render(); selectById(selected.id); pushHistory();
     }
 
     function renderIndexTableHtml(o) {
@@ -2599,12 +3425,73 @@
       });
     }
 
+    function addBadgePreset() {
+      const cx = Math.round(((+canvasW.value || 1600) - 240) / 2);
+      const cy = Math.round(((+canvasH.value || 1000) - 42) / 2);
+      const bgCard = addBase('card', cx, cy, 240, 42, 18);
+      Object.assign(bgCard, {
+        bg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',
+        radius: 10,
+        borderColor: 'transparent',
+        borderW: 0,
+        customName: 'Khung nhãn tiêu đề'
+      });
+      const label = addBase('text', cx + 14, cy + 8, 212, 26, 22);
+      Object.assign(label, {
+        text: 'TIÊU ĐỀ MỤC MỚI',
+        font: state.defaultFont || "'Be Vietnam Pro'",
+        fontSize: 17,
+        weight: 900,
+        color: '#ffffff',
+        align: 'left',
+        lineHeight: 1.2,
+        letterSpacing: 0.3,
+        upper: true,
+        verticalAlign: 'middle'
+      });
+      selectedIds = new Set([bgCard.id, label.id]);
+      selected = label;
+      render();
+      pushHistory();
+      status('Đã thêm Nhãn tiêu đề');
+    }
+
+    function addDividerPreset() {
+      const cx = Math.round(((+canvasW.value || 1600) - 500) / 2);
+      const cy = Math.round(((+canvasH.value || 1000) - 3) / 2);
+      const line = addCard({
+        x: cx,
+        y: cy,
+        w: 500,
+        h: 3,
+        z: 15,
+        bg: 'linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)',
+        radius: 2,
+        borderColor: 'transparent',
+        borderW: 0
+      });
+      line.customName = 'Đường kẻ phân cách';
+      render();
+      selectById(line.id);
+      pushHistory();
+      status('Đã thêm Đường kẻ');
+    }
+
     // Thư viện icon SVG line-style (đổi màu được, xuất PNG sắc nét, trông chuyên nghiệp hơn emoji)
     const ICON_LIB = {
       news: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H15v14.5A1.5 1.5 0 0 1 13.5 20H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M15 8h3.5A1.5 1.5 0 0 1 20 9.5v9a1.5 1.5 0 0 1-1.5 1.5H15"/><path d="M7 8h5M7 11.2h5M7 14.4h3.2"/>',
       target: '<circle cx="12" cy="12" r="7.6"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/>',
       folder: '<path d="M4 6.2A1.2 1.2 0 0 1 5.2 5h4.4l1.7 2h7.5A1.2 1.2 0 0 1 20 8.2v9.6A1.2 1.2 0 0 1 18.8 19H5.2A1.2 1.2 0 0 1 4 17.8V6.2Z"/>',
       chart: '<path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/>',
+      trendUp: '<path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/>',
+      trendDown: '<path d="M3 7l6 6 4-4 7 7"/><path d="M14 16h6v-6"/>',
+      globe: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16"/><path d="M12 4a12 12 0 0 1 3 8 12 12 0 0 1-3 8 12 12 0 0 1-3-8 12 12 0 0 1 3-8Z"/>',
+      shield: '<path d="M12 3l7 3v5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6l7-3Z"/><path d="M9.5 12l1.8 1.8 3.5-3.6"/>',
+      bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6l1-7Z"/>',
+      pie: '<path d="M12 3v9h9a9 9 0 1 1-9-9Z"/><path d="M14.5 3.4A9 9 0 0 1 20.6 9.5H14.5V3.4Z"/>',
+      dollar: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v10"/><path d="M14.8 9.4c0-1.1-1.2-1.9-2.8-1.9s-2.8.8-2.8 1.9c0 2.3 5.6 1.6 5.6 4 0 1.1-1.2 2-2.8 2s-2.8-.9-2.8-2"/>',
+      bank: '<path d="M3 9.5L12 4l9 5.5H3Z"/><path d="M6 10v7M10 10v7M14 10v7M18 10v7M3 19.5h18"/>',
+      star: '<path d="M12 3.5l2.6 5.3 5.9.8-4.2 4.1 1 5.8L12 16.8l-5.3 2.7 1-5.8-4.2-4.1 5.9-.8L12 3.5Z"/>',
       bell: '<path d="M6 16v-4.5a6 6 0 0 1 12 0V16l1.6 2.2H4.4L6 16Z"/><path d="M10.2 19.5a1.9 1.9 0 0 0 3.6 0"/>',
       calendar: '<rect x="4" y="5.5" width="16" height="14.5" rx="1.6"/><path d="M4 9.8h16M8 3.5v3M16 3.5v3"/>',
       flag: '<path d="M6 4v16"/><path d="M6 5h9.2l-2 3.2 2 3.2H6"/>'
@@ -2742,40 +3629,79 @@
       return { w: Math.max(30, Math.round(naturalW * scale)), h: Math.max(20, Math.round(naturalH * scale)) };
     }
 
-    document.getElementById('imageInput').addEventListener('change', e => {
-      const input = e.target;
-      const f = input.files[0]; if (!f) return;
+    async function ingestImageFile(f, targetId = null, dropPoint = null) {
+      if (!f) return;
       if (!/^image\/(png|jpe?g|webp|gif|svg\+xml)$/i.test(f.type)) {
         alert('Định dạng ảnh không được hỗ trợ. Hãy chọn PNG, JPG, WEBP, GIF hoặc SVG.');
-        input.value = ''; return;
+        return;
       }
-      const r = new FileReader();
-      r.onerror = () => { alert('Không thể đọc file ảnh này.'); input.value = ''; };
-      r.onload = async () => {
-        try {
-          const src = String(r.result || '');
-          if (!src.startsWith('data:image/')) throw new Error('Dữ liệu ảnh không hợp lệ.');
-          const natural = await decodeImageSource(src);
-          if (!natural.width || !natural.height) throw new Error('Không xác định được kích thước ảnh.');
-          if (imageTarget === 'new') {
-            const size = fitNaturalImageSize(natural.width, natural.height);
-            const x = Math.round(((+canvasW.value || 1600) - size.w) / 2);
-            const y = Math.round(((+canvasH.value || 1000) - size.h) / 2);
-            const obj = addBase('image', x, y, size.w, size.h, 10);
-            Object.assign(obj, { src, filename: f.name, imageMode: 'free', fit: 'fill', naturalW: natural.width, naturalH: natural.height,
-              aspectRatio: natural.width / natural.height, lockAspect: true, flipX: false, flipY: false,
-              bg: 'transparent', radius: 0, borderColor: 'transparent', borderW: 0 });
-            render(); selectById(obj.id); pushHistory();
-          } else if (imageTarget && selected && selected.id === imageTarget) {
-            selected.src = src; selected.filename = f.name;
-            selected.naturalW = natural.width; selected.naturalH = natural.height; selected.aspectRatio = natural.width / natural.height;
-            if ((selected.imageMode || 'frame') === 'free' && selected.lockAspect !== false) selected.h = Math.max(20, Math.round(selected.w / selected.aspectRatio));
-            render(); selectById(selected.id); pushHistory();
-          }
-        } catch (err) { alert('Không thể nhập ảnh: ' + err.message); }
-        finally { input.value = ''; imageTarget = null; }
-      };
-      r.readAsDataURL(f);
+      const src = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onerror = () => reject(new Error('Không thể đọc file ảnh này.'));
+        r.onload = () => resolve(String(r.result || ''));
+        r.readAsDataURL(f);
+      });
+      if (!src.startsWith('data:image/')) throw new Error('Dữ liệu ảnh không hợp lệ.');
+      const natural = await decodeImageSource(src);
+      if (!natural.width || !natural.height) throw new Error('Không xác định được kích thước ảnh.');
+
+      const targetObj = targetId && targetId !== 'new'
+        ? state.elements.find(item => item.id === targetId && item.type === 'image')
+        : null;
+
+      if (targetObj) {
+        targetObj.src = src;
+        targetObj.filename = f.name || 'clipboard-image.png';
+        targetObj.naturalW = natural.width;
+        targetObj.naturalH = natural.height;
+        targetObj.aspectRatio = natural.width / natural.height;
+        if ((targetObj.imageMode || 'frame') === 'free' && targetObj.lockAspect !== false) {
+          targetObj.h = Math.max(20, Math.round(targetObj.w / targetObj.aspectRatio));
+        }
+        render();
+        selectById(targetObj.id);
+        pushHistory();
+        status('Đã cập nhật ảnh vào khung');
+      } else {
+        const size = fitNaturalImageSize(natural.width, natural.height);
+        const x = dropPoint ? Math.round(dropPoint.x - size.w / 2) : Math.round(((+canvasW.value || 1600) - size.w) / 2);
+        const y = dropPoint ? Math.round(dropPoint.y - size.h / 2) : Math.round(((+canvasH.value || 1000) - size.h) / 2);
+        const obj = addBase('image', x, y, size.w, size.h, 15);
+        Object.assign(obj, {
+          src,
+          filename: f.name || 'clipboard-image.png',
+          imageMode: 'free',
+          fit: 'fill',
+          naturalW: natural.width,
+          naturalH: natural.height,
+          aspectRatio: natural.width / natural.height,
+          lockAspect: true,
+          flipX: false,
+          flipY: false,
+          bg: 'transparent',
+          radius: 0,
+          borderColor: 'transparent',
+          borderW: 0
+        });
+        render();
+        selectById(obj.id);
+        pushHistory();
+        status('Đã thêm ảnh mới');
+      }
+    }
+
+    document.getElementById('imageInput').addEventListener('change', async e => {
+      const input = e.target;
+      const f = input.files[0];
+      if (!f) return;
+      try {
+        await ingestImageFile(f, imageTarget === 'new' ? 'new' : (imageTarget || selected?.id));
+      } catch (err) {
+        alert('Không thể nhập ảnh: ' + err.message);
+      } finally {
+        input.value = '';
+        imageTarget = null;
+      }
     });
 
     function replaceSelectedImage() {
@@ -2811,25 +3737,48 @@
     }
 
     function runImageContextAction(command) {
-      const item=state.elements.find(o=>o.id===contextImageId&&o.type==='image'); closeImageContextMenu();
-      if(!item)return; selected=item; selectedIds=new Set([item.id]);
-      if(command==='crop'){startImageCrop();return;}
-      if(command==='flip-x') item.flipX=!item.flipX;
-      else if(command==='flip-y') item.flipY=!item.flipY;
-      else if(command==='rotate-90') item.rot=((Number(item.rot)||0)+90)%360;
-      else if(command==='stroke'){const hasStroke=(Number(item.borderW)||0)>0;item.borderW=hasStroke?0:2;if(!hasStroke&&!item.borderColor)item.borderColor='#e5bd66';}
-      render();selectById(item.id);pushHistory();
+      const item = state.elements.find(o => o.id === contextImageId);
+      closeImageContextMenu();
+      if (!item) return;
+      selected = item;
+      if (!selectedIds.has(item.id)) selectedIds = new Set([item.id]);
+      if (command === 'crop' && item.type === 'image') { startImageCrop(); return; }
+      if (command === 'replace' && item.type === 'image') { replaceSelectedImage(); return; }
+      if (command === 'flip-x' && item.type === 'image') item.flipX = !item.flipX;
+      else if (command === 'flip-y' && item.type === 'image') item.flipY = !item.flipY;
+      else if (command === 'rotate-90') item.rot = ((Number(item.rot) || 0) + 90) % 360;
+      else if (command === 'stroke') {
+        const hasStroke = (Number(item.borderW) || 0) > 0;
+        item.borderW = hasStroke ? 0 : 2;
+        if (!hasStroke && !item.borderColor) item.borderColor = '#e5bd66';
+      } else if (command === 'duplicate') { duplicateSelected(); return; }
+      else if (command === 'front') { bringToFront(); return; }
+      else if (command === 'back') { sendToBack(); return; }
+      else if (command === 'lock') { toggleLock(); return; }
+      else if (command === 'delete') { deleteSelected(); return; }
+      render();
+      selectById(item.id);
+      pushHistory();
     }
     function closeImageContextMenu(){imageContextMenu.classList.remove('show');imageContextMenu.setAttribute('aria-hidden','true');contextImageId=null;}
     function openImageContextMenu(event,item){
       event.preventDefault();event.stopPropagation();if(cropSession&&cropSession.id!==item.id)cancelImageCrop();
-      selected=item;selectedIds=new Set([item.id]);contextImageId=item.id;render();selectById(item.id);
-      contextStrokeLabel.textContent=(Number(item.borderW)||0)>0?'Bỏ stroke':'Tạo stroke';
+      selected=item;if(!selectedIds.has(item.id))selectedIds=new Set([item.id]);contextImageId=item.id;
+      updateSelectionDOM();
+      const isImg = item.type === 'image';
+      document.getElementById('contextCropImage').style.display = (isImg && item.src) ? 'flex' : 'none';
+      document.getElementById('contextReplaceImage').style.display = isImg ? 'flex' : 'none';
+      document.getElementById('contextImageTransformDivider').style.display = isImg ? 'block' : 'none';
+      document.getElementById('contextFlipHorizontal').style.display = isImg ? 'flex' : 'none';
+      document.getElementById('contextFlipVertical').style.display = isImg ? 'flex' : 'none';
+      document.getElementById('contextToggleStroke').style.display = (isImg || item.type === 'card') ? 'flex' : 'none';
+      contextStrokeLabel.textContent=(Number(item.borderW)||0)>0?'Bỏ viền (Stroke)':'Tạo viền (Stroke)';
+      const lockLabel = document.getElementById('contextLockLabel');
+      if (lockLabel) lockLabel.textContent = item.locked ? 'Mở khóa phần tử' : 'Khóa phần tử';
       imageContextMenu.classList.add('show');imageContextMenu.setAttribute('aria-hidden','false');
       const rect=imageContextMenu.getBoundingClientRect(),pad=10;
       imageContextMenu.style.left=Math.max(pad,Math.min(event.clientX,window.innerWidth-rect.width-pad))+'px';
       imageContextMenu.style.top=Math.max(pad,Math.min(event.clientY,window.innerHeight-rect.height-pad))+'px';
-      contextCropImage.focus({preventScroll:true});
     }
 
     function normalizedCrop(item) {
@@ -2877,17 +3826,169 @@
     }
 
     function elementName(o) {
-      if (o.type === 'text') return (o.text || 'Text').replace(/\s+/g, ' ').trim().slice(0, 30) || 'Text';
+      if (o.customName) return o.customName;
+      if (o.type === 'text') return (o.text || 'Text').replace(/\s+/g, ' ').trim().slice(0, 32) || 'Text';
       if (o.type === 'image') return o.slotLabel || o.filename || ((o.imageMode || 'frame') === 'free' ? 'Ảnh tự do' : 'Hình ảnh');
-      if (o.type === 'marketWidget') return 'Widget chỉ số';
+      if (o.type === 'marketWidget') return o.sectionTitle || 'Widget chỉ số';
       if (o.type === 'indexTable') return o.sectionTitle || 'Bảng biến động';
       if (o.type === 'icon') return 'Icon: ' + (o.icon || 'news');
-      return 'Card';
+      return 'Card / Khung';
+    }
+
+    function computeBoxShadow(o) {
+      const mode = o.shadow || 'default';
+      if (mode === 'none') return 'none';
+      if (mode === 'soft') return '0 6px 18px rgba(8, 32, 91, .06)';
+      if (mode === 'elevated') return '0 20px 48px rgba(8, 32, 91, .16)';
+      if (mode === 'gold-glow') return '0 0 0 2px rgba(232, 193, 101, .55), 0 14px 34px rgba(8, 32, 91, .12)';
+      return '';
+    }
+
+    /* ===== FAST SELECTION & LAYER STATE UPDATE WITHOUT STAGE REBUILD ===== */
+    function updateSelectionDOM() {
+      selectedIds = new Set([...selectedIds].filter(id => state.elements.some(item => item.id === id)));
+      if (selected && !state.elements.some(item => item.id === selected.id)) selected = null;
+      if (!selected && selectedIds.size) { selected = state.elements.find(item => selectedIds.has(item.id)) || null; }
+
+      stage.querySelectorAll('.element').forEach(el => {
+        const id = el.dataset.id;
+        el.classList.toggle('multi-selected', selectedIds.has(id));
+        el.classList.toggle('selected', selected?.id === id);
+      });
+      layerList.querySelectorAll('.layer-item').forEach(row => {
+        row.classList.toggle('active', selectedIds.has(row.dataset.layerId));
+      });
+      syncInspector(true);
+    }
+
+    /* ===== SMART SNAP GUIDES & SIZE HUD ===== */
+    let snapEnabled = true;
+    let gridEnabled = false;
+    let spacePressed = false;
+    let clipboardElements = [];
+
+    function toggleSnapGuides() {
+      snapEnabled = !snapEnabled;
+      document.getElementById('toggleSnapBtn')?.classList.toggle('active', snapEnabled);
+      status(snapEnabled ? 'Đã bật bắt dính thông minh (Snap)' : 'Đã tắt bắt dính (Snap)');
+    }
+
+    function toggleCanvasGrid() {
+      gridEnabled = !gridEnabled;
+      stage.classList.toggle('show-grid', gridEnabled);
+      document.getElementById('toggleGridBtn')?.classList.toggle('active', gridEnabled);
+      status(gridEnabled ? 'Đã bật lưới căn chỉnh' : 'Đã tắt lưới căn chỉnh');
+    }
+
+    function clearSnapGuides() {
+      stage.querySelectorAll('.snap-guide').forEach(g => g.remove());
+    }
+
+    function renderSnapGuides(guides) {
+      clearSnapGuides();
+      guides.forEach(g => {
+        const line = document.createElement('div');
+        line.dataset.editorOnly = 'true';
+        line.className = `snap-guide ${g.axis === 'x' ? 'v' : 'h'}${g.isCenter ? ' center' : ''}`;
+        if (g.axis === 'x') line.style.left = Math.round(g.pos) + 'px';
+        else line.style.top = Math.round(g.pos) + 'px';
+        stage.appendChild(line);
+      });
+    }
+
+    function computeSmartSnap(movingObj, rawX, rawY, w, h, disableSnap = false) {
+      if (!snapEnabled || disableSnap) return { x: Math.round(rawX), y: Math.round(rawY), guides: [] };
+      const threshold = 6;
+      const cw = +canvasW.value || 1600;
+      const ch = +canvasH.value || 1000;
+
+      const xTargets = [
+        { pos: 0, isCenter: false },
+        { pos: cw / 2, isCenter: true },
+        { pos: cw, isCenter: false }
+      ];
+      const yTargets = [
+        { pos: 0, isCenter: false },
+        { pos: ch / 2, isCenter: true },
+        { pos: ch, isCenter: false }
+      ];
+
+      state.elements.forEach(other => {
+        if (other.id === movingObj.id || selectedIds.has(other.id) || other.hidden) return;
+        if (other.locked && other.x === 0 && other.y === 0 && other.w >= cw && other.h >= ch) return;
+        xTargets.push(
+          { pos: other.x, isCenter: false },
+          { pos: other.x + other.w / 2, isCenter: true },
+          { pos: other.x + other.w, isCenter: false }
+        );
+        yTargets.push(
+          { pos: other.y, isCenter: false },
+          { pos: other.y + other.h / 2, isCenter: true },
+          { pos: other.y + other.h, isCenter: false }
+        );
+      });
+
+      const myXPoints = [
+        { offset: 0, val: rawX },
+        { offset: w / 2, val: rawX + w / 2 },
+        { offset: w, val: rawX + w }
+      ];
+      const myYPoints = [
+        { offset: 0, val: rawY },
+        { offset: h / 2, val: rawY + h / 2 },
+        { offset: h, val: rawY + h }
+      ];
+
+      let bestX = null;
+      let minDx = threshold + 1;
+      for (const mp of myXPoints) {
+        for (const t of xTargets) {
+          const dist = Math.abs(mp.val - t.pos);
+          if (dist < minDx) {
+            minDx = dist;
+            bestX = { snappedX: t.pos - mp.offset, guidePos: t.pos, isCenter: t.isCenter };
+          }
+        }
+      }
+
+      let bestY = null;
+      let minDy = threshold + 1;
+      for (const mp of myYPoints) {
+        for (const t of yTargets) {
+          const dist = Math.abs(mp.val - t.pos);
+          if (dist < minDy) {
+            minDy = dist;
+            bestY = { snappedY: t.pos - mp.offset, guidePos: t.pos, isCenter: t.isCenter };
+          }
+        }
+      }
+
+      const guides = [];
+      const finalX = bestX ? Math.round(bestX.snappedX) : Math.round(rawX);
+      const finalY = bestY ? Math.round(bestY.snappedY) : Math.round(rawY);
+      if (bestX) guides.push({ axis: 'x', pos: bestX.guidePos, isCenter: bestX.isCenter });
+      if (bestY) guides.push({ axis: 'y', pos: bestY.guidePos, isCenter: bestY.isCenter });
+      return { x: finalX, y: finalY, guides };
+    }
+
+    function showSizeHud(clientX, clientY, text) {
+      const hud = document.getElementById('sizeHud');
+      if (!hud) return;
+      hud.textContent = text;
+      hud.style.display = 'block';
+      hud.style.left = Math.min(window.innerWidth - 150, clientX + 14) + 'px';
+      hud.style.top = Math.max(10, clientY - 30) + 'px';
+    }
+
+    function hideSizeHud() {
+      const hud = document.getElementById('sizeHud');
+      if (hud) hud.style.display = 'none';
     }
 
     function render() {
       stage.innerHTML = '';
       [...state.elements].sort((a, b) => a.z - b.z).forEach(o => {
+        if (o.hidden) return;
         const el = document.createElement('div');
         el.className = 'element ' + (o.type === 'text' ? 'text-el' : o.type === 'card' ? 'card-el' : o.type === 'image' ? 'img-el' : o.type === 'icon' ? 'icon-el' : o.type === 'indexTable' ? 'index-table-el' : 'market-widget-el');
         el.dataset.id = o.id;
@@ -2953,6 +4054,8 @@
           el.style.background = mode === 'free' ? 'transparent' : (o.bg || '#eef2f7');
           el.style.borderRadius = (o.radius || 0) + 'px';
           el.style.border = (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
+          const customShadow = computeBoxShadow(o);
+          if (customShadow) el.style.boxShadow = customShadow;
           el.style.overflow = 'visible';
           if (cropSession?.id === o.id) el.classList.add('is-cropping');
           if (o.src) {
@@ -2976,7 +4079,7 @@
             el.classList.add('empty-slot');
             const empty = document.createElement('div');
             empty.className = 'image-slot-empty';
-            empty.innerHTML = `<span>⇧</span><strong>${esc(o.slotLabel || 'Tải ảnh')}</strong><small>Click đúp để chọn hình</small>`;
+            empty.innerHTML = `<span>⇧</span><strong>${esc(o.slotLabel || 'Tải ảnh')}</strong><small>Click đúp, kéo-thả hoặc Ctrl+V</small>`;
             el.appendChild(empty);
           }
         } else if (o.type === 'marketWidget') {
@@ -2989,6 +4092,8 @@
           el.style.background = o.bg || '#fff';
           el.style.borderRadius = (o.radius || 0) + 'px';
           el.style.border = (o.borderW || 0) + 'px solid ' + (o.borderColor || 'transparent');
+          const customShadow = computeBoxShadow(o);
+          if (customShadow) el.style.boxShadow = customShadow;
         }
 
         ['nw', 'ne', 'sw', 'se', 'n', 's', 'w', 'e'].forEach(h => {
@@ -3001,7 +4106,7 @@
         const rot = document.createElement('div'); rot.className = 'handle rot'; rot.dataset.handle = 'rot'; el.appendChild(rot);
 
         el.addEventListener('pointerdown', onPointerDown);
-        if(o.type==='image') el.addEventListener('contextmenu', event=>openImageContextMenu(event,o));
+        el.addEventListener('contextmenu', event => openImageContextMenu(event, o));
         el.addEventListener('wheel', event => {
           if (cropSession?.id !== o.id) return;
           event.preventDefault(); event.stopPropagation();
@@ -3018,6 +4123,12 @@
             event.preventDefault(); event.stopPropagation();
             selected = o; selectedIds = new Set([o.id]);
             beginIndexTableEdit(o, cell);
+          } else if (o.type === 'marketWidget') {
+            const fieldTarget = event.target.closest('[data-mw-section-title],[data-mw-field],[data-mw-stat-label],[data-mw-stat-value]');
+            if (!fieldTarget) return;
+            event.preventDefault(); event.stopPropagation();
+            selected = o; selectedIds = new Set([o.id]);
+            beginMarketWidgetEdit(o, fieldTarget);
           }
         });
         if (o.type === 'text') {
@@ -3033,20 +4144,14 @@
             editable.classList.add('is-editing');
             editable.focus({ preventScroll: true });
             activeEditable = editable;
-            renderLayers();
-            syncInspector(false);
+            updateSelectionDOM();
           });
         }
         stage.appendChild(el);
       });
 
-      selectedIds = new Set([...selectedIds].filter(id => state.elements.some(item => item.id === id)));
-      if (selected && !state.elements.some(item => item.id === selected.id)) selected = null;
-      if (!selected && selectedIds.size) { selected = state.elements.find(item => selectedIds.has(item.id)) || null; }
-      selectedIds.forEach(id => stage.querySelector(`[data-id="${id}"]`)?.classList.add('multi-selected'));
-      if (selected) stage.querySelector(`[data-id="${selected.id}"]`)?.classList.add('selected');
       renderLayers();
-      syncInspector(true);
+      updateSelectionDOM();
     }
 
     function getLayoutContainers(obj) {
@@ -3182,7 +4287,7 @@
 
     function selectById(id, additive = false) {
       const obj = state.elements.find(x => x.id === id) || null;
-      if (!obj) { selected = null; selectedIds.clear(); render(); return; }
+      if (!obj) { selected = null; selectedIds.clear(); updateSelectionDOM(); return; }
       if (additive) {
         if (selectedIds.has(id)) {
           selectedIds.delete(id);
@@ -3195,10 +4300,12 @@
         selected = obj;
         selectedIds = new Set([id]);
       }
-      render();
+      updateSelectionDOM();
     }
 
     function onPointerDown(e) {
+      if (e.button === 2) return; // chuột phải dành cho context menu
+      if (spacePressed) return; // đang giữ Space để kéo vùng nhìn
       const id = e.currentTarget.dataset.id;
       const obj = state.elements.find(x => x.id === id);
       if (!obj) return;
@@ -3214,10 +4321,11 @@
       if (!selectedIds.has(id)) {
         selected = obj;
         selectedIds = new Set([id]);
-        render();
-        return;
+        updateSelectionDOM();
+      } else {
+        selected = obj;
+        updateSelectionDOM();
       }
-      selected = obj;
       if (obj.locked) return;
       const cropHandle=e.target.dataset.cropHandle;
       if(cropSession?.id===id&&(cropHandle||!e.target.dataset.handle)){
@@ -3233,14 +4341,14 @@
 
       if (handle === 'rot') {
         const cx = obj.x + obj.w / 2, cy = obj.y + obj.h / 2;
-        action = { type: 'rotate', obj, cx, cy, scale };
+        action = { type: 'rotate', obj, cx, cy, scale, moved: false };
       } else if (handle) {
-        action = { type: 'resize', obj, handle, startX, startY, ox: obj.x, oy: obj.y, ow: obj.w, oh: obj.h, scale, neighbors: captureNeighborResize(obj, handle) };
+        action = { type: 'resize', obj, handle, startX, startY, ox: obj.x, oy: obj.y, ow: obj.w, oh: obj.h, scale, neighbors: captureNeighborResize(obj, handle), moved: false };
       } else {
         if (editingTextId === id && e.target.closest?.('.editable')) return;
         const members = state.elements.filter(item => selectedIds.has(item.id) && !item.locked)
           .map(item => ({ item, ox: item.x, oy: item.y }));
-        action = { type: 'drag', obj, startX, startY, ox: obj.x, oy: obj.y, scale, members };
+        action = { type: 'drag', obj, startX, startY, ox: obj.x, oy: obj.y, scale, members, moved: false };
       }
       e.preventDefault();
       e.stopPropagation();
@@ -3255,11 +4363,43 @@
         if(!action.raf)action.raf=requestAnimationFrame(()=>{if(!action)return;action.raf=0;const evt=action.pendingEvent;action.pendingEvent=null;updateCropGesture(evt);});
         return;
       }
+      if (action.type === 'marquee') {
+        const { scale, startX, startY, boxEl } = action;
+        const rect = stage.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) / scale;
+        const my = (e.clientY - rect.top) / scale;
+        const x = Math.min(startX, mx), y = Math.min(startY, my);
+        const w = Math.abs(mx - startX), h = Math.abs(my - startY);
+        boxEl.style.display = 'block';
+        boxEl.style.left = x + 'px';
+        boxEl.style.top = y + 'px';
+        boxEl.style.width = w + 'px';
+        boxEl.style.height = h + 'px';
+        const cw = +canvasW.value || 1600, ch = +canvasH.value || 1000;
+        const hits = state.elements.filter(item => {
+          if (item.locked || item.hidden) return false;
+          if (item.x <= 0 && item.y <= 0 && item.w >= cw && item.h >= ch) return false;
+          return item.x < x + w && item.x + item.w > x && item.y < y + h && item.y + item.h > y;
+        });
+        selectedIds = new Set(hits.map(i => i.id));
+        selected = hits[hits.length - 1] || null;
+        updateSelectionDOM();
+        return;
+      }
       const { obj, scale } = action;
       const mx = e.clientX / scale, my = e.clientY / scale;
+      action.moved = true;
       if (action.type === 'drag') {
-        const dx = mx - action.startX, dy = my - action.startY;
-        action.members.forEach(({ item, ox, oy }) => {item.x = Math.round(ox + dx);item.y = Math.round(oy + dy);});
+        const rawDx = mx - action.startX, rawDy = my - action.startY;
+        const snap = computeSmartSnap(obj, action.ox + rawDx, action.oy + rawDy, obj.w, obj.h, e.altKey);
+        const snappedDx = snap.x - action.ox;
+        const snappedDy = snap.y - action.oy;
+        action.members.forEach(({ item, ox, oy }) => {
+          item.x = Math.round(ox + snappedDx);
+          item.y = Math.round(oy + snappedDy);
+        });
+        renderSnapGuides(snap.guides);
+        showSizeHud(e.clientX, e.clientY, `X: ${obj.x} · Y: ${obj.y}`);
       } else if (action.type === 'resize') {
         const dx = mx - action.startX, dy = my - action.startY;
         if (action.neighbors) resizeWithNeighbors(action.neighbors, dx, dy);
@@ -3280,7 +4420,13 @@
           }
           Object.assign(obj, { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
         }
-      } else if (action.type === 'rotate') obj.rot = Math.round(Math.atan2(my-action.cy,mx-action.cx)*180/Math.PI+90);
+        showSizeHud(e.clientX, e.clientY, `${Math.round(obj.w)} × ${Math.round(obj.h)} px`);
+      } else if (action.type === 'rotate') {
+        let angle = Math.round(Math.atan2(my - action.cy, mx - action.cx) * 180 / Math.PI + 90);
+        if (e.shiftKey) angle = Math.round(angle / 15) * 15;
+        obj.rot = angle;
+        showSizeHud(e.clientX, e.clientY, `${obj.rot}°`);
+      }
       updateSelectedDom();syncInspector(false);
     }
 
@@ -3309,11 +4455,24 @@
 
     function onPointerUp() {
       const completed=action;if(!completed)return;
+      clearSnapGuides();
+      hideSizeHud();
+      window.removeEventListener('pointermove', onPointerMove);
+      if (completed.type === 'marquee') {
+        completed.boxEl?.remove();
+        action = null;
+        updateSelectionDOM();
+        return;
+      }
       if(completed.raf){cancelAnimationFrame(completed.raf);completed.raf=0;if(completed.pendingEvent)updateCropGesture(completed.pendingEvent);}
-      completed.captureTarget?.releasePointerCapture?.(completed.pointerId);completed.captureTarget?.removeEventListener('pointermove',onPointerMove);action=null;render();renderLayers();
-      if(completed.type!=='crop-pan'&&completed.type!=='crop-resize')pushHistory();
+      completed.captureTarget?.releasePointerCapture?.(completed.pointerId);completed.captureTarget?.removeEventListener('pointermove',onPointerMove);action=null;
+      if (completed.moved) {
+        if (completed.type === 'resize') render();
+        else updateSelectionDOM();
+        if(completed.type!=='crop-pan'&&completed.type!=='crop-resize')pushHistory();
+      }
     }
-    function onPointerCancel(){if(!action)return;const o=action.obj;Object.assign(o,{x:action.ox,y:action.oy,w:action.ow,h:action.oh,crop:action.crop});onPointerUp();}
+    function onPointerCancel(){if(!action)return;const o=action.obj;if(o)Object.assign(o,{x:action.ox,y:action.oy,w:action.ow,h:action.oh,crop:action.crop});onPointerUp();}
 
     function updateSelectedDom() {
       let items;
@@ -3324,33 +4483,80 @@
     }
 
     stage.addEventListener('pointerdown', e => {
-      if (e.target === stage) {
-        editingTextId = null;
-        activeEditable = null;
-        floatToolbar.classList.remove('show');
-        selected = null;
-        selectedIds.clear();
-        render();
+      if (spacePressed) return;
+      const isBgCard = e.target.closest?.('.element')?.classList.contains('locked') && (e.target.closest?.('.element')?.style.zIndex === '0' || e.target.closest?.('.element')?.style.zIndex === '1');
+      if (e.target === stage || isBgCard) {
+        exitTextEditing();
+        if (!e.shiftKey) {
+          selected = null;
+          selectedIds.clear();
+          updateSelectionDOM();
+        }
+        const rect = stage.getBoundingClientRect();
+        const scale = rect.width / stage.offsetWidth;
+        const startX = (e.clientX - rect.left) / scale;
+        const startY = (e.clientY - rect.top) / scale;
+        const boxEl = document.createElement('div');
+        boxEl.className = 'marquee-box';
+        boxEl.dataset.editorOnly = 'true';
+        stage.appendChild(boxEl);
+        action = { type: 'marquee', startX, startY, scale, boxEl };
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp, { once: true });
       }
     });
 
     function renderLayers() {
       layerList.innerHTML = '';
-      [...state.elements].sort((a, b) => b.z - a.z).forEach(o => {
+      const query = (document.getElementById('layerSearchInput')?.value || '').trim().toLowerCase();
+      const sorted = [...state.elements].sort((a, b) => b.z - a.z);
+      const countBadge = document.getElementById('layerCountBadge');
+      if (countBadge) countBadge.textContent = String(sorted.length);
+
+      sorted.forEach(o => {
+        const displayName = elementName(o);
+        if (query && !displayName.toLowerCase().includes(query) && !o.type.toLowerCase().includes(query)) return;
         const row = document.createElement('div');
-        row.className = 'layer-item' + (selectedIds.has(o.id) ? ' active' : '');
+        row.className = 'layer-item' + (selectedIds.has(o.id) ? ' active' : '') + (o.hidden ? ' is-hidden' : '');
+        row.dataset.layerId = o.id;
         row.onclick = event => selectById(o.id, event.shiftKey);
 
         const vis = document.createElement('span');
-        vis.textContent = o.type === 'text' ? 'T' : o.type === 'image' ? '🖼' : o.type === 'marketWidget' ? '📊' : o.type === 'indexTable' ? '▤' : '▣';
+        vis.textContent = o.type === 'text' ? 'T' : o.type === 'image' ? '🖼' : o.type === 'marketWidget' ? '📊' : o.type === 'indexTable' ? '▤' : o.type === 'icon' ? '✦' : '▣';
         vis.className = 'badge';
-        const name = document.createElement('div');
-        name.className = 'layer-name'; name.textContent = elementName(o);
-        const lock = document.createElement('button');
-        lock.className = 'tiny'; lock.textContent = o.locked ? '🔒' : '🔓';
-        lock.onclick = (ev) => { ev.stopPropagation(); o.locked = !o.locked; render(); };
 
-        row.append(vis, name, lock);
+        const name = document.createElement('div');
+        name.className = 'layer-name';
+        name.textContent = displayName;
+        name.title = 'Double-click để đổi tên layer';
+        name.ondblclick = ev => {
+          ev.stopPropagation();
+          const nextName = prompt('Đặt tên cho layer:', o.customName || displayName);
+          if (nextName !== null) {
+            o.customName = nextName.trim() || undefined;
+            renderLayers();
+            pushHistory();
+          }
+        };
+
+        const hideBtn = document.createElement('button');
+        hideBtn.className = 'tiny';
+        hideBtn.title = o.hidden ? 'Hiện layer' : 'Ẩn layer';
+        hideBtn.textContent = o.hidden ? '🙈' : '👁';
+        hideBtn.onclick = ev => {
+          ev.stopPropagation();
+          o.hidden = !o.hidden;
+          render();
+          pushHistory();
+        };
+
+        const lock = document.createElement('button');
+        lock.className = 'tiny';
+        lock.title = o.locked ? 'Mở khóa layer' : 'Khóa layer';
+        lock.textContent = o.locked ? '🔒' : '🔓';
+        lock.onclick = (ev) => { ev.stopPropagation(); o.locked = !o.locked; render(); pushHistory(); };
+
+        row.append(vis, name, hideBtn, lock);
         layerList.appendChild(row);
       });
     }
@@ -3358,8 +4564,27 @@
     function syncInspector(includeText = true) {
       const none = document.getElementById('noneSelected');
       const props = document.getElementById('properties');
-      if (!selected) { none.style.display = 'block'; props.style.display = 'none'; return; }
+      const typeBadge = document.getElementById('selectedTypeBadge');
+      if (!selected) {
+        none.style.display = 'block';
+        props.style.display = 'none';
+        if (typeBadge) typeBadge.textContent = selectedIds.size > 1 ? `${selectedIds.size} mục` : 'Chưa chọn';
+        return;
+      }
       none.style.display = 'none'; props.style.display = 'block';
+      const typeLabels = {
+        text: 'Văn bản',
+        card: 'Khung / Card',
+        image: 'Hình ảnh',
+        icon: 'Icon SVG',
+        marketWidget: 'Widget chỉ số',
+        indexTable: 'Bảng biến động'
+      };
+      if (typeBadge) {
+        typeBadge.textContent = selectedIds.size > 1
+          ? `${selectedIds.size} phần tử`
+          : (typeLabels[selected.type] || selected.type);
+      }
 
       propX.value = Math.round(selected.x); propY.value = Math.round(selected.y);
       propW.value = Math.round(selected.w); propH.value = Math.round(selected.h);
@@ -3390,6 +4615,8 @@
         propLine.value = selected.lineHeight || 1.2;
         propLetter.value = selected.letterSpacing || 0;
         propUpper.checked = !!selected.upper;
+        const vAlign = document.getElementById('propVerticalAlign');
+        if (vAlign) vAlign.value = selected.verticalAlign || 'top';
       } else if (market) {
         marketSectionTitle.value = selected.sectionTitle || '';
         marketCardTitleSize.value = selected.cardTitleSize || 14;
@@ -3419,11 +4646,18 @@
         propIconColor.value = selected.color || '#ffffff';
         propIconStroke.value = selected.strokeWidth || 1.8;
       } else {
-        propBg.value = selected.bg || '#ffffff';
+        propBg.value = /^#[0-9a-f]{6}$/i.test(selected.bg || '') ? selected.bg : '#ffffff';
+        const bgPreset = document.getElementById('propBgPreset');
+        if (bgPreset) bgPreset.value = '';
         propRadius.value = selected.radius || 0;
-        propBorderColor.value = selected.borderColor || '#d7e0ea';
+        propBorderColor.value = /^#[0-9a-f]{6}$/i.test(selected.borderColor || '') ? selected.borderColor : '#d7e0ea';
         propBorderW.value = selected.borderW || 0;
-        propOpacity.value = Math.round((selected.opacity ?? 1) * 100);
+        const shadowSel = document.getElementById('propShadow');
+        if (shadowSel) shadowSel.value = selected.shadow || 'default';
+        const opPct = Math.round((selected.opacity ?? 1) * 100);
+        propOpacity.value = opPct;
+        const opLbl = document.getElementById('propOpacityLabel');
+        if (opLbl) opLbl.textContent = opPct + '%';
         if (selected.type === 'image') {
           const mode = selected.imageMode || 'frame';
           propImageMode.value = mode; propFit.value = selected.fit || (mode === 'free' ? 'fill' : 'cover');
@@ -3437,7 +4671,7 @@
           flipImageXButton.setAttribute('aria-pressed', String(!!selected.flipX));
           flipImageYButton.setAttribute('aria-pressed', String(!!selected.flipY));
           const cropping=cropSession?.id===selected.id; cropControls.style.display=cropping?'block':'none'; cropImageButton.style.display=cropping?'none':'block'; removeCropButton.style.display=!cropping&&selected.cropEnabled?'block':'none';
-          if(cropping){cropZoom.value=Math.round((selected.cropScale||1)*100);cropZoomValue.textContent=cropZoom.value+'%';cropAspectSelect.value=selected.cropAspect||'free';}
+          if(cropping){cropZoom.value=Math.round((1 / (normalizedCrop(selected).width || 1))*100);cropZoomValue.textContent=cropZoom.value+'%';cropAspectSelect.value=selected.cropAspect||'free';}
         }
       }
     }
@@ -3455,8 +4689,18 @@
       selected.z = +propZ.value || 1;
       if (childSnapshot && (oldBounds.x !== selected.x || oldBounds.y !== selected.y || oldBounds.w !== selected.w || oldBounds.h !== selected.h)) {
         reflowContainerChildren(childSnapshot, { x: selected.x, y: selected.y, w: selected.w, h: selected.h });
+        render();
+      } else {
+        const el = stage.querySelector(`[data-id="${selected.id}"]`);
+        if (el) {
+          el.style.left = selected.x + 'px';
+          el.style.top = selected.y + 'px';
+          el.style.width = selected.w + 'px';
+          el.style.height = selected.h + 'px';
+          el.style.transform = elementTransform(selected);
+          el.style.zIndex = selected.z;
+        } else render();
       }
-      render(); selectById(selected.id);
       scheduleHistory();
     }
 
@@ -3474,7 +4718,12 @@
       selected.lineHeight = +propLine.value || 1.2;
       selected.letterSpacing = +propLetter.value || 0;
       selected.upper = propUpper.checked;
-      render(); selectById(selected.id);
+      const vAlign = document.getElementById('propVerticalAlign');
+      if (vAlign && vAlign.value !== (selected.verticalAlign || 'top')) {
+        selected.verticalAlign = vAlign.value;
+        selected.baselineY = null;
+      }
+      render();
       scheduleHistory();
     }
 
@@ -3494,7 +4743,11 @@
         percent: window['market' + idx + 'Percent'].value,
         stats: statsTextToArray(window['market' + idx + 'Stats'].value)
       }));
-      render(); selectById(selected.id);
+      const el = stage.querySelector(`[data-id="${selected.id}"]`);
+      if (el) {
+        el.querySelector('.market-widget')?.remove();
+        el.insertAdjacentHTML('afterbegin', renderMarketWidgetHtml(selected));
+      } else render();
       scheduleHistory();
     }
 
@@ -3506,7 +4759,12 @@
       selected.negativeColor = indexNegativeColor.value || '#d62828';
       selected.headSize = +indexHeadSize.value || 12;
       selected.bodySize = +indexBodySize.value || 13;
-      render(); selectById(selected.id); scheduleHistory();
+      const el = stage.querySelector(`[data-id="${selected.id}"]`);
+      if (el) {
+        el.querySelector('.index-table')?.remove();
+        el.insertAdjacentHTML('afterbegin', renderIndexTableHtml(selected));
+      } else render();
+      scheduleHistory();
     }
 
     function applyIconProps() {
@@ -3514,7 +4772,15 @@
       selected.icon = propIconType.value;
       selected.color = propIconColor.value;
       selected.strokeWidth = +propIconStroke.value || 1.8;
-      render(); selectById(selected.id);
+      render();
+      scheduleHistory();
+    }
+
+    function applyBoxBgPreset(presetVal) {
+      if (!presetVal || !selected || selected.type === 'text' || selected.type === 'marketWidget' || selected.type === 'indexTable') return;
+      selected.bg = presetVal;
+      if (/^#[0-9a-f]{6}$/i.test(presetVal)) propBg.value = presetVal;
+      render();
       scheduleHistory();
     }
 
@@ -3524,8 +4790,21 @@
       selected.radius = +propRadius.value || 0;
       selected.borderColor = propBorderColor.value;
       selected.borderW = +propBorderW.value || 0;
-      selected.opacity = (+propOpacity.value || 0) / 100;
-      render(); selectById(selected.id);
+      const shadowSel = document.getElementById('propShadow');
+      if (shadowSel) selected.shadow = shadowSel.value;
+      const opPct = +propOpacity.value || 0;
+      selected.opacity = opPct / 100;
+      const opLbl = document.getElementById('propOpacityLabel');
+      if (opLbl) opLbl.textContent = opPct + '%';
+      const el = stage.querySelector(`[data-id="${selected.id}"]`);
+      if (el) {
+        const mode = selected.imageMode || 'frame';
+        el.style.background = (selected.type === 'image' && mode === 'free') ? 'transparent' : selected.bg;
+        el.style.borderRadius = selected.radius + 'px';
+        el.style.border = selected.borderW + 'px solid ' + (selected.borderColor || 'transparent');
+        el.style.opacity = selected.opacity;
+        el.style.boxShadow = computeBoxShadow(selected);
+      } else render();
       scheduleHistory();
     }
 
@@ -3541,7 +4820,7 @@
         selected.bg = 'transparent'; selected.borderW = 0;
         if (selected.lockAspect !== false && selected.aspectRatio) selected.h = Math.max(20, Math.round(selected.w / selected.aspectRatio));
       }
-      render(); selectById(selected.id);
+      render();
       scheduleHistory();
     }
 
@@ -3556,6 +4835,17 @@
     function sendBackward() {
       const items = selectedItems(false); if (!items.length) return;
       items.forEach(item => item.z = Math.max(0, item.z - 1)); render(); pushHistory();
+    }
+    function bringToFront() {
+      const items = selectedItems(false); if (!items.length) return;
+      const maxZ = Math.max(1, ...state.elements.map(e => Number(e.z) || 1));
+      items.forEach((item, idx) => item.z = maxZ + 1 + idx);
+      render(); pushHistory(); status('Đã đưa lên lớp trên cùng');
+    }
+    function sendToBack() {
+      const items = selectedItems(false); if (!items.length) return;
+      items.forEach(item => item.z = 2);
+      render(); pushHistory(); status('Đã đưa xuống lớp dưới');
     }
     function toggleLock() {
       const items = selectedItems(); if (!items.length) return;
@@ -3582,6 +4872,153 @@
       render(); pushHistory();
     }
 
+    /* ===== ALIGN & DISTRIBUTE TOOLS ===== */
+    function alignSelected(mode) {
+      const items = selectedItems(false);
+      if (!items.length) return;
+      const cw = +canvasW.value || 1600;
+      const ch = +canvasH.value || 1000;
+      const box = items.length === 1
+        ? { left: 0, top: 0, right: cw, bottom: ch, width: cw, height: ch }
+        : {
+            left: Math.min(...items.map(i => i.x)),
+            top: Math.min(...items.map(i => i.y)),
+            right: Math.max(...items.map(i => i.x + i.w)),
+            bottom: Math.max(...items.map(i => i.y + i.h)),
+            get width() { return this.right - this.left; },
+            get height() { return this.bottom - this.top; }
+          };
+
+      items.forEach(item => {
+        if (mode === 'left') item.x = Math.round(box.left);
+        else if (mode === 'center-x') item.x = Math.round(box.left + (box.width - item.w) / 2);
+        else if (mode === 'right') item.x = Math.round(box.right - item.w);
+        else if (mode === 'top') item.y = Math.round(box.top);
+        else if (mode === 'center-y') item.y = Math.round(box.top + (box.height - item.h) / 2);
+        else if (mode === 'bottom') item.y = Math.round(box.bottom - item.h);
+      });
+      render();
+      pushHistory();
+      status('Đã căn chỉnh phần tử');
+    }
+
+    function distributeSelected(axis) {
+      const items = selectedItems(false);
+      if (items.length < 3) {
+        status('Hãy chọn ít nhất 3 phần tử (Shift+Click) để chia đều khoảng cách');
+        return;
+      }
+      if (axis === 'horizontal') {
+        const sorted = [...items].sort((a, b) => a.x - b.x);
+        const first = sorted[0], last = sorted[sorted.length - 1];
+        const totalSpan = (last.x + last.w) - first.x;
+        const sumWidths = sorted.reduce((acc, it) => acc + it.w, 0);
+        const gap = (totalSpan - sumWidths) / (sorted.length - 1);
+        let cursor = first.x;
+        sorted.forEach(it => {
+          it.x = Math.round(cursor);
+          cursor += it.w + gap;
+        });
+      } else {
+        const sorted = [...items].sort((a, b) => a.y - b.y);
+        const first = sorted[0], last = sorted[sorted.length - 1];
+        const totalSpan = (last.y + last.h) - first.y;
+        const sumHeights = sorted.reduce((acc, it) => acc + it.h, 0);
+        const gap = (totalSpan - sumHeights) / (sorted.length - 1);
+        let cursor = first.y;
+        sorted.forEach(it => {
+          it.y = Math.round(cursor);
+          cursor += it.h + gap;
+        });
+      }
+      render();
+      pushHistory();
+      status('Đã chia đều khoảng cách');
+    }
+
+    /* ===== SIDEBAR TABS, THEME PRESETS & CANVAS PRESETS ===== */
+    function switchLeftTab(tab) {
+      const isBuild = tab === 'build';
+      document.getElementById('leftTabBuild').style.display = isBuild ? 'block' : 'none';
+      document.getElementById('leftTabLayers').style.display = isBuild ? 'none' : 'block';
+      document.getElementById('leftTabBuildBtn')?.classList.toggle('active', isBuild);
+      document.getElementById('leftTabLayersBtn')?.classList.toggle('active', !isBuild);
+      if (!isBuild) renderLayers();
+    }
+
+    function toggleShortcutsModal(show) {
+      const modal = document.getElementById('shortcutsModal');
+      if (!modal) return;
+      const next = typeof show === 'boolean' ? show : !modal.classList.contains('show');
+      modal.classList.toggle('show', next);
+    }
+
+    function applyCanvasPreset(val) {
+      if (!val || val === 'custom') return;
+      const [w, h] = val.split('x').map(Number);
+      if (!w || !h) return;
+      canvasW.value = w;
+      canvasH.value = h;
+      applyCanvas();
+      fitZoomToWorkspace();
+    }
+
+    const THEME_PRESETS = {
+      'bvsc-navy': {
+        canvasBg: '#eef4fb',
+        heroBg: 'linear-gradient(120deg,#050f36 0%,#0a1f5c 46%,#0d2c78 100%)',
+        accentLine: 'linear-gradient(90deg,#c8952f 0%,#e8c165 50%,#c8952f 100%)',
+        headerBg: 'linear-gradient(90deg,#071b78 0%,#0c3faa 100%)',
+        accentText: '#e8c165',
+        bodyText: '#263f5c'
+      },
+      'ocean-blue': {
+        canvasBg: '#f0f7ff',
+        heroBg: 'linear-gradient(120deg,#082f49 0%,#0369a1 55%,#0284c7 100%)',
+        accentLine: 'linear-gradient(90deg,#38bdf8 0%,#bae6fd 50%,#38bdf8 100%)',
+        headerBg: 'linear-gradient(90deg,#0c4a6e 0%,#0284c7 100%)',
+        accentText: '#7dd3fc',
+        bodyText: '#1e3a5f'
+      },
+      'emerald-wealth': {
+        canvasBg: '#f0fdf4',
+        heroBg: 'linear-gradient(120deg,#022c22 0%,#064e3b 52%,#047857 100%)',
+        accentLine: 'linear-gradient(90deg,#d97706 0%,#fde68a 50%,#d97706 100%)',
+        headerBg: 'linear-gradient(90deg,#064e3b 0%,#059669 100%)',
+        accentText: '#fcd34d',
+        bodyText: '#1f3a33'
+      },
+      'slate-minimal': {
+        canvasBg: '#f1f5f9',
+        heroBg: 'linear-gradient(120deg,#0f172a 0%,#1e293b 55%,#334155 100%)',
+        accentLine: 'linear-gradient(90deg,#64748b 0%,#cbd5e1 50%,#64748b 100%)',
+        headerBg: 'linear-gradient(90deg,#1e293b 0%,#475569 100%)',
+        accentText: '#cbd5e1',
+        bodyText: '#334155'
+      }
+    };
+
+    function applyThemePreset(themeKey) {
+      const theme = THEME_PRESETS[themeKey];
+      if (!theme) return;
+      canvasBg.value = theme.canvasBg;
+      state.elements.forEach(item => {
+        if (item.type === 'card') {
+          if (item.locked && item.z === 0) item.bg = theme.canvasBg;
+          else if (item.y <= 30 && item.w >= 1400 && item.h >= 60) item.bg = theme.heroBg;
+          else if (item.h <= 5 && item.w >= 1400) item.bg = theme.accentLine;
+          else if (item.h >= 36 && item.h <= 50 && item.z >= 8) item.bg = theme.headerBg;
+        } else if (item.type === 'text') {
+          if (item.y <= 45 && item.fontSize <= 14) item.color = theme.accentText;
+          else if (item.y > 140 && item.color !== '#ffffff' && item.fontSize <= 17) item.color = theme.bodyText;
+        }
+      });
+      applyCanvas();
+      render();
+      pushHistory();
+      status('Đã áp dụng chủ đề màu: ' + themeKey);
+    }
+
     function applyCanvas() {
       stage.style.width = (+canvasW.value || 1600) + 'px';
       stage.style.height = (+canvasH.value || 1000) + 'px';
@@ -3594,17 +5031,39 @@
       const canvasWidth = +canvasW.value || stage.offsetWidth || 1600;
       return clamp(Math.floor(available / canvasWidth * 100), 18, 100);
     }
+    function fitZoomToWorkspace() {
+      const workspace = document.getElementById('workspace');
+      const availW = Math.max(320, (workspace?.clientWidth || window.innerWidth) - 88);
+      const availH = Math.max(260, (workspace?.clientHeight || window.innerHeight) - 88);
+      const cw = +canvasW.value || stage.offsetWidth || 1600;
+      const ch = +canvasH.value || stage.offsetHeight || 1000;
+      const fit = clamp(Math.floor(Math.min(availW / cw, availH / ch) * 100), 20, 150);
+      zoomInput.value = fit;
+      applyZoom();
+    }
+    function stepZoom(delta) {
+      const cur = +zoomInput.value || 70;
+      zoomInput.value = clamp(cur + delta, 20, 200);
+      applyZoom();
+    }
+    function zoomTo100() {
+      zoomInput.value = 100;
+      applyZoom();
+    }
     function applyResponsiveWorkspace(forceFit = false) {
       if (isMobileViewport() && forceFit) zoomInput.value = getMobileFitZoom();
       applyZoom();
       syncSidebarUI();
     }
     function applyZoom() {
-      const z = (+zoomInput.value || 70) / 100;
+      const pct = clamp(+zoomInput.value || 70, 20, 200);
+      const z = pct / 100;
       stage.style.transform = `scale(${z})`;
       const mobilePadding = isMobileViewport() ? 32 : 84;
       stage.parentElement.style.width = (stage.offsetWidth * z + mobilePadding) + 'px';
       stage.parentElement.style.height = (stage.offsetHeight * z + mobilePadding) + 'px';
+      const lbl = document.getElementById('zoomHudLabel');
+      if (lbl) lbl.textContent = Math.round(pct) + '%';
     }
 
     function waitForStageImages() {
@@ -3650,9 +5109,22 @@
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     }
 
+    async function ensureHtml2Canvas() {
+      if (typeof html2canvas !== 'undefined') return html2canvas;
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = () => typeof html2canvas !== 'undefined' ? resolve(html2canvas) : reject(new Error('Không tải được html2canvas.'));
+        script.onerror = () => reject(new Error('Không tải được thư viện html2canvas. Hãy kiểm tra kết nối Internet.'));
+        document.head.appendChild(script);
+      });
+    }
+
     async function exportPNG() {
       if(cropSession) applyImageCrop();
       const exportButton = document.getElementById('exportPngButton');
+      const scaleSelect = document.getElementById('exportScaleSelect');
+      const exportScale = clamp(Number(scaleSelect?.value) || 2, 1, 3);
       const selectedId = selected?.id || null;
       const toolbarWasVisible = floatToolbar.classList.contains('show');
       if (exportButton?.disabled) return;
@@ -3661,10 +5133,10 @@
       document.body.classList.add('is-exporting');
       floatToolbar.classList.remove('show');
       stage.querySelectorAll('.selected,.multi-selected').forEach(el => el.classList.remove('selected', 'multi-selected'));
-      status('Đang tạo ảnh chất lượng cao…');
+      status(`Đang tạo ảnh PNG (${exportScale}×)…`);
       let exportHost = null;
       try {
-        if (typeof html2canvas === 'undefined') throw new Error('Không tải được thư viện html2canvas. Hãy kiểm tra kết nối Internet rồi thử lại.');
+        await ensureHtml2Canvas();
         await Promise.all([document.fonts.ready, waitForStageImages()]);
         const bounds = getExportBounds();
         const solidBackground = canvasBg.value || TEMPLATE_META[activeTemplateType].bg || '#ffffff';
@@ -3678,21 +5150,21 @@
         clone.querySelectorAll('.selected,.multi-selected').forEach(el => el.classList.remove('selected', 'multi-selected'));
         exportHost.appendChild(clone); document.body.appendChild(exportHost);
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        const rendered = await html2canvas(clone, { scale: 2, width: stage.offsetWidth, height: stage.offsetHeight, backgroundColor: solidBackground, useCORS: true, logging: false, imageTimeout: 8000 });
+        const rendered = await html2canvas(clone, { scale: exportScale, width: stage.offsetWidth, height: stage.offsetHeight, backgroundColor: solidBackground, useCORS: true, logging: false, imageTimeout: 8000 });
         const output = document.createElement('canvas');
-        output.width = bounds.w * 2; output.height = bounds.h * 2;
+        output.width = bounds.w * exportScale; output.height = bounds.h * exportScale;
         const context = output.getContext('2d', { alpha: false });
         context.fillStyle = solidBackground; context.fillRect(0, 0, output.width, output.height);
-        context.drawImage(rendered, bounds.x * 2, bounds.y * 2, bounds.w * 2, bounds.h * 2, 0, 0, output.width, output.height);
+        context.drawImage(rendered, bounds.x * exportScale, bounds.y * exportScale, bounds.w * exportScale, bounds.h * exportScale, 0, 0, output.width, output.height);
         const blob = await new Promise((resolve, reject) => output.toBlob(value => value ? resolve(value) : reject(new Error('Không thể mã hóa PNG.')), 'image/png'));
         const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
         downloadBlob(blob, `${TEMPLATE_META[activeTemplateType].filePrefix}-${date}.png`);
-        status(`Đã xuất PNG ${output.width} × ${output.height}px · nền đặc`);
+        status(`Đã xuất PNG ${output.width} × ${output.height}px (${exportScale}×)`);
       } catch (err) {
         console.error('Export PNG failed', err); alert('Lỗi xuất PNG: ' + err.message);
       } finally {
         exportHost?.remove(); document.body.classList.remove('is-exporting');
-        if (exportButton) { exportButton.disabled = false; exportButton.textContent = 'Xuất PNG'; }
+        if (exportButton) { exportButton.disabled = false; exportButton.textContent = '⬇ Xuất PNG'; }
         selectedIds.forEach(id => stage.querySelector(`[data-id="${id}"]`)?.classList.add('multi-selected'));
         if (selectedId) { selected = state.elements.find(item => item.id === selectedId) || null; stage.querySelector(`[data-id="${selectedId}"]`)?.classList.add('selected'); }
         if (toolbarWasVisible && getSelectionInsideEditable()) floatToolbar.classList.add('show');
@@ -3702,33 +5174,49 @@
 
     function getLocalSaveKey(type = activeTemplateType) { return `vnindex_report_saved_project_v2:${type}`; }
 
+    let sharedDbPromise = null;
     function openProjectDB() {
-      return new Promise((resolve, reject) => {
+      if (sharedDbPromise) return sharedDbPromise;
+      sharedDbPromise = new Promise((resolve, reject) => {
         const request = indexedDB.open(PROJECT_DB_NAME, PROJECT_DB_VERSION);
         request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(PROJECT_STORE)) request.result.createObjectStore(PROJECT_STORE); };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Không mở được IndexedDB.'));
+        request.onsuccess = () => {
+          const db = request.result;
+          db.onversionchange = () => { db.close(); sharedDbPromise = null; };
+          db.onclose = () => { sharedDbPromise = null; };
+          resolve(db);
+        };
+        request.onerror = () => {
+          sharedDbPromise = null;
+          reject(request.error || new Error('Không mở được IndexedDB.'));
+        };
       });
+      return sharedDbPromise;
     }
     async function dbProject(action, type, value) {
       const db = await openProjectDB();
-      try {
-        return await new Promise((resolve, reject) => {
-          const tx = db.transaction(PROJECT_STORE, action === 'get' ? 'readonly' : 'readwrite');
-          const store = tx.objectStore(PROJECT_STORE);
-          const request = action === 'get' ? store.get(type) : action === 'put' ? store.put(value, type) : store.delete(type);
-          let result;
-          request.onsuccess = () => { result = request.result; };
-          request.onerror = () => reject(request.error || new Error('Giao dịch IndexedDB thất bại.'));
-          tx.oncomplete = () => resolve(result);
-          tx.onabort = () => reject(tx.error || new Error('Giao dịch IndexedDB bị hủy.'));
-          tx.onerror = () => reject(tx.error || new Error('Giao dịch IndexedDB thất bại.'));
-        });
-      } finally { db.close(); }
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(PROJECT_STORE, action === 'get' ? 'readonly' : 'readwrite');
+        const store = tx.objectStore(PROJECT_STORE);
+        const request = action === 'get' ? store.get(type) : action === 'put' ? store.put(value, type) : store.delete(type);
+        let result;
+        request.onsuccess = () => { result = request.result; };
+        request.onerror = () => reject(request.error || new Error('Giao dịch IndexedDB thất bại.'));
+        tx.oncomplete = () => resolve(result);
+        tx.onabort = () => reject(tx.error || new Error('Giao dịch IndexedDB bị hủy.'));
+        tx.onerror = () => reject(tx.error || new Error('Giao dịch IndexedDB thất bại.'));
+      });
     }
     const readSavedProject = type => dbProject('get', type);
     const writeSavedProject = (type, data) => dbProject('put', type, data);
     const deleteSavedProject = type => dbProject('delete', type);
+
+    function setSavePillState(saving, text) {
+      const pill = document.getElementById('saveStatePill');
+      if (!pill) return;
+      pill.classList.toggle('saving', !!saving);
+      pill.textContent = text;
+    }
 
     function getProjectData() {
       return { schemaVersion: SCHEMA_VERSION, templateType: activeTemplateType, templateRevision: TEMPLATE_META[activeTemplateType].revision,
@@ -3797,21 +5285,36 @@
       if (data.canvas) { canvasW.value = data.canvas.w || 1600; canvasH.value = migratedHeight; canvasBg.value = data.canvas.bg || TEMPLATE_META[activeTemplateType].bg; zoomInput.value = data.canvas.zoom || zoomInput.value || 70; }
       selected = null; selectedIds.clear(); cropSession=null; if (!state.customFonts) state.customFonts = []; if (!state.defaultFont) state.defaultFont = "'Be Vietnam Pro'";
       await restoreCustomFonts(); document.getElementById('globalFont').value = state.defaultFont;
+      syncTemplatePills();
       applyCanvas(); applyZoom(); render(); historyStack = []; redoStack = []; pushHistory(true);
     }
 
     function autoSaveLocal() {
       clearTimeout(persistenceTimer);
+      setSavePillState(true, 'Đang lưu…');
       persistenceTimer = setTimeout(() => {
         const type = activeTemplateType; const data = getProjectData();
-        pendingPersistence = writeSavedProject(type, data).catch(err => { console.error('Autosave failed', err); status('Không thể tự lưu: ' + err.message); });
-      }, 500);
+        pendingPersistence = writeSavedProject(type, data)
+          .then(() => {
+            const timeStr = new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(new Date());
+            setSavePillState(false, `Đã lưu · ${timeStr}`);
+          })
+          .catch(err => {
+            console.error('Autosave failed', err);
+            setSavePillState(true, 'Lỗi tự lưu');
+            status('Không thể tự lưu: ' + err.message);
+          });
+      }, 420);
       return pendingPersistence;
     }
     async function flushLocalSave() {
       clearTimeout(persistenceTimer);
+      setSavePillState(true, 'Đang lưu…');
       const type = activeTemplateType; const data = getProjectData();
-      pendingPersistence = writeSavedProject(type, data); await pendingPersistence;
+      pendingPersistence = writeSavedProject(type, data);
+      await pendingPersistence;
+      const timeStr = new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(new Date());
+      setSavePillState(false, `Đã lưu · ${timeStr}`);
     }
     async function saveLocalProject() {
       try { if(cropSession) applyImageCrop(); if (activeEditable?.isConnected) syncEditableToState(activeEditable); await flushLocalSave(); updateTemplateBadges(); status('Đã áp dụng thay đổi và lưu đầy đủ text, ảnh, bố cục · Ctrl+S'); }
@@ -3850,6 +5353,132 @@
       r.readAsText(f);
     });
 
+    /* ===== PASTE IMAGE FROM CLIPBOARD & DRAG-AND-DROP ONTO CANVAS ===== */
+    document.addEventListener('paste', async e => {
+      if (document.body.classList.contains('chooser-open')) return;
+      const editingInput = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+      const editingContent = !!document.activeElement?.isContentEditable;
+      const items = [...(e.clipboardData?.items || [])];
+      const imgItem = items.find(it => it.type && it.type.startsWith('image/'));
+      if (imgItem) {
+        e.preventDefault();
+        const file = imgItem.getAsFile();
+        if (!file) return;
+        const targetId = (selected && selected.type === 'image') ? selected.id : 'new';
+        try {
+          await ingestImageFile(file, targetId);
+        } catch (err) {
+          alert('Không thể dán ảnh: ' + err.message);
+        }
+        return;
+      }
+      if (!editingInput && !editingContent && clipboardElements.length) {
+        e.preventDefault();
+        const copies = clipboardElements.map(item => {
+          const copy = JSON.parse(JSON.stringify(item));
+          copy.id = uid();
+          copy.x = Math.round((copy.x || 0) + 24);
+          copy.y = Math.round((copy.y || 0) + 24);
+          copy.z = (Number(copy.z) || 1) + 1;
+          state.elements.push(copy);
+          return copy;
+        });
+        clipboardElements = copies.map(c => JSON.parse(JSON.stringify(c)));
+        selectedIds = new Set(copies.map(c => c.id));
+        selected = copies[copies.length - 1];
+        render();
+        pushHistory();
+        status(`Đã dán ${copies.length} phần tử`);
+      }
+    });
+
+    const workspaceEl = document.getElementById('workspace');
+    workspaceEl.addEventListener('dragover', e => {
+      if (!e.dataTransfer?.types?.includes('Files')) return;
+      e.preventDefault();
+      stage.querySelectorAll('.img-el.drag-over').forEach(el => el.classList.remove('drag-over'));
+      const slot = e.target.closest?.('.img-el');
+      if (slot) slot.classList.add('drag-over');
+    });
+    workspaceEl.addEventListener('dragleave', e => {
+      const slot = e.target.closest?.('.img-el');
+      if (slot) slot.classList.remove('drag-over');
+    });
+    workspaceEl.addEventListener('drop', async e => {
+      stage.querySelectorAll('.img-el.drag-over').forEach(el => el.classList.remove('drag-over'));
+      const files = [...(e.dataTransfer?.files || [])];
+      if (!files.length) return;
+      const imgFile = files.find(f => /^image\//i.test(f.type));
+      const jsonFile = files.find(f => /\.json$/i.test(f.name));
+      if (jsonFile && !imgFile) {
+        e.preventDefault();
+        try {
+          const text = await jsonFile.text();
+          const data = validateProjectData(JSON.parse(text));
+          await loadProjectData(data);
+          await flushLocalSave();
+          status('Đã mở project JSON kéo-thả');
+        } catch (err) {
+          alert('Không thể mở file JSON: ' + err.message);
+        }
+        return;
+      }
+      if (!imgFile) return;
+      e.preventDefault();
+      const slotEl = e.target.closest?.('.img-el');
+      const rect = stage.getBoundingClientRect();
+      const scale = rect.width / stage.offsetWidth;
+      const dropPoint = {
+        x: clamp((e.clientX - rect.left) / scale, 20, (+canvasW.value || 1600) - 20),
+        y: clamp((e.clientY - rect.top) / scale, 20, (+canvasH.value || 1000) - 20)
+      };
+      try {
+        await ingestImageFile(imgFile, slotEl ? slotEl.dataset.id : 'new', dropPoint);
+      } catch (err) {
+        alert('Không thể thả ảnh: ' + err.message);
+      }
+    });
+
+    /* ===== CTRL+WHEEL ZOOM & SPACE+DRAG PAN ===== */
+    workspaceEl.addEventListener('wheel', e => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 8 : -8;
+      stepZoom(delta);
+    }, { passive: false });
+
+    let panSession = null;
+    workspaceEl.addEventListener('pointerdown', e => {
+      if (!spacePressed && e.button !== 1) return;
+      e.preventDefault();
+      workspaceEl.classList.add('is-panning-active');
+      panSession = {
+        startX: e.clientX,
+        startY: e.clientY,
+        scrollLeft: workspaceEl.scrollLeft,
+        scrollTop: workspaceEl.scrollTop
+      };
+      const onMove = ev => {
+        if (!panSession) return;
+        workspaceEl.scrollLeft = panSession.scrollLeft - (ev.clientX - panSession.startX);
+        workspaceEl.scrollTop = panSession.scrollTop - (ev.clientY - panSession.startY);
+      };
+      const onUp = () => {
+        panSession = null;
+        workspaceEl.classList.remove('is-panning-active');
+        window.removeEventListener('pointermove', onMove);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp, { once: true });
+    });
+
+    document.addEventListener('keyup', e => {
+      if (e.code === 'Space') {
+        spacePressed = false;
+        workspaceEl.classList.remove('is-panning', 'is-panning-active');
+      }
+    });
+
     document.addEventListener('pointerdown', e => {
       if(cropSession){
         const cropElement=e.target.closest?.(`.element[data-id="${cropSession.id}"]`);
@@ -3858,13 +5487,37 @@
       }
       if(!e.target.closest('#imageContextMenu')) closeImageContextMenu();
     }, true);
-    window.addEventListener('blur', closeImageContextMenu);
+    window.addEventListener('blur', () => { closeImageContextMenu(); spacePressed = false; workspaceEl.classList.remove('is-panning', 'is-panning-active'); });
     window.addEventListener('resize', closeImageContextMenu);
     document.addEventListener('scroll', closeImageContextMenu, true);
     document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('shortcutsModal')?.classList.contains('show')) {
+        e.preventDefault();
+        toggleShortcutsModal(false);
+        return;
+      }
       if(e.key==='Escape'&&imageContextMenu.classList.contains('show')){e.preventDefault();closeImageContextMenu();return;}
       const editingInput = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
       const editingContent = !!document.activeElement?.isContentEditable;
+
+      if (e.code === 'Space' && !editingInput && !editingContent && !document.body.classList.contains('chooser-open')) {
+        spacePressed = true;
+        workspaceEl.classList.add('is-panning');
+        e.preventDefault();
+        return;
+      }
+
+      if (e.key === '?' && !editingInput && !editingContent) {
+        e.preventDefault();
+        toggleShortcutsModal();
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "'") {
+        e.preventDefault();
+        toggleCanvasGrid();
+        return;
+      }
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
@@ -3895,8 +5548,30 @@
       }
 
       if (editingInput || editingContent) return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        const cw = +canvasW.value || 1600, ch = +canvasH.value || 1000;
+        const selectable = state.elements.filter(it => !it.locked && !it.hidden && !(it.x <= 0 && it.y <= 0 && it.w >= cw && it.h >= ch));
+        selectedIds = new Set(selectable.map(it => it.id));
+        selected = selectable[selectable.length - 1] || null;
+        updateSelectionDOM();
+        status(`Đã chọn ${selectable.length} phần tử`);
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        const items = selectedItems();
+        if (items.length) {
+          clipboardElements = items.map(it => JSON.parse(JSON.stringify(it)));
+          status(`Đã sao chép ${items.length} phần tử · Nhấn Ctrl+V để dán`);
+          e.preventDefault();
+        }
+        return;
+      }
+
       if (!selected) return;
-      if (e.key === 'Delete') { deleteSelected(); e.preventDefault(); return; }
+      if (e.key === 'Delete' || e.key === 'Backspace') { deleteSelected(); e.preventDefault(); return; }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') { duplicateSelected(); e.preventDefault(); return; }
       const step = e.shiftKey ? 10 : 1;
       const movable = selectedItems(false);
@@ -3909,7 +5584,9 @@
       else return;
       e.preventDefault();
       movable.forEach(item => { item.x += dx; item.y += dy; });
-      render(); scheduleHistory();
+      updateSelectedDom();
+      syncInspector(false);
+      scheduleHistory();
     });
 
 
@@ -4176,15 +5853,29 @@
       const method = replace ? 'replaceState' : 'pushState';
       history[method]({ view: 'chooser' }, '', location.pathname + location.search);
     }
+    function syncTemplatePills() {
+      document.getElementById('pillMorningBrief')?.classList.toggle('active', activeTemplateType === 'morning-brief');
+      document.getElementById('pillWeeklyStrategy')?.classList.toggle('active', activeTemplateType === 'weekly-strategy');
+      const presetSel = document.getElementById('canvasPresetSelect');
+      if (presetSel) {
+        const key = `${canvasW.value}x${canvasH.value}`;
+        presetSel.value = [...presetSel.options].some(o => o.value === key) ? key : 'custom';
+      }
+    }
+
     async function openTemplate(type, fromHistory = false) {
+      if (!document.body.classList.contains('chooser-open') && activeTemplateType !== type) {
+        await flushLocalSave().catch(() => {});
+      }
       activeTemplateType = TEMPLATE_META[type] ? type : 'morning-brief';
+      syncTemplatePills();
       document.body.classList.remove('chooser-open'); document.getElementById('templateChooser').hidden = true;
       if (!fromHistory) enterEditorHistory(activeTemplateType);
       try {
         const saved = await readSavedProject(activeTemplateType);
         if (saved) { await loadProjectData(saved); status('Đã tiếp tục bản lưu gần nhất'); applyResponsiveWorkspace(isMobileViewport()); return; }
       } catch (err) { console.warn('Cannot restore selected template', err); status('Không thể đọc bản lưu: ' + err.message); }
-      resetTemplate(); autoSaveLocal(); applyResponsiveWorkspace(isMobileViewport());
+      resetTemplate(); syncTemplatePills(); autoSaveLocal(); applyResponsiveWorkspace(isMobileViewport());
     }
     async function showTemplateChooser(fromHistory = false) {
       exitTextEditing(); closeMobileDrawers();
