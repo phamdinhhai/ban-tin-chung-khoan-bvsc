@@ -47,15 +47,41 @@
       display: none !important;
     }
 
+    /* ===== UNIFIED MONOLINE SVG ICON SYSTEM ===== */
+    .ui-svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.85;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .ui-svg.lg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+    }
+
+    .ui-svg.sm {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 13px;
+    }
+
     /* ===== STUDIO TOPBAR ===== */
     .studio-topbar {
       height: 50px;
-      background: linear-gradient(90deg, #071327 0%, #0d1d3a 55%, #09172e 100%);
+      background: linear-gradient(90deg, #071327 0%, #0c1b36 55%, #071327 100%);
       border-bottom: 1px solid #1e2d45;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 14px;
+      padding: 0 12px;
       gap: 10px;
       z-index: 95;
       color: #f1f5f9;
@@ -67,17 +93,18 @@
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .topbar-brand {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 10px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, .05);
-      border: 1px solid rgba(229, 189, 102, .28);
+      height: 32px;
+      padding: 0 11px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(229, 189, 102, .3);
       color: #f8fafc;
       font-weight: 800;
       font-size: 12px;
@@ -86,30 +113,34 @@
     }
 
     .topbar-brand:hover {
-      background: rgba(229, 189, 102, .14);
-      border-color: rgba(229, 189, 102, .6);
+      background: rgba(229, 189, 102, .12);
+      border-color: rgba(229, 189, 102, .65);
     }
 
     .topbar-brand-dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: linear-gradient(135deg, #f3d689, #c8952f);
-      box-shadow: 0 0 8px rgba(229, 189, 102, .7);
+      box-shadow: 0 0 8px rgba(229, 189, 102, .65);
     }
 
     .template-pills {
       display: inline-flex;
-      background: #060e1d;
+      background: #060d1b;
       padding: 3px;
-      border-radius: 10px;
+      border-radius: 9px;
       border: 1px solid #22314a;
       gap: 3px;
     }
 
     .template-pill {
-      padding: 5px 11px;
-      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 26px;
+      padding: 0 11px;
+      border-radius: 6px;
       font-size: 11.5px;
       font-weight: 700;
       color: #94a3b8;
@@ -124,9 +155,13 @@
     }
 
     .template-pill.active {
-      background: linear-gradient(135deg, #0e4386, #185db3);
+      background: linear-gradient(135deg, #0b3b78, #1453a3);
       color: #fff;
-      box-shadow: 0 2px 8px rgba(14, 67, 134, .45);
+      box-shadow: 0 2px 8px rgba(11, 59, 120, .45);
+    }
+
+    .template-pill.active .ui-svg {
+      stroke: #e8c165;
     }
 
     .save-pill {
@@ -136,7 +171,8 @@
       font-size: 11px;
       font-weight: 600;
       color: #94a3b8;
-      padding: 4px 9px;
+      height: 28px;
+      padding: 0 10px;
       border-radius: 999px;
       background: rgba(15, 23, 42, .65);
       border: 1px solid #1e293b;
@@ -144,8 +180,8 @@
 
     .save-pill::before {
       content: '';
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #22c55e;
     }
@@ -158,39 +194,240 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
       height: 32px;
       padding: 0 10px;
       border-radius: 8px;
-      background: #162235;
-      color: #e2e8f0;
-      border: 1px solid #283750;
+      background: #131f33;
+      color: #dbe4f0;
+      border: 1px solid #26364f;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
-      transition: background .15s, border-color .15s, transform .1s;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+
+    .tb-icon-btn.icon-only {
+      width: 32px;
+      padding: 0;
     }
 
     .tb-icon-btn:hover:not(:disabled) {
-      background: #1f304a;
-      border-color: #3b5278;
+      background: #1c2d48;
+      border-color: #3b537a;
+      color: #fff;
     }
 
     .tb-icon-btn.active {
-      background: rgba(37, 99, 235, .28);
+      background: rgba(19, 78, 158, .35);
       border-color: #3b82f6;
-      color: #93c5fd;
+      color: #e8c165;
     }
 
     .tb-icon-btn.gold {
-      background: linear-gradient(135deg, #d8a748, #b88222);
+      background: linear-gradient(135deg, #e0b254, #c28b28);
       color: #061326;
-      border-color: #ecc978;
+      border-color: #f0cf82;
       font-weight: 800;
+      padding: 0 13px;
+    }
+
+    .tb-icon-btn.gold .ui-svg {
+      stroke: #061326;
+      stroke-width: 2.1;
     }
 
     .tb-icon-btn.gold:hover:not(:disabled) {
-      filter: brightness(1.07);
+      filter: brightness(1.06);
+    }
+
+    /* ===== TOPBAR FILE DROPDOWN MENU ===== */
+    .tb-dropdown-wrap {
+      position: relative;
+    }
+
+    .tb-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 224px;
+      padding: 6px;
+      border-radius: 12px;
+      background: rgba(11, 20, 37, .98);
+      border: 1px solid #2b3d59;
+      box-shadow: 0 20px 50px rgba(2, 8, 23, .55);
+      backdrop-filter: blur(16px);
+      display: none;
+      z-index: 1000;
+    }
+
+    .tb-dropdown-menu.show {
+      display: grid;
+      gap: 2px;
+    }
+
+    .tb-dropdown-menu button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: transparent;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      border: 0;
+    }
+
+    .tb-dropdown-menu button span:first-child {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .tb-dropdown-menu button small {
+      color: #64748b;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .tb-dropdown-menu button:hover {
+      background: rgba(59, 130, 246, .15);
+      color: #fff;
+    }
+
+    .tb-dropdown-menu button.danger-item {
+      color: #fca5a5;
+    }
+
+    .tb-dropdown-menu button.danger-item:hover {
+      background: rgba(239, 68, 68, .15);
+    }
+
+    /* ===== INSERT ELEMENT CARDS & ICON PICKER GRID ===== */
+    .insert-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .insert-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: #141f31;
+      border: 1px solid #26354d;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      transition: all .15s;
+    }
+
+    .insert-btn .insert-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: rgba(15, 70, 180, .18);
+      border: 1px solid rgba(59, 130, 246, .25);
+      color: #e8c165;
+      display: grid;
+      place-items: center;
+      flex: 0 0 28px;
+    }
+
+    .insert-btn:hover {
+      background: #1b2a42;
+      border-color: rgba(232, 193, 101, .55);
+      transform: translateY(-1px);
+    }
+
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 6px 0 10px;
+    }
+
+    .icon-pick-btn {
+      height: 38px;
+      padding: 0;
+      border-radius: 8px;
+      background: #0b1220;
+      border: 1px solid #28364d;
+      color: #cbd5e1;
+      display: grid;
+      place-items: center;
+      transition: all .14s;
+    }
+
+    .icon-pick-btn:hover {
+      background: #17253d;
+      border-color: #476288;
+      color: #fff;
+    }
+
+    .icon-pick-btn.active {
+      background: rgba(14, 67, 134, .4);
+      border-color: #e8c165;
+      color: #e8c165;
+    }
+
+    /* ===== INSPECTOR QUICK ACTION HEADER & COMPACT ALIGN BAR ===== */
+    .inspector-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #223044;
+    }
+
+    .inspector-quick-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-action-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 7px;
+      background: #162235;
+      border: 1px solid #2a3a54;
+      color: #cbd5e1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .14s;
+    }
+
+    .icon-action-btn:hover {
+      background: #223452;
+      color: #fff;
+      border-color: #3b82f6;
+    }
+
+    .icon-action-btn.danger:hover {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+
+    .section-caption {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin: 10px 0 6px;
     }
 
     .tb-divider {
@@ -399,26 +636,28 @@
     /* ===== ALIGNMENT & THEME GRIDS ===== */
     .align-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 5px;
-      margin-bottom: 8px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
     }
 
     .align-btn {
-      padding: 7px 4px;
+      height: 30px;
+      padding: 0;
       font-size: 12px;
-      background: #172133;
-      border: 1px solid #2a3952;
+      background: #141f31;
+      border: 1px solid #26354d;
       color: #cbd5e1;
       border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all .14s;
     }
 
     .align-btn:hover {
-      background: #24344f;
-      color: #fff;
+      background: #20314d;
+      color: #e8c165;
       border-color: #3b82f6;
     }
 
@@ -1871,14 +2110,18 @@
       <section class="template-grid" aria-label="Danh sách mẫu báo cáo">
         <button id="chooseMorningBrief" class="template-card" type="button" onclick="openTemplate('morning-brief')">
           <span class="template-badge" data-save-badge="morning-brief">Bản tin hằng ngày</span>
-          <span class="template-icon">☀</span>
+          <span class="template-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg>
+          </span>
           <h2>Bản tin sáng</h2>
           <p>Dashboard thị trường, tin tức nổi bật, nội dung chính và chiến lược giao dịch trong ngày.</p>
           <span class="template-action">Mở không gian làm việc →</span>
         </button>
         <button id="chooseWeeklyStrategy" class="template-card" type="button" onclick="openTemplate('weekly-strategy')">
           <span class="template-badge" data-save-badge="weekly-strategy">Báo cáo tuần</span>
-          <span class="template-icon">◫</span>
+          <span class="template-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.5 9.5v10"/></svg>
+          </span>
           <h2>Báo cáo chiến lược</h2>
           <p>Bảng biến động chỉ số, ba biểu đồ tải lên, chiến lược tuần và tổng hợp tin tức nổi bật.</p>
           <span class="template-action">Tạo báo cáo chiến lược →</span>
@@ -1888,55 +2131,147 @@
   </main>
   <div id="mobileBackdrop" class="mobile-backdrop" aria-hidden="true" onclick="closeMobileDrawers()"></div>
   <div id="imageContextMenu" class="image-context-menu" role="menu" aria-label="Thao tác nhanh">
-    <button id="contextCropImage" type="button" role="menuitem" onclick="runImageContextAction('crop')"><span class="menu-icon">⌗</span><span>Crop hình</span></button>
-    <button id="contextReplaceImage" type="button" role="menuitem" onclick="runImageContextAction('replace')"><span class="menu-icon">⇧</span><span>Thay ảnh…</span></button>
+    <button id="contextCropImage" type="button" role="menuitem" onclick="runImageContextAction('crop')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></span>
+      <span>Cắt ảnh (Crop)</span>
+    </button>
+    <button id="contextReplaceImage" type="button" role="menuitem" onclick="runImageContextAction('replace')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 20"/></svg></span>
+      <span>Thay ảnh…</span>
+    </button>
     <div id="contextImageTransformDivider" class="menu-divider"></div>
-    <button id="contextFlipHorizontal" type="button" role="menuitem" onclick="runImageContextAction('flip-x')"><span class="menu-icon">↔</span><span>Lật ngang</span></button>
-    <button id="contextFlipVertical" type="button" role="menuitem" onclick="runImageContextAction('flip-y')"><span class="menu-icon">↕</span><span>Lật dọc</span></button>
-    <button id="contextRotate90" type="button" role="menuitem" onclick="runImageContextAction('rotate-90')"><span class="menu-icon">↻</span><span>Xoay 90°</span></button>
-    <button id="contextToggleStroke" type="button" role="menuitem" onclick="runImageContextAction('stroke')"><span class="menu-icon">▣</span><span id="contextStrokeLabel">Tạo stroke</span></button>
+    <button id="contextFlipHorizontal" type="button" role="menuitem" onclick="runImageContextAction('flip-x')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="m16 7 5 5-5 5V7Z"/><path d="m8 7-5 5 5 5V7Z"/></svg></span>
+      <span>Lật ngang</span>
+    </button>
+    <button id="contextFlipVertical" type="button" role="menuitem" onclick="runImageContextAction('flip-y')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="m7 8 5-5 5 5H7Z"/><path d="m7 16 5 5 5-5H7Z"/></svg></span>
+      <span>Lật dọc</span>
+    </button>
+    <button id="contextRotate90" type="button" role="menuitem" onclick="runImageContextAction('rotate-90')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></span>
+      <span>Xoay 90°</span>
+    </button>
+    <button id="contextToggleStroke" type="button" role="menuitem" onclick="runImageContextAction('stroke')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></span>
+      <span id="contextStrokeLabel">Tạo viền (Stroke)</span>
+    </button>
     <div class="menu-divider"></div>
-    <button id="contextDuplicate" type="button" role="menuitem" onclick="runImageContextAction('duplicate')"><span class="menu-icon">⧉</span><span>Nhân đôi (Ctrl+D)</span></button>
-    <button id="contextBringFront" type="button" role="menuitem" onclick="runImageContextAction('front')"><span class="menu-icon">⤒</span><span>Đưa lên trên cùng</span></button>
-    <button id="contextSendBack" type="button" role="menuitem" onclick="runImageContextAction('back')"><span class="menu-icon">⤓</span><span>Đưa xuống dưới cùng</span></button>
-    <button id="contextToggleLock" type="button" role="menuitem" onclick="runImageContextAction('lock')"><span class="menu-icon">🔒</span><span id="contextLockLabel">Khóa / Mở khóa</span></button>
-    <button id="contextDelete" type="button" role="menuitem" onclick="runImageContextAction('delete')" style="color:#fca5a5"><span class="menu-icon" style="color:#f87171">✕</span><span>Xóa phần tử</span></button>
+    <button id="contextDuplicate" type="button" role="menuitem" onclick="runImageContextAction('duplicate')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+      <span>Nhân đôi (Ctrl+D)</span>
+    </button>
+    <button id="contextBringFront" type="button" role="menuitem" onclick="runImageContextAction('front')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="m12 4-6 6h12l-6-6Z"/><path d="M12 10v10"/><path d="M5 3h14"/></svg></span>
+      <span>Đưa lên trên cùng</span>
+    </button>
+    <button id="contextSendBack" type="button" role="menuitem" onclick="runImageContextAction('back')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="m12 20 6-6H6l6 6Z"/><path d="M12 4v10"/><path d="M5 21h14"/></svg></span>
+      <span>Đưa xuống dưới cùng</span>
+    </button>
+    <button id="contextToggleLock" type="button" role="menuitem" onclick="runImageContextAction('lock')">
+      <span class="menu-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+      <span id="contextLockLabel">Khóa / Mở khóa</span>
+    </button>
+    <button id="contextDelete" type="button" role="menuitem" onclick="runImageContextAction('delete')" style="color:#fca5a5">
+      <span class="menu-icon" style="color:#f87171"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>
+      <span>Xóa phần tử</span>
+    </button>
   </div>
 
   <!-- STUDIO TOP HEADER BAR -->
   <header class="studio-topbar" aria-label="Thanh điều khiển Studio">
     <div class="topbar-left">
-      <button id="toggleLeftSidebar" class="tb-icon-btn" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện công cụ (Trái)" aria-controls="leftSidebar" aria-expanded="true">☰ Công cụ</button>
+      <button id="toggleLeftSidebar" class="tb-icon-btn icon-only" type="button" onclick="toggleSidebar('left')" title="Ẩn/hiện thanh công cụ trái" aria-controls="leftSidebar" aria-expanded="true">
+        <svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+      </button>
       <button id="backToTemplates" class="topbar-brand" type="button" onclick="showTemplateChooser()" title="Quay về màn hình chọn mẫu">
         <span class="topbar-brand-dot"></span>
         <span>BVSC Studio</span>
       </button>
       <div class="template-pills" role="tablist" aria-label="Chuyển nhanh mẫu báo cáo">
-        <button id="pillMorningBrief" class="template-pill active" type="button" onclick="openTemplate('morning-brief')">☀ Bản tin sáng</button>
-        <button id="pillWeeklyStrategy" class="template-pill" type="button" onclick="openTemplate('weekly-strategy')">◫ Chiến lược tuần</button>
+        <button id="pillMorningBrief" class="template-pill active" type="button" onclick="openTemplate('morning-brief')">
+          <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg>
+          <span>Bản tin sáng</span>
+        </button>
+        <button id="pillWeeklyStrategy" class="template-pill" type="button" onclick="openTemplate('weekly-strategy')">
+          <svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.5 9.5v10"/></svg>
+          <span>Chiến lược tuần</span>
+        </button>
       </div>
+
+      <div class="tb-dropdown-wrap" id="fileMenuWrap">
+        <button id="fileMenuBtn" class="tb-icon-btn" type="button" onclick="toggleFileDropdown(event)" title="Quản lý tệp, dự án & sao lưu">
+          <svg class="ui-svg" viewBox="0 0 24 24"><path d="M4 6.2A1.2 1.2 0 0 1 5.2 5h4.4l1.7 2h7.5A1.2 1.2 0 0 1 20 8.2v9.6A1.2 1.2 0 0 1 18.8 19H5.2A1.2 1.2 0 0 1 4 17.8V6.2Z"/></svg>
+          <span>Tệp</span>
+          <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div id="fileDropdownMenu" class="tb-dropdown-menu" role="menu">
+          <button type="button" onclick="closeFileDropdown();saveLocalProject()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Lưu vào trình duyệt</span>
+            <small>Ctrl+S</small>
+          </button>
+          <button type="button" onclick="closeFileDropdown();restoreLocalProject()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg> Khôi phục bản lưu</span>
+          </button>
+          <div class="menu-divider"></div>
+          <button type="button" onclick="closeFileDropdown();saveProject()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg> Tải xuống file JSON</span>
+          </button>
+          <button type="button" onclick="closeFileDropdown();document.getElementById('loadProjectInput').click()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M12 15V3m0 0-4 4m4-4 4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg> Mở file JSON…</span>
+          </button>
+          <button type="button" onclick="closeFileDropdown();exportEditableHTML()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg> Xuất HTML độc lập</span>
+          </button>
+          <div class="menu-divider"></div>
+          <button type="button" onclick="closeFileDropdown();resetTemplate()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg> Đặt lại mẫu mặc định</span>
+          </button>
+          <button type="button" class="danger-item" onclick="closeFileDropdown();clearLocalProject()">
+            <span><svg class="ui-svg" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Xóa bản lưu trình duyệt</span>
+          </button>
+        </div>
+      </div>
+      <input id="loadProjectInput" type="file" accept=".json" hidden="">
     </div>
 
     <div class="topbar-center">
-      <button id="topUndoBtn" class="tb-icon-btn" type="button" onclick="undoAction()" title="Hoàn tác (Ctrl+Z)">↶ Undo</button>
-      <button id="topRedoBtn" class="tb-icon-btn" type="button" onclick="redoAction()" title="Làm lại (Ctrl+Y)">↷ Redo</button>
+      <button id="topUndoBtn" class="tb-icon-btn icon-only" type="button" onclick="undoAction()" title="Hoàn tác (Ctrl+Z)">
+        <svg class="ui-svg" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+      </button>
+      <button id="topRedoBtn" class="tb-icon-btn icon-only" type="button" onclick="redoAction()" title="Làm lại (Ctrl+Y)">
+        <svg class="ui-svg" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>
+      </button>
       <div class="tb-divider"></div>
-      <button id="toggleSnapBtn" class="tb-icon-btn active" type="button" onclick="toggleSnapGuides()" title="Bật/tắt đường gióng bắt dính thông minh (Giữ Alt để tạm bỏ)">⊞ Snap</button>
-      <button id="toggleGridBtn" class="tb-icon-btn" type="button" onclick="toggleCanvasGrid()" title="Hiện/ẩn lưới căn chỉnh trên Canvas (Ctrl+')"># Lưới</button>
+      <button id="toggleSnapBtn" class="tb-icon-btn active" type="button" onclick="toggleSnapGuides()" title="Bật/tắt bắt dính thông minh (Giữ Alt để tạm bỏ)">
+        <svg class="ui-svg" viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><path d="M4 3h4M16 3h4"/></svg>
+        <span>Snap</span>
+      </button>
+      <button id="toggleGridBtn" class="tb-icon-btn" type="button" onclick="toggleCanvasGrid()" title="Hiện/ẩn lưới căn chỉnh (Ctrl+')">
+        <svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+        <span>Lưới</span>
+      </button>
       <div class="tb-divider"></div>
       <span id="saveStatePill" class="save-pill" title="Trạng thái tự động lưu IndexedDB">Đã lưu tự động</span>
     </div>
 
     <div class="topbar-right">
-      <button class="tb-icon-btn" type="button" onclick="saveLocalProject()" title="Lưu ngay vào trình duyệt (Ctrl+S)">💾 Lưu</button>
       <select id="exportScaleSelect" class="export-scale-select" title="Độ phân giải ảnh PNG xuất ra">
-        <option value="1">PNG 1× (Nhanh)</option>
-        <option value="2" selected>PNG 2× (Chuẩn HD)</option>
-        <option value="3">PNG 3× (Siêu nét)</option>
+        <option value="1">1× Standard</option>
+        <option value="2" selected>2× HD</option>
+        <option value="3">3× Ultra</option>
       </select>
-      <button id="exportPngButton" class="tb-icon-btn gold" type="button" onclick="exportPNG()">⬇ Xuất PNG</button>
-      <button class="tb-icon-btn" type="button" onclick="toggleShortcutsModal(true)" title="Bảng phím tắt & hướng dẫn nhanh (?)">?</button>
-      <button id="toggleRightSidebar" class="tb-icon-btn" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện thuộc tính (Phải)" aria-controls="rightSidebar" aria-expanded="true">Thuộc tính ☰</button>
+      <button id="exportPngButton" class="tb-icon-btn gold" type="button" onclick="exportPNG()">
+        <svg class="ui-svg" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        <span>Xuất PNG</span>
+      </button>
+      <button class="tb-icon-btn icon-only" type="button" onclick="toggleShortcutsModal(true)" title="Bảng phím tắt & hướng dẫn nhanh (?)">
+        <svg class="ui-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>
+      </button>
+      <button id="toggleRightSidebar" class="tb-icon-btn icon-only" type="button" onclick="toggleSidebar('right')" title="Ẩn/hiện bảng thuộc tính phải" aria-controls="rightSidebar" aria-expanded="true">
+        <svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
+      </button>
     </div>
   </header>
 
@@ -1944,28 +2279,50 @@
     <!-- LEFT PANEL -->
     <aside id="leftSidebar" class="sidebar left" aria-label="Công cụ thiết kế">
       <div class="sidebar-tabs" role="tablist">
-        <button id="leftTabBuildBtn" class="sidebar-tab active" type="button" onclick="switchLeftTab('build')">+ Thêm &amp; Bố cục</button>
-        <button id="leftTabLayersBtn" class="sidebar-tab" type="button" onclick="switchLeftTab('layers')">Lớp &amp; Kiểm tra</button>
+        <button id="leftTabBuildBtn" class="sidebar-tab active" type="button" onclick="switchLeftTab('build')">Chèn &amp; Bố cục</button>
+        <button id="leftTabLayersBtn" class="sidebar-tab" type="button" onclick="switchLeftTab('layers')">Layer &amp; Kiểm duyệt</button>
       </div>
 
       <div id="leftTabBuild">
         <div class="panel">
-          <div class="panel-title">THÊM PHẦN TỬ</div>
-          <div class="toolbar">
-            <button class="btn" onclick="addText()">+ Text</button>
-            <button class="btn" onclick="addCard()">+ Card / Khung</button>
-            <button class="btn" onclick="addImage()">+ Ảnh tự do</button>
-            <button class="btn" onclick="addMarketWidget()">+ Widget chỉ số</button>
-            <button class="btn" onclick="addIndexTable()">+ Bảng biến động</button>
-            <button class="btn" onclick="addBadgePreset()">+ Nhãn / Pill</button>
-            <button class="btn" onclick="addDividerPreset()">+ Đường kẻ</button>
-            <button class="btn" onclick="addIcon()">+ Icon SVG</button>
-            <button class="btn" onclick="addSticker()">+ Emoji</button>
-            <button class="btn" onclick="duplicateSelected()">⧉ Nhân đôi</button>
+          <div class="panel-title">CHÈN PHẦN TỬ</div>
+          <div class="insert-grid">
+            <button type="button" class="insert-btn" onclick="addText()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></span>
+              <span>Văn bản</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addCard()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/></svg></span>
+              <span>Khung Card</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addImage()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 20"/></svg></span>
+              <span>Hình ảnh</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addMarketWidget()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg></span>
+              <span>Widget chỉ số</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addIndexTable()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14.5h18M9.5 9v11"/></svg></span>
+              <span>Bảng biến động</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addBadgePreset()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="5"/><path d="M8 12h8"/></svg></span>
+              <span>Nhãn tiêu đề</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addDividerPreset()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M4 12h16"/><circle cx="12" cy="12" r="2"/></svg></span>
+              <span>Đường kẻ</span>
+            </button>
+            <button type="button" class="insert-btn" onclick="addIcon()">
+              <span class="insert-icon"><svg class="ui-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/></svg></span>
+              <span>Icon SVG</span>
+            </button>
           </div>
           <input id="imageInput" type="file" accept="image/*" hidden="">
           <div class="hint" style="margin-top:8px">
-            💡 <b>Mẹo nhanh:</b> Bạn có thể <b>Ctrl+V</b> để dán thẳng ảnh chụp màn hình (chart TradingView/FiinTrade) hoặc <b>kéo-thả file ảnh</b> từ máy tính vào bất kỳ khung biểu đồ nào.
+            Hỗ trợ <b>Ctrl+V</b> để dán thẳng ảnh chụp biểu đồ hoặc <b>kéo-thả file ảnh</b> trực tiếp vào khung biểu đồ trên trang.
           </div>
         </div>
 
@@ -1992,8 +2349,8 @@
         </div>
 
         <div class="panel">
-          <div class="panel-title">CANVAS &amp; KHUNG TRANG</div>
-          <label>Kích thước nhanh
+          <div class="panel-title">KHUNG TRANG (CANVAS)</div>
+          <label>Kích thước chuẩn
             <select id="canvasPresetSelect" onchange="applyCanvasPreset(this.value)">
               <option value="custom">Tùy chỉnh</option>
               <option value="1600x1000">1600 × 1000 · Bản tin sáng (16:10)</option>
@@ -2014,13 +2371,13 @@
             <label>Màu nền
               <input id="canvasBg" type="color" value="#f7f9fc" oninput="applyCanvas()">
             </label>
-            <label>Zoom (%)
+            <label>Thu phóng (%)
               <input id="zoomInput" type="number" min="20" max="200" value="70" oninput="applyZoom()">
             </label>
           </div>
         </div>
 
-        <div class="panel">
+        <div class="panel" style="border-bottom:0;margin-bottom:0">
           <div class="panel-title">FONT CHỮ TOÀN BỘ</div>
           <label>Font mặc định
             <select id="globalFont">
@@ -2034,40 +2391,27 @@
             </select>
           </label>
           <div class="toolbar">
-            <button class="btn" onclick="applyGlobalFont()">Áp dụng tất cả chữ</button>
-            <button class="btn" onclick="document.getElementById('fontUploadInput').click()">+ Upload font</button>
+            <button class="btn" onclick="applyGlobalFont()">Áp dụng toàn bộ</button>
+            <button class="btn" onclick="document.getElementById('fontUploadInput').click()">Tải font riêng</button>
           </div>
           <input id="fontUploadInput" type="file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" hidden="">
           <div id="customFontInfo" class="hint" style="margin-top:8px">
-            Font mặc định hỗ trợ đầy đủ tiếng Việt. Có thể tải thêm TTF/OTF/WOFF/WOFF2.
+            Font mặc định hỗ trợ đầy đủ tiếng Việt. Có thể nhúng thêm TTF/OTF/WOFF/WOFF2.
           </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">DỰ ÁN / SAO LƯU</div>
-          <div class="toolbar">
-            <button class="btn" onclick="saveProject()">Lưu file JSON</button>
-            <button class="btn" onclick="document.getElementById('loadProjectInput').click()">Mở file JSON</button>
-            <button class="btn" onclick="exportEditableHTML()">Xuất HTML</button>
-            <button class="btn" onclick="restoreLocalProject()">Khôi phục lưu</button>
-            <button class="btn" onclick="resetTemplate()">Mẫu mặc định</button>
-            <button class="btn danger" onclick="clearLocalProject()">Xóa bản lưu</button>
-          </div>
-          <input id="loadProjectInput" type="file" accept=".json" hidden="">
         </div>
       </div>
 
       <div id="leftTabLayers" style="display:none">
         <div class="panel">
-          <div class="panel-title">QUẢN LÝ LAYER (<span id="layerCountBadge">0</span>)</div>
+          <div class="panel-title">DANH SÁCH LAYER (<span id="layerCountBadge">0</span>)</div>
           <div class="layer-toolbar">
             <input id="layerSearchInput" class="layer-search" type="search" placeholder="Tìm theo tên hoặc loại layer..." oninput="renderLayers()">
           </div>
           <div id="layerList" class="layer-list"></div>
         </div>
 
-        <div class="panel">
-          <div class="panel-title">KIỂM TRA TRƯỚC KHI GỬI</div>
+        <div class="panel" style="border-bottom:0;margin-bottom:0">
+          <div class="panel-title">KIỂM DUYỆT TRƯỚC KHI XUẤT</div>
           <div class="quality-list" id="qualityChecklist">
             <label class="quality-item"><input type="checkbox" data-quality> Số liệu có đơn vị và dấu +/- rõ ràng</label>
             <label class="quality-item"><input type="checkbox" data-quality> Có thời điểm cập nhật và nguồn dữ liệu</label>
@@ -2090,34 +2434,69 @@
 
     <!-- RIGHT PANEL -->
     <aside id="rightSidebar" class="sidebar right" aria-label="Thuộc tính phần tử">
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px">
-          <div class="panel-title" style="margin:0">THUỘC TÍNH</div>
-          <span id="selectedTypeBadge" class="badge">Chưa chọn</span>
+      <div class="panel" style="border-bottom:0;margin-bottom:0">
+        <div class="inspector-head">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="panel-title" style="margin:0">THUỘC TÍNH</div>
+            <span id="selectedTypeBadge" class="badge">Chưa chọn</span>
+          </div>
+          <div id="inspectorQuickActions" class="inspector-quick-actions" style="display:none">
+            <button type="button" class="icon-action-btn" onclick="duplicateSelected()" title="Nhân đôi (Ctrl+D)">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <button type="button" class="icon-action-btn" onclick="bringForward()" title="Lên 1 lớp (Giữ Shift: Lên trên cùng)" onauxclick="bringToFront()">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+            <button type="button" class="icon-action-btn" onclick="sendBackward()" title="Xuống 1 lớp">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <button type="button" id="inspectorLockBtn" class="icon-action-btn" onclick="toggleLock()" title="Khóa / Mở khóa phần tử">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            </button>
+            <button type="button" class="icon-action-btn danger" onclick="deleteSelected()" title="Xóa phần tử (Delete)">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>
         </div>
+
         <div id="noneSelected" class="hint" style="display: none;">
-          Chưa chọn phần tử nào.<br><br>
-          • <b>Click</b> vào phần tử trên trang để chỉnh sửa.<br>
-          • <b>Kéo chuột trên nền trống</b> để quét chọn nhiều phần tử.<br>
+          Chưa chọn phần tử nào trên trang.<br><br>
+          • <b>Click</b> vào phần tử để xem và chỉnh thuộc tính.<br>
+          • <b>Kéo chuột trên nền trống</b> để quét chọn nhiều mục.<br>
           • <b>Double-click</b> vào chữ, ô bảng hoặc chỉ số để sửa trực tiếp.<br>
-          • Giữ <b>Space + kéo chuột</b> để di chuyển vùng nhìn.
+          • Giữ <b>Space + kéo chuột</b> để trượt vùng nhìn.
         </div>
+
         <div id="properties" style="display: block;">
-
-          <div class="panel-title" style="font-size:11px;color:#94a3b8;margin-top:2px">CĂN CHỈNH &amp; PHÂN BỔ (CANVAS / NHÓM)</div>
+          <div class="section-caption">Căn chỉnh &amp; Phân bổ</div>
           <div class="align-grid">
-            <button type="button" class="align-btn" onclick="alignSelected('left')" title="Căn lề trái">⫷</button>
-            <button type="button" class="align-btn" onclick="alignSelected('center-x')" title="Căn giữa ngang">⫿</button>
-            <button type="button" class="align-btn" onclick="alignSelected('right')" title="Căn lề phải">⫸</button>
-            <button type="button" class="align-btn" onclick="alignSelected('top')" title="Căn mép trên">⊤</button>
-            <button type="button" class="align-btn" onclick="alignSelected('center-y')" title="Căn giữa dọc">⊶</button>
-            <button type="button" class="align-btn" onclick="alignSelected('bottom')" title="Căn mép dưới">⊥</button>
-          </div>
-          <div class="row" style="margin-bottom:8px">
-            <button type="button" class="btn" onclick="distributeSelected('horizontal')" title="Chia đều khoảng cách ngang (cần chọn ≥ 3 phần tử)">↔ Chia đều ngang</button>
-            <button type="button" class="btn" onclick="distributeSelected('vertical')" title="Chia đều khoảng cách dọc (cần chọn ≥ 3 phần tử)">↕ Chia đều dọc</button>
+            <button type="button" class="align-btn" onclick="alignSelected('left')" title="Căn lề trái">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 4v16"/><rect x="8" y="6" width="12" height="4" rx="1"/><rect x="8" y="14" width="8" height="4" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="alignSelected('center-x')" title="Căn giữa ngang">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M12 3v18"/><rect x="5" y="6" width="14" height="4" rx="1"/><rect x="7" y="14" width="10" height="4" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="alignSelected('right')" title="Căn lề phải">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M20 4v16"/><rect x="4" y="6" width="12" height="4" rx="1"/><rect x="8" y="14" width="8" height="4" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="alignSelected('top')" title="Căn mép trên">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 4h16"/><rect x="6" y="8" width="4" height="12" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="alignSelected('center-y')" title="Căn giữa dọc">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M3 12h18"/><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="7" width="4" height="10" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="alignSelected('bottom')" title="Căn mép dưới">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="6" y="4" width="4" height="12" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="distributeSelected('horizontal')" title="Chia đều khoảng cách ngang (chọn ≥ 3 mục)">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 4v16M20 4v16"/><rect x="10" y="7" width="4" height="10" rx="1"/></svg>
+            </button>
+            <button type="button" class="align-btn" onclick="distributeSelected('vertical')" title="Chia đều khoảng cách dọc (chọn ≥ 3 mục)">
+              <svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 4h16M4 20h16"/><rect x="7" y="10" width="10" height="4" rx="1"/></svg>
+            </button>
           </div>
 
+          <div class="section-caption">Kích thước &amp; Vị trí</div>
           <div class="row">
             <label>X
               <input id="propX" type="number" oninput="applyProps()">
@@ -2140,13 +2519,14 @@
             <label>Xoay (°)
               <input id="propRot" type="number" oninput="applyProps()">
             </label>
-            <label>Layer (Z)
+            <label>Thứ tự lớp (Z)
               <input id="propZ" type="number" oninput="applyProps()">
             </label>
           </div>
 
           <div id="textProps" style="display: none;">
             <div class="divider"></div>
+            <div class="section-caption">Định dạng văn bản</div>
             <label>Nội dung
               <textarea id="propText" oninput="applyTextProps()"></textarea>
             </label>
@@ -2183,7 +2563,7 @@
               <label>Màu chữ
                 <input id="propColor" type="color" oninput="applyTextProps()">
               </label>
-              <label>Căn chữ
+              <label>Căn ngang
                 <select id="propAlign" onchange="applyTextProps()">
                   <option value="left">Trái</option>
                   <option value="center">Giữa</option>
@@ -2203,7 +2583,7 @@
             </div>
 
             <div class="row">
-              <label>Căn dọc trong khung
+              <label>Căn dọc
                 <select id="propVerticalAlign" onchange="applyTextProps()">
                   <option value="top">Trên</option>
                   <option value="middle">Giữa</option>
@@ -2212,13 +2592,14 @@
               </label>
               <label style="display:flex;align-items:center;gap:6px;padding-top:18px">
                 <input id="propUpper" type="checkbox" onchange="applyTextProps()" style="width:auto;margin:0">
-                Viết hoa
+                IN HOA
               </label>
             </div>
           </div>
 
           <div id="boxProps" style="display: block;">
             <div class="divider"></div>
+            <div class="section-caption">Nền, Viền &amp; Hiệu ứng</div>
             <div class="row">
               <label>Nền (Màu đơn)
                 <input id="propBg" type="color" oninput="applyBoxProps()">
@@ -2227,7 +2608,7 @@
                 <input id="propRadius" type="number" oninput="applyBoxProps()">
               </label>
             </div>
-            <label>Mẫu nền nhanh (Gradient / Màu)
+            <label>Mẫu nền chuẩn (Gradient / Màu)
               <select id="propBgPreset" onchange="applyBoxBgPreset(this.value)">
                 <option value="">-- Chọn mẫu nền --</option>
                 <option value="#ffffff">Trắng tinh (#ffffff)</option>
@@ -2263,66 +2644,71 @@
 
           <div id="imageProps" style="display:none">
             <div class="divider"></div>
-            <button id="replaceImageButton" class="btn full primary" onclick="replaceSelectedImage()">⇧ Tải / Thay ảnh</button>
-            <button id="clearImageButton" class="btn full" style="margin-top:7px" onclick="clearSelectedImage()">Xóa ảnh</button>
-            <label style="margin-top:8px">Chế độ ảnh
-              <select id="propImageMode" onchange="applyImageProps()">
-                <option value="free">Ảnh tự do · hiện đầy đủ</option>
-                <option value="frame">Trong khung</option>
-              </select>
-            </label>
-            <label id="imageFitLabel" style="margin-top:8px">Hiển thị trong khung
-              <select id="propFit" onchange="applyImageProps()">
-                <option value="cover">Cover · lấp đầy và crop</option>
-                <option value="contain">Contain · hiện đầy đủ</option>
-                <option value="fill">Fill · kéo dãn</option>
-              </select>
-            </label>
-            <label id="imageAspectLabel" style="margin-top:9px;display:flex;align-items:center;gap:8px">
-              <input id="propLockAspect" type="checkbox" onchange="applyImageProps()" style="width:auto"> Khóa tỷ lệ khi resize góc
-            </label>
-            <div class="row" style="margin-top:8px">
-              <button id="flipImageXButton" class="btn" onclick="flipSelectedImage('x')" title="Lật ảnh qua trục dọc">↔ Lật ngang</button>
-              <button id="flipImageYButton" class="btn" onclick="flipSelectedImage('y')" title="Lật ảnh qua trục ngang">↕ Lật dọc</button>
+            <div class="section-caption">Xử lý hình ảnh</div>
+            <div class="row">
+              <button id="replaceImageButton" class="btn primary" onclick="replaceSelectedImage()">Tải / Thay ảnh</button>
+              <button id="cropImageButton" class="btn" onclick="startImageCrop()">Cắt ảnh (Crop)</button>
             </div>
-            <div class="row" style="margin-top:7px">
-              <button id="restoreImageRatioButton" class="btn" onclick="restoreSelectedImageRatio()">Đúng tỷ lệ</button>
-              <button id="naturalImageSizeButton" class="btn" onclick="setSelectedImageNaturalSize()">Kích thước gốc</button>
-            </div>
-            <button id="resetImageTransformButton" class="btn full" style="margin-top:7px" onclick="resetSelectedImageTransform()">Đặt lại xoay và lật</button>
-            <button id="cropImageButton" class="btn full" style="margin-top:7px" onclick="startImageCrop()">⌗ Cắt ảnh (Crop)</button>
             <div id="cropControls" style="display:none;margin-top:8px">
               <label>Tỷ lệ crop<select id="cropAspectSelect" onchange="applyCropAspect(this.value)"><option value="free">Tự do</option><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="16:9">16:9</option><option value="9:16">9:16</option></select></label>
               <label>Thu phóng <span id="cropZoomValue">100%</span><input id="cropZoom" type="range" min="100" max="400" value="100" oninput="setCropZoom(this.value)"></label>
               <div class="row"><button class="btn primary" onclick="applyImageCrop()">Áp dụng</button><button class="btn" onclick="cancelImageCrop()">Hủy</button></div>
-              <button class="btn full" style="margin-top:7px" onclick="resetImageCrop()">Đặt lại crop</button>
+              <button class="btn full" style="margin-top:6px" onclick="resetImageCrop()">Đặt lại vùng crop</button>
             </div>
-            <button id="removeCropButton" class="btn full" style="display:none;margin-top:7px" onclick="removeImageCrop()">Bỏ crop</button>
-            <div id="imageTransformHint" class="hint" style="margin-top:8px">Kéo góc để phóng/thu đúng tỷ lệ. Giữ Shift khi kéo góc để kéo dãn tự do.</div>
+            <button id="removeCropButton" class="btn full" style="display:none;margin-top:6px" onclick="removeImageCrop()">Bỏ crop</button>
+            <label style="margin-top:8px">Chế độ hiển thị
+              <select id="propImageMode" onchange="applyImageProps()">
+                <option value="free">Ảnh tự do · hiện đầy đủ</option>
+                <option value="frame">Trong khung cố định</option>
+              </select>
+            </label>
+            <label id="imageFitLabel" style="margin-top:8px">Khớp khung
+              <select id="propFit" onchange="applyImageProps()">
+                <option value="cover">Cover · lấp đầy khung</option>
+                <option value="contain">Contain · vừa khít khung</option>
+                <option value="fill">Fill · kéo dãn</option>
+              </select>
+            </label>
+            <label id="imageAspectLabel" style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <input id="propLockAspect" type="checkbox" onchange="applyImageProps()" style="width:auto"> Khóa tỷ lệ khi kéo góc
+            </label>
+            <div class="row" style="margin-top:8px">
+              <button id="flipImageXButton" class="btn" onclick="flipSelectedImage('x')">Lật ngang</button>
+              <button id="flipImageYButton" class="btn" onclick="flipSelectedImage('y')">Lật dọc</button>
+            </div>
+            <div class="row" style="margin-top:6px">
+              <button id="restoreImageRatioButton" class="btn" onclick="restoreSelectedImageRatio()">Đúng tỷ lệ</button>
+              <button id="naturalImageSizeButton" class="btn" onclick="setSelectedImageNaturalSize()">Cỡ gốc</button>
+            </div>
+            <div class="row" style="margin-top:6px">
+              <button id="resetImageTransformButton" class="btn" onclick="resetSelectedImageTransform()">Đặt lại xoay/lật</button>
+              <button id="clearImageButton" class="btn danger" onclick="clearSelectedImage()">Xóa ảnh</button>
+            </div>
+            <div id="imageTransformHint" class="hint" style="margin-top:8px">Giữ Shift khi kéo góc để co dãn tự do.</div>
           </div>
 
           <div id="iconProps" style="display:none">
             <div class="divider"></div>
-            <label>Chọn icon SVG
-              <select id="propIconType" onchange="applyIconProps()">
-                <option value="news">Loa tin tức</option>
-                <option value="target">Mục tiêu chiến lược</option>
-                <option value="folder">Thư mục nội dung</option>
-                <option value="chart">Biểu đồ cột</option>
-                <option value="trendUp">Xu hướng tăng (Bullish)</option>
-                <option value="trendDown">Xu hướng giảm (Bearish)</option>
-                <option value="globe">Quốc tế / Toàn cầu</option>
-                <option value="shield">Quản trị rủi ro (Khiên)</option>
-                <option value="bolt">Tín hiệu nhanh (Tia sét)</option>
-                <option value="pie">Cơ cấu danh mục (Pie)</option>
-                <option value="dollar">Dòng tiền / Tài chính</option>
-                <option value="bank">Ngân hàng / Vĩ mô</option>
-                <option value="star">Điểm nhấn (Ngôi sao)</option>
-                <option value="bell">Chuông thông báo</option>
-                <option value="calendar">Lịch sự kiện</option>
-                <option value="flag">Cờ hiệu</option>
-              </select>
-            </label>
+            <div class="section-caption">Thư viện Icon Vector chuẩn</div>
+            <div id="iconVisualGrid" class="icon-picker-grid"></div>
+            <select id="propIconType" onchange="applyIconProps()" hidden>
+              <option value="news">Loa tin tức</option>
+              <option value="target">Mục tiêu chiến lược</option>
+              <option value="folder">Thư mục nội dung</option>
+              <option value="chart">Biểu đồ cột</option>
+              <option value="trendUp">Xu hướng tăng (Bullish)</option>
+              <option value="trendDown">Xu hướng giảm (Bearish)</option>
+              <option value="globe">Quốc tế / Toàn cầu</option>
+              <option value="shield">Quản trị rủi ro (Khiên)</option>
+              <option value="bolt">Tín hiệu nhanh (Tia sét)</option>
+              <option value="pie">Cơ cấu danh mục (Pie)</option>
+              <option value="dollar">Dòng tiền / Tài chính</option>
+              <option value="bank">Ngân hàng / Vĩ mô</option>
+              <option value="star">Điểm nhấn (Ngôi sao)</option>
+              <option value="bell">Chuông thông báo</option>
+              <option value="calendar">Lịch sự kiện</option>
+              <option value="flag">Cờ hiệu</option>
+            </select>
             <div class="row">
               <label>Màu icon
                 <input id="propIconColor" type="color" oninput="applyIconProps()">
@@ -2335,8 +2721,8 @@
 
           <div id="indexTableProps" style="display:none">
             <div class="divider"></div>
-            <div class="panel-title">BẢNG BIẾN ĐỘNG</div>
-            <label>Tiêu đề
+            <div class="section-caption">Bảng biến động chỉ số</div>
+            <label>Tiêu đề bảng
               <input id="indexTableTitle" type="text" oninput="applyIndexTableProps()">
             </label>
             <div class="row" style="margin-bottom:6px">
@@ -2360,13 +2746,13 @@
 
           <div id="marketProps" style="display: none;">
             <div class="divider"></div>
-            <div class="hint" style="margin-bottom:8px">💡 Bạn có thể <b>double-click trực tiếp</b> vào bất kỳ con số hoặc nhãn nào trên Widget ở Canvas để sửa nhanh!</div>
+            <div class="hint" style="margin-bottom:8px">Double-click trực tiếp vào con số hoặc nhãn trên Widget ở Canvas để sửa nhanh tại chỗ.</div>
             <label>Tiêu đề section
               <input id="marketSectionTitle" type="text" oninput="applyMarketProps()">
             </label>
 
             <div class="divider"></div>
-            <div class="panel-title">TIÊU ĐỀ CARD &amp; THÔNG SỐ</div>
+            <div class="section-caption">Kiểu chữ &amp; Màu sắc Card</div>
             <div class="row">
               <label>Cỡ tiêu đề card
                 <input id="marketCardTitleSize" type="number" oninput="applyMarketProps()">
@@ -2393,7 +2779,7 @@
             </div>
 
             <div class="divider"></div>
-            <div class="panel-title">CARD 1</div>
+            <div class="section-caption">Dữ liệu Card 1</div>
             <label>Tiêu đề card
               <input id="market1Title" type="text" oninput="applyMarketProps()">
             </label>
@@ -2413,7 +2799,7 @@
             </label>
 
             <div class="divider"></div>
-            <div class="panel-title">CARD 2</div>
+            <div class="section-caption">Dữ liệu Card 2</div>
             <label>Tiêu đề card
               <input id="market2Title" type="text" oninput="applyMarketProps()">
             </label>
@@ -2433,7 +2819,7 @@
             </label>
 
             <div class="divider"></div>
-            <div class="panel-title">CARD 3</div>
+            <div class="section-caption">Dữ liệu Card 3</div>
             <label>Tiêu đề card
               <input id="market3Title" type="text" oninput="applyMarketProps()">
             </label>
@@ -2451,16 +2837,6 @@
             <label>Thông số (mỗi dòng: Nhãn|Giá trị)
               <textarea id="market3Stats" oninput="applyMarketProps()"></textarea>
             </label>
-          </div>
-
-          <div class="divider"></div>
-          <div class="toolbar">
-            <button class="btn" onclick="bringForward()">Lên 1 lớp</button>
-            <button class="btn" onclick="sendBackward()">Xuống 1 lớp</button>
-            <button class="btn" onclick="bringToFront()">Lên trên cùng</button>
-            <button class="btn" onclick="sendToBack()">Xuống dưới cùng</button>
-            <button class="btn" onclick="toggleLock()">Khóa/Mở</button>
-            <button class="btn danger" onclick="deleteSelected()">Xóa</button>
           </div>
         </div>
       </div>
@@ -4079,7 +4455,7 @@
             el.classList.add('empty-slot');
             const empty = document.createElement('div');
             empty.className = 'image-slot-empty';
-            empty.innerHTML = `<span>⇧</span><strong>${esc(o.slotLabel || 'Tải ảnh')}</strong><small>Click đúp, kéo-thả hoặc Ctrl+V</small>`;
+            empty.innerHTML = `<span style="display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#e2ecf7;color:#123d72"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><rect x="3" y="4" width="18" height="16" rx="2.5"/></svg></span><strong>${esc(o.slotLabel || 'Tải ảnh biểu đồ')}</strong><small>Click đúp, kéo-thả hoặc nhấn Ctrl+V</small>`;
             el.appendChild(empty);
           }
         } else if (o.type === 'marketWidget') {
@@ -4506,6 +4882,39 @@
       }
     });
 
+    const LAYER_TYPE_SVGS = {
+      text: '<svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>',
+      image: '<svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 20"/></svg>',
+      marketWidget: '<svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="2.6" height="6"/><rect x="12" y="8" width="2.6" height="10"/><rect x="17" y="14.5" width="2.6" height="3.5"/></svg>',
+      indexTable: '<svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14.5h18M9.5 9v11"/></svg>',
+      icon: '<svg class="ui-svg sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/></svg>',
+      card: '<svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/></svg>'
+    };
+
+    const SVG_EYE_OPEN = '<svg class="ui-svg sm" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const SVG_EYE_OFF = '<svg class="ui-svg sm" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a16.8 16.8 0 0 1-3.2 4.3"/><path d="M6.3 6.3C3.6 8.2 2 12 2 12s3.5 7 10 7a10.5 10.5 0 0 0 5.7-1.7"/></svg>';
+    const SVG_LOCK_CLOSED = '<svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    const SVG_LOCK_OPEN = '<svg class="ui-svg sm" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.4-2"/></svg>';
+
+    function renderIconPickerGrid(activeIconKey) {
+      const grid = document.getElementById('iconVisualGrid');
+      if (!grid) return;
+      const select = document.getElementById('propIconType');
+      const labels = {};
+      if (select) [...select.options].forEach(opt => { labels[opt.value] = opt.textContent; });
+      grid.innerHTML = Object.keys(ICON_LIB).map(key => `
+        <button type="button" class="icon-pick-btn${key === activeIconKey ? ' active' : ''}" title="${esc(labels[key] || key)}" onclick="selectIconFromGrid('${key}')">
+          <svg class="ui-svg lg" viewBox="0 0 24 24">${ICON_LIB[key]}</svg>
+        </button>
+      `).join('');
+    }
+
+    function selectIconFromGrid(key) {
+      const sel = document.getElementById('propIconType');
+      if (sel) sel.value = key;
+      applyIconProps();
+    }
+
     function renderLayers() {
       layerList.innerHTML = '';
       const query = (document.getElementById('layerSearchInput')?.value || '').trim().toLowerCase();
@@ -4522,7 +4931,7 @@
         row.onclick = event => selectById(o.id, event.shiftKey);
 
         const vis = document.createElement('span');
-        vis.textContent = o.type === 'text' ? 'T' : o.type === 'image' ? '🖼' : o.type === 'marketWidget' ? '📊' : o.type === 'indexTable' ? '▤' : o.type === 'icon' ? '✦' : '▣';
+        vis.innerHTML = LAYER_TYPE_SVGS[o.type] || LAYER_TYPE_SVGS.card;
         vis.className = 'badge';
 
         const name = document.createElement('div');
@@ -4542,7 +4951,7 @@
         const hideBtn = document.createElement('button');
         hideBtn.className = 'tiny';
         hideBtn.title = o.hidden ? 'Hiện layer' : 'Ẩn layer';
-        hideBtn.textContent = o.hidden ? '🙈' : '👁';
+        hideBtn.innerHTML = o.hidden ? SVG_EYE_OFF : SVG_EYE_OPEN;
         hideBtn.onclick = ev => {
           ev.stopPropagation();
           o.hidden = !o.hidden;
@@ -4553,7 +4962,8 @@
         const lock = document.createElement('button');
         lock.className = 'tiny';
         lock.title = o.locked ? 'Mở khóa layer' : 'Khóa layer';
-        lock.textContent = o.locked ? '🔒' : '🔓';
+        lock.innerHTML = o.locked ? SVG_LOCK_CLOSED : SVG_LOCK_OPEN;
+        if (o.locked) lock.style.color = '#e8c165';
         lock.onclick = (ev) => { ev.stopPropagation(); o.locked = !o.locked; render(); pushHistory(); };
 
         row.append(vis, name, hideBtn, lock);
@@ -4565,13 +4975,21 @@
       const none = document.getElementById('noneSelected');
       const props = document.getElementById('properties');
       const typeBadge = document.getElementById('selectedTypeBadge');
+      const quickActions = document.getElementById('inspectorQuickActions');
       if (!selected) {
         none.style.display = 'block';
         props.style.display = 'none';
+        if (quickActions) quickActions.style.display = 'none';
         if (typeBadge) typeBadge.textContent = selectedIds.size > 1 ? `${selectedIds.size} mục` : 'Chưa chọn';
         return;
       }
       none.style.display = 'none'; props.style.display = 'block';
+      if (quickActions) quickActions.style.display = 'inline-flex';
+      const lockBtn = document.getElementById('inspectorLockBtn');
+      if (lockBtn) {
+        lockBtn.innerHTML = selected.locked ? SVG_LOCK_CLOSED : SVG_LOCK_OPEN;
+        lockBtn.style.color = selected.locked ? '#e8c165' : '';
+      }
       const typeLabels = {
         text: 'Văn bản',
         card: 'Khung / Card',
@@ -4645,6 +5063,7 @@
         propIconType.value = selected.icon || 'news';
         propIconColor.value = selected.color || '#ffffff';
         propIconStroke.value = selected.strokeWidth || 1.8;
+        renderIconPickerGrid(selected.icon || 'news');
       } else {
         propBg.value = /^#[0-9a-f]{6}$/i.test(selected.bg || '') ? selected.bg : '#ffffff';
         const bgPreset = document.getElementById('propBgPreset');
@@ -4946,6 +5365,17 @@
       if (!isBuild) renderLayers();
     }
 
+    function toggleFileDropdown(ev) {
+      ev?.stopPropagation();
+      const menu = document.getElementById('fileDropdownMenu');
+      if (!menu) return;
+      menu.classList.toggle('show');
+    }
+
+    function closeFileDropdown() {
+      document.getElementById('fileDropdownMenu')?.classList.remove('show');
+    }
+
     function toggleShortcutsModal(show) {
       const modal = document.getElementById('shortcutsModal');
       if (!modal) return;
@@ -5164,7 +5594,10 @@
         console.error('Export PNG failed', err); alert('Lỗi xuất PNG: ' + err.message);
       } finally {
         exportHost?.remove(); document.body.classList.remove('is-exporting');
-        if (exportButton) { exportButton.disabled = false; exportButton.textContent = '⬇ Xuất PNG'; }
+        if (exportButton) {
+          exportButton.disabled = false;
+          exportButton.innerHTML = `<svg class="ui-svg" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Xuất PNG</span>`;
+        }
         selectedIds.forEach(id => stage.querySelector(`[data-id="${id}"]`)?.classList.add('multi-selected'));
         if (selectedId) { selected = state.elements.find(item => item.id === selectedId) || null; stage.querySelector(`[data-id="${selectedId}"]`)?.classList.add('selected'); }
         if (toolbarWasVisible && getSelectionInsideEditable()) floatToolbar.classList.add('show');
@@ -5486,6 +5919,7 @@
         if(!cropElement&&!cropControl) applyImageCrop();
       }
       if(!e.target.closest('#imageContextMenu')) closeImageContextMenu();
+      if(!e.target.closest('#fileMenuWrap')) closeFileDropdown();
     }, true);
     window.addEventListener('blur', () => { closeImageContextMenu(); spacePressed = false; workspaceEl.classList.remove('is-panning', 'is-panning-active'); });
     window.addEventListener('resize', closeImageContextMenu);
@@ -5806,17 +6240,21 @@
       bodyText(foreign, { x: 38, y: 712, w: 514, h: 132, text: '• Áp lực bán ròng từ khối ngoại duy trì xuyên suốt tuần.\n• Đà bán gia tăng mạnh tại các phiên cuối tuần.\n• Lũy kế tuần và nhóm cổ phiếu tập trung cần được cập nhật theo số liệu mới.' });
 
       sectionTitle(strategy, '4', `CHIẾN LƯỢC TUẦN ${getWorkWeekRange()}`, 'target', 598, 452);
-      singleLine(strategy, { x: 608, y: 504, w: 550, h: 34, text: '▣  TRẠNG THÁI THỊ TRƯỜNG' });
+      bind(addIcon({ x: 608, y: 511, w: 20, h: 20, z: 20, icon: 'chart', color: '#123d72', strokeWidth: 2 }), strategy, 'anchor-top-left');
+      singleLine(strategy, { x: 634, y: 504, w: 524, h: 34, text: 'TRẠNG THÁI THỊ TRƯỜNG' });
       bodyText(strategy, { x: 612, y: 544, w: 544, h: 99, text: '• VN-Index đang dao động quanh vùng hỗ trợ/kháng cự quan trọng.\n• Vị thế chỉ số được duy trì ổn định khi thanh khoản cải thiện và dòng tiền lan tỏa.' });
       divider(strategy, 606, 656, 554);
-      singleLine(strategy, { x: 608, y: 668, w: 550, h: 34, text: '⚖  KỊCH BẢN THỊ TRƯỜNG' });
+      bind(addIcon({ x: 608, y: 675, w: 20, h: 20, z: 20, icon: 'shield', color: '#123d72', strokeWidth: 2 }), strategy, 'anchor-top-left');
+      singleLine(strategy, { x: 634, y: 668, w: 524, h: 34, text: 'KỊCH BẢN THỊ TRƯỜNG' });
       bodyText(strategy, { x: 612, y: 708, w: 544, h: 136, text: '• Kịch bản 1: duy trì trên vùng hỗ trợ với thanh khoản cải thiện.\n• Kịch bản 2: mất ngưỡng hỗ trợ, ưu tiên quản trị rủi ro và giảm tỷ trọng.' });
 
       sectionTitle(news, '5', 'TIN TỨC NỔI BẬT', 'news', 1216, 452);
-      singleLine(news, { x: 1224, y: 504, w: 334, h: 34, text: '🌐  QUỐC TẾ' });
+      bind(addIcon({ x: 1224, y: 511, w: 20, h: 20, z: 20, icon: 'globe', color: '#123d72', strokeWidth: 2 }), news, 'anchor-top-left');
+      singleLine(news, { x: 1250, y: 504, w: 308, h: 34, text: 'QUỐC TẾ' });
       bodyText(news, { x: 1228, y: 544, w: 326, h: 106, text: '• Cập nhật diễn biến lãi suất, giá hàng hóa và dữ liệu kinh tế quốc tế.\n• Nêu ngắn gọn tác động dự kiến tới thị trường trong nước.' });
       divider(news, 1222, 660, 334);
-      singleLine(news, { x: 1224, y: 672, w: 334, h: 34, text: '★  TRONG NƯỚC' });
+      bind(addIcon({ x: 1224, y: 679, w: 20, h: 20, z: 20, icon: 'star', color: '#123d72', strokeWidth: 2 }), news, 'anchor-top-left');
+      singleLine(news, { x: 1250, y: 672, w: 308, h: 34, text: 'TRONG NƯỚC' });
       bodyText(news, { x: 1228, y: 712, w: 326, h: 132, text: '• Cập nhật chính sách, vĩ mô và thông tin doanh nghiệp nổi bật.\n• Nêu ngành/cổ phiếu có khả năng chịu tác động.' });
 
       selected = null; render(); applyZoom(); historyStack = []; redoStack = []; pushHistory(true);
