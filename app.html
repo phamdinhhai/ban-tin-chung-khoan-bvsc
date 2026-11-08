@@ -1676,6 +1676,40 @@
       display: block
     }
 
+    .element.is-thin-h .handle.nw,
+    .element.is-thin-h .handle.ne,
+    .element.is-thin-h .handle.sw,
+    .element.is-thin-h .handle.se {
+      display: none !important;
+    }
+
+    .element.is-thin-w .handle.nw,
+    .element.is-thin-w .handle.ne,
+    .element.is-thin-w .handle.sw,
+    .element.is-thin-w .handle.se {
+      display: none !important;
+    }
+
+    .element.is-thin-h::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -6px;
+      bottom: -6px;
+      background: transparent;
+    }
+
+    .element.is-thin-w::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -6px;
+      right: -6px;
+      background: transparent;
+    }
+
     .element.is-cropping { cursor: grab; }
     .element.is-cropping:active { cursor: grabbing; }
     .element.is-cropping .handle,
@@ -1856,6 +1890,66 @@
       border-radius: 5px;
       cursor: pointer;
       border: 1.5px solid rgba(255, 255, 255, .25);
+    }
+
+    .ft-select {
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 11.5px;
+      padding: 0 6px;
+      cursor: pointer;
+      max-width: 128px;
+    }
+
+    .ft-input {
+      width: 48px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+      padding: 0 4px;
+    }
+
+    .selection-scope-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 6px 0 10px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(229, 189, 102, .18), rgba(37, 99, 235, .18));
+      border: 1px solid rgba(229, 189, 102, .55);
+      color: #fde68a;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .selection-scope-banner.active {
+      display: flex;
+    }
+
+    .selection-scope-banner .scope-clear-btn {
+      flex: 0 0 auto;
+      padding: 3px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      background: rgba(15, 23, 42, .65);
+      color: #f8fafc;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .selection-scope-banner .scope-clear-btn:hover {
+      background: rgba(229, 189, 102, .25);
+      color: #fff;
     }
 
     @media(max-width:1450px) {
@@ -2500,40 +2594,54 @@
           <div class="section-caption">Kích thước &amp; Vị trí</div>
           <div class="row">
             <label>X
-              <input id="propX" type="number" oninput="applyProps()">
+              <input id="propX" type="number" oninput="applyProps('x')">
             </label>
             <label>Y
-              <input id="propY" type="number" oninput="applyProps()">
+              <input id="propY" type="number" oninput="applyProps('y')">
             </label>
           </div>
 
           <div class="row">
             <label>Rộng
-              <input id="propW" type="number" oninput="applyProps()">
+              <input id="propW" type="number" oninput="applyProps('w')">
             </label>
             <label>Cao
-              <input id="propH" type="number" oninput="applyProps()">
+              <input id="propH" type="number" oninput="applyProps('h')">
             </label>
           </div>
 
           <div class="row">
             <label>Xoay (°)
-              <input id="propRot" type="number" oninput="applyProps()">
+              <input id="propRot" type="number" oninput="applyProps('rot')">
             </label>
             <label>Thứ tự lớp (Z)
-              <input id="propZ" type="number" oninput="applyProps()">
+              <input id="propZ" type="number" oninput="applyProps('z')">
             </label>
+          </div>
+
+          <div class="row" style="margin-top:-2px;margin-bottom:8px;gap:4px">
+            <button type="button" class="btn" style="padding:5px 6px;font-size:11px" onclick="quickRotateTo(0)" title="Đặt góc xoay về 0°">0°</button>
+            <button type="button" class="btn" style="padding:5px 6px;font-size:11px" onclick="quickRotateStep(-90)" title="Xoay ngược chiều kim đồng hồ 90°">↺ −90°</button>
+            <button type="button" class="btn" style="padding:5px 6px;font-size:11px" onclick="quickRotateStep(90)" title="Xoay thuận chiều kim đồng hồ 90°">↻ +90°</button>
+            <button type="button" class="btn" style="padding:5px 6px;font-size:11px" onclick="swapSelectedDimensions()" title="Đảo chiều Rộng ↔ Cao (giữ nguyên tâm, tiện đổi ngang/dọc)">⇄ Đảo R×C</button>
           </div>
 
           <div id="textProps" style="display: none;">
             <div class="divider"></div>
             <div class="section-caption">Định dạng văn bản</div>
+            <div id="selectionScopeBanner" class="selection-scope-banner" aria-live="polite">
+              <div>
+                <strong style="display:block;color:#fbbf24">✦ Đang chỉnh cụm chữ bôi đen</strong>
+                <span id="selectionScopePreview" style="opacity:.9">Chỉ áp dụng cho phần đã chọn</span>
+              </div>
+              <button type="button" class="scope-clear-btn" onclick="clearSavedRichSelection()" title="Quay về chỉnh toàn bộ khung chữ">Cả khung</button>
+            </div>
             <label>Nội dung
-              <textarea id="propText" oninput="applyTextProps()"></textarea>
+              <textarea id="propText" oninput="applyTextProps('text')"></textarea>
             </label>
 
             <label>Font chữ
-              <select id="propFont" onchange="applyTextProps()">
+              <select id="propFont" onchange="applyTextProps('font')">
                 <option value="'Be Vietnam Pro'">Be Vietnam Pro · Khuyên dùng</option>
                 <option value="Inter">Inter · Hiện đại</option>
                 <option value="Roboto">Roboto · Trung tính</option>
@@ -2546,10 +2654,10 @@
 
             <div class="row">
               <label>Cỡ chữ
-                <input id="propFontSize" type="number" oninput="applyTextProps()">
+                <input id="propFontSize" type="number" oninput="applyTextProps('fontSize')">
               </label>
               <label>Độ đậm
-                <select id="propWeight" onchange="applyTextProps()">
+                <select id="propWeight" onchange="applyTextProps('weight')">
                   <option value="400">Regular</option>
                   <option value="500">Medium</option>
                   <option value="600">SemiBold</option>
@@ -2562,10 +2670,10 @@
 
             <div class="row">
               <label>Màu chữ
-                <input id="propColor" type="color" oninput="applyTextProps()">
+                <input id="propColor" type="color" oninput="applyTextProps('color')">
               </label>
               <label>Căn ngang
-                <select id="propAlign" onchange="applyTextProps()">
+                <select id="propAlign" onchange="applyTextProps('align')">
                   <option value="left">Trái</option>
                   <option value="center">Giữa</option>
                   <option value="right">Phải</option>
@@ -2576,25 +2684,32 @@
 
             <div class="row">
               <label>Line-height
-                <input id="propLine" type="number" step="0.05" oninput="applyTextProps()">
+                <input id="propLine" type="number" step="0.05" oninput="applyTextProps('lineHeight')">
               </label>
               <label>Letter spacing
-                <input id="propLetter" type="number" step="0.1" oninput="applyTextProps()">
+                <input id="propLetter" type="number" step="0.1" oninput="applyTextProps('letterSpacing')">
               </label>
             </div>
 
             <div class="row">
               <label>Căn dọc
-                <select id="propVerticalAlign" onchange="applyTextProps()">
+                <select id="propVerticalAlign" onchange="applyTextProps('verticalAlign')">
                   <option value="top">Trên</option>
                   <option value="middle">Giữa</option>
                   <option value="bottom">Dưới</option>
                 </select>
               </label>
               <label style="display:flex;align-items:center;gap:6px;padding-top:18px">
-                <input id="propUpper" type="checkbox" onchange="applyTextProps()" style="width:auto;margin:0">
+                <input id="propUpper" type="checkbox" onchange="applyTextProps('upper')" style="width:auto;margin:0">
                 IN HOA
               </label>
+            </div>
+
+            <div class="row" style="margin-top:6px;gap:4px">
+              <button type="button" class="btn" style="padding:5px 6px;font-size:11px;font-weight:900" onmousedown="event.preventDefault()" onclick="richToggleBold()" title="In đậm (áp dụng cho cụm bôi đen hoặc cả khung)">B Đậm</button>
+              <button type="button" class="btn" style="padding:5px 6px;font-size:11px;font-style:italic" onmousedown="event.preventDefault()" onclick="richToggleItalic()" title="In nghiêng">I Nghiêng</button>
+              <button type="button" class="btn" style="padding:5px 6px;font-size:11px;text-decoration:underline" onmousedown="event.preventDefault()" onclick="richToggleUnderline()" title="Gạch chân">U Gạch</button>
+              <button type="button" class="btn" style="padding:5px 6px;font-size:11px" onmousedown="event.preventDefault()" onclick="richRemoveFormat()" title="Xóa định dạng riêng của cụm bôi đen">⨯ Xóa style</button>
             </div>
           </div>
 
@@ -2883,12 +2998,35 @@
   </div>
 
   <div id="floatToolbar" class="float-toolbar">
+    <select id="ftFont" class="ft-select" title="Font chữ cụm đã chọn" onmousedown="event.stopPropagation()" onchange="richFontFamily(this.value)">
+      <option value="">Font chữ…</option>
+      <option value="'Be Vietnam Pro'">Be Vietnam Pro</option>
+      <option value="Inter">Inter</option>
+      <option value="Roboto">Roboto</option>
+      <option value="'Noto Sans'">Noto Sans</option>
+      <option value="'Noto Serif'">Noto Serif</option>
+      <option value="'Segoe UI'">Segoe UI</option>
+      <option value="Arial">Arial</option>
+    </select>
+    <input id="ftSize" class="ft-input" type="number" min="8" max="140" placeholder="Cỡ" title="Cỡ chữ (px) cho cụm đã chọn" onmousedown="event.stopPropagation()" oninput="richFontSizeExact(this.value)">
+    <select id="ftWeight" class="ft-select" style="max-width:86px" title="Độ đậm cụm đã chọn" onmousedown="event.stopPropagation()" onchange="richFontWeight(this.value)">
+      <option value="">Độ đậm…</option>
+      <option value="400">Regular</option>
+      <option value="500">Medium</option>
+      <option value="600">SemiBold</option>
+      <option value="700">Bold</option>
+      <option value="800">ExtraBold</option>
+      <option value="900">Black</option>
+    </select>
+    <div class="ft-sep"></div>
     <button class="ft-btn bold" title="Đậm / bỏ đậm cụm đã chọn" onmousedown="event.preventDefault()"
       onclick="richToggleBold()">B</button>
     <button class="ft-btn" style="font-style:italic;font-weight:700" title="In nghiêng cụm đã chọn" onmousedown="event.preventDefault()"
       onclick="richToggleItalic()">I</button>
     <button class="ft-btn" style="text-decoration:underline;font-weight:700" title="Gạch chân cụm đã chọn" onmousedown="event.preventDefault()"
       onclick="richToggleUnderline()">U</button>
+    <button class="ft-btn" style="font-weight:800;font-size:11px" title="IN HOA / Thường cụm đã chọn" onmousedown="event.preventDefault()"
+      onclick="richToggleUppercase()">AA</button>
     <div class="ft-sep"></div>
     <input id="ftColor" class="ft-color" type="color" title="Màu chữ tùy chọn" onmousedown="event.stopPropagation()"
       oninput="richColor(ftColor.value)">
@@ -2977,14 +3115,55 @@
     let isRestoringHistory = false;
     let activeEditable = null; // .editable div đang được focus để rich-text
     let editingTextId = null; // chỉ double click mới bật chế độ sửa/bôi đen text
+    let savedRichSelection = null; // { elementId, start, end, text } lưu vùng bôi đen để chỉnh từ cả cột phải và thanh nổi
 
-    /* ===== RICH TEXT: bôi đen -> toolbar nổi (đậm/nhạt/màu/cỡ chữ theo từng cụm) ===== */
+    /* ===== RICH TEXT: bôi đen -> toolbar nổi & đồng bộ bảng thuộc tính bên phải ===== */
     const floatToolbar = document.getElementById('floatToolbar');
+
+    function rgbToHex(colorStr, fallback = '#153452') {
+      if (!colorStr) return fallback;
+      const s = String(colorStr).trim();
+      if (/^#[0-9a-f]{6}$/i.test(s)) return s.toLowerCase();
+      if (/^#[0-9a-f]{3}$/i.test(s)) {
+        return '#' + s.slice(1).split('').map(c => c + c).join('').toLowerCase();
+      }
+      const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      if (!m) return fallback;
+      return '#' + [m[1], m[2], m[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('');
+    }
+
+    function updateSelectionScopeBanner() {
+      const banner = document.getElementById('selectionScopeBanner');
+      const preview = document.getElementById('selectionScopePreview');
+      if (!banner) return;
+      if (savedRichSelection && selected && savedRichSelection.elementId === selected.id && savedRichSelection.end > savedRichSelection.start) {
+        const snippet = String(savedRichSelection.text || '').replace(/\s+/g, ' ').trim();
+        const count = savedRichSelection.end - savedRichSelection.start;
+        if (preview) {
+          preview.textContent = snippet
+            ? `“${snippet.slice(0, 26)}${snippet.length > 26 ? '…' : ''}” (${count} ký tự)`
+            : `Đã chọn ${count} ký tự`;
+        }
+        banner.classList.add('active');
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+
+    function clearSavedRichSelection() {
+      savedRichSelection = null;
+      floatToolbar.classList.remove('show');
+      window.getSelection()?.removeAllRanges();
+      updateSelectionScopeBanner();
+      syncInspector(false);
+    }
 
     function exitTextEditing({ rerender = false } = {}) {
       editingTextId = null;
       activeEditable = null;
+      savedRichSelection = null;
       floatToolbar.classList.remove('show');
+      updateSelectionScopeBanner();
       stage.querySelectorAll('.editable.is-editing').forEach(editable => {
         editable.contentEditable = 'false';
         editable.classList.remove('is-editing');
@@ -3005,22 +3184,103 @@
     }
 
     function positionFloatToolbar(range) {
+      if (!range) return;
       const rect = range.getBoundingClientRect();
+      if (!rect || (rect.width === 0 && rect.height === 0)) return;
       const tbRect = floatToolbar.getBoundingClientRect();
-      let left = rect.left + rect.width / 2 - (tbRect.width || 260) / 2;
-      let top = rect.top - (tbRect.height || 44) - 10;
+      const tbW = tbRect.width || 460;
+      const tbH = tbRect.height || 44;
+      let left = rect.left + rect.width / 2 - tbW / 2;
+      let top = rect.top - tbH - 10;
       if (top < 6) top = rect.bottom + 10; // nếu sát mép trên, hiện phía dưới thay vì phía trên
-      left = Math.max(6, Math.min(left, window.innerWidth - (tbRect.width || 260) - 6));
+      left = Math.max(6, Math.min(left, window.innerWidth - tbW - 6));
       floatToolbar.style.left = left + 'px';
       floatToolbar.style.top = top + 'px';
     }
 
+    function syncRichControlsFromEditable(editable, range) {
+      if (!editable || !range) return;
+      const node = range.startContainer;
+      const element = node.nodeType === 3 ? node.parentElement : node;
+      let cs = null;
+      try { cs = getComputedStyle(element); } catch (err) { cs = null; }
+      const inline = inlineRichStyle(node, editable);
+
+      const fontSizeVal = parseFloat(inline.fontSize) || (cs ? parseFloat(cs.fontSize) : null) || (selected?.fontSize || 18);
+      const fontWeightVal = parseInt(inline.fontWeight) || (cs ? parseInt(cs.fontWeight) : null) || (selected?.weight || 400);
+      const colorHex = rgbToHex(inline.color || (cs ? cs.color : '') || selected?.color || '#153452', selected?.color || '#153452');
+      const familyRaw = inline.fontFamily || selected?.font || state.defaultFont || "'Be Vietnam Pro'";
+
+      const ftSizeEl = document.getElementById('ftSize');
+      if (ftSizeEl && document.activeElement !== ftSizeEl) ftSizeEl.value = Math.round(fontSizeVal);
+      const ftWeightEl = document.getElementById('ftWeight');
+      if (ftWeightEl && document.activeElement !== ftWeightEl) ftWeightEl.value = String(fontWeightVal >= 700 ? (fontWeightVal >= 900 ? 900 : fontWeightVal) : fontWeightVal);
+      const ftColorEl = document.getElementById('ftColor');
+      if (ftColorEl && document.activeElement !== ftColorEl) ftColorEl.value = colorHex;
+      const ftFontEl = document.getElementById('ftFont');
+      if (ftFontEl && document.activeElement !== ftFontEl) {
+        const matched = [...ftFontEl.options].find(opt => opt.value && familyRaw.includes(opt.value.replace(/^['"]|['"]$/g, '')));
+        ftFontEl.value = matched ? matched.value : '';
+      }
+
+      // Đồng bộ sang bảng thuộc tính bên phải để người dùng biết giá trị hiện tại của cụm bôi đen
+      if (selected && selected.type === 'text') {
+        if (document.activeElement !== propFontSize) propFontSize.value = Math.round(fontSizeVal);
+        if (document.activeElement !== propWeight) {
+          const wStr = String(fontWeightVal);
+          if ([...propWeight.options].some(o => o.value === wStr)) propWeight.value = wStr;
+        }
+        if (document.activeElement !== propColor) propColor.value = colorHex;
+        if (document.activeElement !== propFont) {
+          const matched = [...propFont.options].find(opt => opt.value && familyRaw.includes(opt.value.replace(/^['"]|['"]$/g, '')));
+          if (matched) propFont.value = matched.value;
+        }
+        if (inline.letterSpacing && document.activeElement !== propLetter) {
+          propLetter.value = parseFloat(inline.letterSpacing) || 0;
+        }
+        if (inline.lineHeight && document.activeElement !== propLine) {
+          propLine.value = parseFloat(inline.lineHeight) || (selected.lineHeight || 1.2);
+        }
+        const isUpper = inline.textTransform ? inline.textTransform === 'uppercase' : (cs ? cs.textTransform === 'uppercase' : !!selected.upper);
+        propUpper.checked = isUpper;
+      }
+    }
+
     function showFloatToolbarIfSelected() {
       const found = getSelectionInsideEditable();
-      if (!found) { floatToolbar.classList.remove('show'); return; }
+      if (!found) {
+        // Nếu người dùng đang tương tác trong sidebar bên phải hoặc trên floatToolbar thì giữ nguyên savedRichSelection
+        const activeEl = document.activeElement;
+        const inInspectorOrToolbar = activeEl && (
+          floatToolbar.contains(activeEl) ||
+          activeEl.closest?.('#textProps')
+        );
+        if (!inInspectorOrToolbar) {
+          floatToolbar.classList.remove('show');
+          if (savedRichSelection && (!activeEditable || !activeEditable.contains(window.getSelection()?.anchorNode))) {
+            savedRichSelection = null;
+            updateSelectionScopeBanner();
+          }
+        }
+        return;
+      }
       activeEditable = found.editable;
-      positionFloatToolbar(found.range);
+      const elWrap = found.editable.closest('.element');
+      const elId = elWrap?.dataset?.id;
+      const start = getTextOffset(found.editable, found.range.startContainer, found.range.startOffset);
+      const end = getTextOffset(found.editable, found.range.endContainer, found.range.endOffset);
+      if (elId && start !== null && end !== null && start !== end) {
+        savedRichSelection = {
+          elementId: elId,
+          start: Math.min(start, end),
+          end: Math.max(start, end),
+          text: found.range.toString()
+        };
+      }
+      updateSelectionScopeBanner();
+      syncRichControlsFromEditable(found.editable, found.range);
       floatToolbar.classList.add('show');
+      positionFloatToolbar(found.range);
     }
 
     document.addEventListener('selectionchange', () => {
@@ -3031,8 +3291,15 @@
 
     document.addEventListener('pointerdown', e => {
       if (floatToolbar.contains(e.target)) return; // giữ toolbar khi thao tác trên chính nó
+      if (e.target.closest && e.target.closest('#textProps')) return; // giữ vùng chọn khi chỉnh ở cột Định dạng văn bản bên phải
       if (!e.target.closest || !e.target.closest('.editable')) {
         floatToolbar.classList.remove('show');
+        savedRichSelection = null;
+        updateSelectionScopeBanner();
+      } else {
+        // Click đơn bên trong editable (bắt đầu đặt con trỏ mới) -> tạm xóa vùng lưu cũ, nếu kéo bôi đen thì selectionchange sẽ cập nhật lại
+        savedRichSelection = null;
+        updateSelectionScopeBanner();
       }
     });
 
@@ -3044,6 +3311,9 @@
       if (!obj) return;
       obj.html = editable.innerHTML;
       obj.text = editable.innerText;
+      if (selected && selected.id === obj.id && document.activeElement !== propText) {
+        propText.value = obj.text;
+      }
       renderLayers();
       scheduleHistory();
     }
@@ -3051,7 +3321,18 @@
     // Rich-text dùng offset ký tự tuyệt đối thay vì tìm lại bằng nội dung text.
     // Nội dung được chuẩn hóa thành các "run" phẳng, vì vậy text trùng nhau, selection
     // cắt giữa span và thao tác lặp lại đều không tạo span lồng hoặc làm mất style bên ngoài.
-    const RICH_STYLE_PROPS = ['fontWeight', 'color', 'fontSize', 'fontStyle', 'textDecoration', 'backgroundColor'];
+    const RICH_STYLE_PROPS = [
+      'fontFamily',
+      'fontWeight',
+      'color',
+      'fontSize',
+      'fontStyle',
+      'textDecoration',
+      'backgroundColor',
+      'letterSpacing',
+      'lineHeight',
+      'textTransform'
+    ];
 
     function getTextOffset(root, container, offset) {
       const range = document.createRange();
@@ -3060,23 +3341,47 @@
       return range.toString().length;
     }
 
-    function getActiveRichSelection() {
-      if (!activeEditable || !activeEditable.isConnected) return null;
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
-      const range = sel.getRangeAt(0);
-      if (!activeEditable.contains(range.startContainer) || !activeEditable.contains(range.endContainer)) return null;
-      const start = getTextOffset(activeEditable, range.startContainer, range.startOffset);
-      const end = getTextOffset(activeEditable, range.endContainer, range.endOffset);
-      if (start === null || end === null || start === end) return null;
-      return { sel, start: Math.min(start, end), end: Math.max(start, end) };
+    function resolveEditableForRichAction() {
+      if (activeEditable && activeEditable.isConnected) return activeEditable;
+      if (selected && selected.type === 'text') {
+        const el = stage.querySelector(`.element[data-id="${selected.id}"] .editable`);
+        if (el) {
+          activeEditable = el;
+          return el;
+        }
+      }
+      return null;
     }
 
-    function inlineRichStyle(node) {
+    function getActiveRichSelection() {
+      const editable = resolveEditableForRichAction();
+      if (!editable) return null;
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+        const range = sel.getRangeAt(0);
+        if (editable.contains(range.startContainer) && editable.contains(range.endContainer)) {
+          const start = getTextOffset(editable, range.startContainer, range.startOffset);
+          const end = getTextOffset(editable, range.endContainer, range.endOffset);
+          if (start !== null && end !== null && start !== end) {
+            const s = Math.min(start, end), e = Math.max(start, end);
+            const elId = editable.closest('.element')?.dataset?.id;
+            if (elId) savedRichSelection = { elementId: elId, start: s, end: e, text: range.toString() };
+            return { editable, start: s, end: e };
+          }
+        }
+      }
+      const elId = editable.closest('.element')?.dataset?.id;
+      if (savedRichSelection && savedRichSelection.elementId === elId && savedRichSelection.end > savedRichSelection.start) {
+        return { editable, start: savedRichSelection.start, end: savedRichSelection.end };
+      }
+      return null;
+    }
+
+    function inlineRichStyle(node, rootEditable = activeEditable) {
       const style = {};
       const chain = [];
       let current = node.nodeType === 3 ? node.parentElement : node;
-      while (current && current !== activeEditable) { chain.unshift(current); current = current.parentElement; }
+      while (current && current !== rootEditable) { chain.unshift(current); current = current.parentElement; }
       chain.forEach(el => {
         if (!(el instanceof HTMLElement)) return;
         RICH_STYLE_PROPS.forEach(prop => { if (el.style[prop]) style[prop] = el.style[prop]; });
@@ -3094,7 +3399,7 @@
       let node;
       while ((node = walker.nextNode())) {
         if (!node.nodeValue) continue;
-        runs.push({ text: node.nodeValue, style: inlineRichStyle(node) });
+        runs.push({ text: node.nodeValue, style: inlineRichStyle(node, root) });
       }
       return runs;
     }
@@ -3139,56 +3444,88 @@
       const range = document.createRange();
       range.setStart(startNode, Math.min(startOffset, startNode.length));
       range.setEnd(endNode, Math.min(endOffset, endNode.length));
-      const sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(range);
+      const activeEl = document.activeElement;
+      const editingSidebarInput = activeEl && ['INPUT', 'SELECT', 'TEXTAREA'].includes(activeEl.tagName);
+      if (!editingSidebarInput) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
       return range;
     }
 
     function mutateRichSelection(mutator) {
-      const selectedRange = getActiveRichSelection();
-      if (!selectedRange) return false;
-      const sel = window.getSelection();
-      const range = sel.getRangeAt(0).cloneRange();
-      const walker = document.createTreeWalker(activeEditable, NodeFilter.SHOW_TEXT);
-      const slices = [];
-      let node;
-      while ((node = walker.nextNode())) {
-        if (!node.nodeValue || !range.intersectsNode(node)) continue;
-        let start = 0, end = node.nodeValue.length;
-        if (node === range.startContainer) start = range.startOffset;
-        if (node === range.endContainer) end = range.endOffset;
-        if (start < end) slices.push({ node, start, end });
-      }
-      if (!slices.length) return false;
+      const target = getActiveRichSelection();
+      if (!target) return false;
+      const { editable, start, end } = target;
+      activeEditable = editable;
 
-      const wrapped = [];
-      [...slices].reverse().forEach(({ node, start, end }) => {
-        let selectedNode = node;
-        if (end < selectedNode.nodeValue.length) selectedNode.splitText(end);
-        if (start > 0) selectedNode = selectedNode.splitText(start);
-        const style = inlineRichStyle(selectedNode);
-        mutator(style);
-        const span = document.createElement('span');
-        RICH_STYLE_PROPS.forEach(prop => {
-          if (style[prop] !== undefined && style[prop] !== null && style[prop] !== '') span.style[prop] = style[prop];
+      // Sử dụng hệ thống run phẳng theo vị trí ký tự [start, end] để không bao giờ tạo span lồng nhau
+      const rawRuns = collectRichRuns(editable);
+      if (!rawRuns.length) return false;
+
+      const slicedRuns = [];
+      let cursor = 0;
+      rawRuns.forEach(run => {
+        const runStart = cursor;
+        const runEnd = cursor + run.text.length;
+        cursor = runEnd;
+        if (runEnd <= start || runStart >= end) {
+          slicedRuns.push({ text: run.text, style: { ...run.style } });
+          return;
+        }
+        if (runStart < start) {
+          slicedRuns.push({
+            text: run.text.slice(0, start - runStart),
+            style: { ...run.style }
+          });
+        }
+        const midStart = Math.max(start, runStart) - runStart;
+        const midEnd = Math.min(end, runEnd) - runStart;
+        const nextStyle = { ...run.style };
+        mutator(nextStyle);
+        slicedRuns.push({
+          text: run.text.slice(midStart, midEnd),
+          style: nextStyle
         });
-        selectedNode.parentNode.insertBefore(span, selectedNode);
-        span.appendChild(selectedNode);
-        wrapped.unshift(span);
+        if (runEnd > end) {
+          slicedRuns.push({
+            text: run.text.slice(end - runStart),
+            style: { ...run.style }
+          });
+        }
       });
 
-      const first = wrapped[0], last = wrapped[wrapped.length - 1];
-      const restored = document.createRange();
-      restored.setStart(first.firstChild, 0);
-      restored.setEnd(last.firstChild, last.firstChild.nodeValue.length);
-      sel.removeAllRanges();
-      sel.addRange(restored);
-      syncEditableToState(activeEditable);
-      positionFloatToolbar(restored);
+      renderRichRuns(editable, slicedRuns);
+      const restored = restoreRichSelection(editable, start, end);
+      const elId = editable.closest('.element')?.dataset?.id;
+      if (elId) {
+        savedRichSelection = {
+          elementId: elId,
+          start,
+          end,
+          text: editable.innerText.slice(start, end)
+        };
+      }
+      updateSelectionScopeBanner();
+      syncEditableToState(editable);
+      if (restored) {
+        syncRichControlsFromEditable(editable, restored);
+        if (floatToolbar.classList.contains('show')) positionFloatToolbar(restored);
+      }
       return true;
     }
 
     function computedStyleAtSelectionStart(prop) {
+      const target = getActiveRichSelection();
+      if (target) {
+        const range = restoreRichSelection(target.editable, target.start, target.end);
+        if (range) {
+          const node = range.startContainer;
+          const element = node.nodeType === 3 ? node.parentElement : node;
+          try { return getComputedStyle(element)[prop]; } catch (err) { return null; }
+        }
+      }
       const sel = window.getSelection();
       if (!sel || sel.rangeCount === 0) return null;
       const node = sel.getRangeAt(0).startContainer;
@@ -3197,6 +3534,12 @@
     }
 
     function richToggleBold() {
+      if (!getActiveRichSelection() && selected?.type === 'text') {
+        selected.weight = (Number(selected.weight) || 400) < 700 ? 900 : 400;
+        render();
+        pushHistory();
+        return;
+      }
       const currentWeight = parseInt(computedStyleAtSelectionStart('fontWeight')) || 400;
       const next = currentWeight < 700 ? '900' : '400';
       mutateRichSelection(style => { style.fontWeight = next; });
@@ -3205,13 +3548,58 @@
     function richToggleItalic() {
       const current = computedStyleAtSelectionStart('fontStyle') || 'normal';
       const next = current === 'italic' ? 'normal' : 'italic';
+      if (!getActiveRichSelection() && selected?.type === 'text') {
+        const editable = resolveEditableForRichAction();
+        if (editable) {
+          savedRichSelection = { elementId: selected.id, start: 0, end: (editable.innerText || '').length, text: editable.innerText || '' };
+          mutateRichSelection(style => { style.fontStyle = next; });
+          savedRichSelection = null;
+          updateSelectionScopeBanner();
+        }
+        return;
+      }
       mutateRichSelection(style => { style.fontStyle = next; });
     }
 
     function richToggleUnderline() {
       const current = computedStyleAtSelectionStart('textDecorationLine') || computedStyleAtSelectionStart('textDecoration') || '';
       const next = String(current).includes('underline') ? 'none' : 'underline';
+      if (!getActiveRichSelection() && selected?.type === 'text') {
+        const editable = resolveEditableForRichAction();
+        if (editable) {
+          savedRichSelection = { elementId: selected.id, start: 0, end: (editable.innerText || '').length, text: editable.innerText || '' };
+          mutateRichSelection(style => { style.textDecoration = next; });
+          savedRichSelection = null;
+          updateSelectionScopeBanner();
+        }
+        return;
+      }
       mutateRichSelection(style => { style.textDecoration = next; });
+    }
+
+    function richToggleUppercase() {
+      const current = computedStyleAtSelectionStart('textTransform') || 'none';
+      const next = current === 'uppercase' ? 'none' : 'uppercase';
+      mutateRichSelection(style => { style.textTransform = next; });
+    }
+
+    function richFontFamily(fontVal) {
+      if (!fontVal) return;
+      mutateRichSelection(style => {
+        style.fontFamily = `${fontVal}, 'Noto Sans', Arial, sans-serif`;
+      });
+    }
+
+    function richFontWeight(weightVal) {
+      if (!weightVal) return;
+      mutateRichSelection(style => { style.fontWeight = String(weightVal); });
+    }
+
+    function richFontSizeExact(sizeVal) {
+      const pxVal = parseFloat(sizeVal);
+      if (!Number.isFinite(pxVal) || pxVal < 6) return;
+      const clamped = Math.max(6, Math.min(160, Math.round(pxVal)));
+      mutateRichSelection(style => { style.fontSize = clamped + 'px'; });
     }
 
     function richHighlight(bgHex) {
@@ -3225,12 +3613,19 @@
     }
 
     function richRemoveFormat() {
+      if (!getActiveRichSelection() && selected?.type === 'text') {
+        delete selected.html;
+        render();
+        pushHistory();
+        status('Đã xóa định dạng riêng trong khung chữ');
+        return;
+      }
       mutateRichSelection(style => { RICH_STYLE_PROPS.forEach(prop => delete style[prop]); });
     }
 
     function richFontSizeStep(delta) {
       const base = parseFloat(computedStyleAtSelectionStart('fontSize')) || 18;
-      const next = Math.max(8, Math.min(120, Math.round(base + delta)));
+      const next = Math.max(8, Math.min(140, Math.round(base + delta)));
       mutateRichSelection(style => { style.fontSize = next + 'px'; });
     }
 
@@ -3367,6 +3762,57 @@
     function imageContentTransform(item) {
       return `scale(${item?.flipX ? -1 : 1}, ${item?.flipY ? -1 : 1})`;
     }
+    function getElementMinSize(item) {
+      if (!item) return { minW: 4, minH: 4 };
+      const customMinW = Number(item.minW);
+      const customMinH = Number(item.minH);
+      let baseW = 16, baseH = 16;
+      if (item.type === 'card') {
+        baseW = 1;
+        baseH = 1;
+      } else if (item.type === 'icon') {
+        baseW = 12;
+        baseH = 12;
+      } else if (item.type === 'text') {
+        baseW = 20;
+        baseH = 14;
+      } else if (item.type === 'image') {
+        baseW = 20;
+        baseH = 20;
+      } else if (item.type === 'marketWidget' || item.type === 'indexTable') {
+        baseW = 160;
+        baseH = 80;
+      }
+      return {
+        minW: Number.isFinite(customMinW) && customMinW > 0 ? customMinW : baseW,
+        minH: Number.isFinite(customMinH) && customMinH > 0 ? customMinH : baseH
+      };
+    }
+    const HANDLE_BASE_ANGLES = { e: 0, se: 45, s: 90, sw: 135, w: 180, nw: 225, n: 270, ne: 315 };
+    const RESIZE_CURSORS = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'];
+    function isQuarterTurnAngle(rotDeg = 0) {
+      const norm = ((Math.round(Number(rotDeg) || 0) % 180) + 180) % 180;
+      return Math.abs(norm - 90) <= 1;
+    }
+    function getRotatedHandleCursor(handle, rotDeg = 0) {
+      const base = HANDLE_BASE_ANGLES[handle];
+      if (base === undefined) return '';
+      const total = ((base + (Number(rotDeg) || 0)) % 360 + 360) % 360;
+      const sector = Math.round(total / 45) % 4;
+      return RESIZE_CURSORS[sector];
+    }
+    function applyElementHandleState(el, item) {
+      if (!el || !item) return;
+      el.classList.toggle('is-thin-h', item.type === 'card' && item.h <= 10 && item.w > 24);
+      el.classList.toggle('is-thin-w', item.type === 'card' && item.w <= 10 && item.h > 24);
+      const rot = Number(item.rot) || 0;
+      el.querySelectorAll('.handle[data-handle]').forEach(hEl => {
+        const h = hEl.dataset.handle;
+        if (h && h !== 'rot') {
+          hEl.style.cursor = getRotatedHandleCursor(h, rot);
+        }
+      });
+    }
     function status(msg) {
       const s = document.getElementById('status');
       s.textContent = msg; s.style.display = 'block';
@@ -3394,7 +3840,8 @@
 
       const selects = [
         document.getElementById('propFont'),
-        document.getElementById('globalFont')
+        document.getElementById('globalFont'),
+        document.getElementById('ftFont')
       ];
 
       selects.forEach(sel => {
@@ -4123,7 +4570,7 @@
       if (command === 'replace' && item.type === 'image') { replaceSelectedImage(); return; }
       if (command === 'flip-x' && item.type === 'image') item.flipX = !item.flipX;
       else if (command === 'flip-y' && item.type === 'image') item.flipY = !item.flipY;
-      else if (command === 'rotate-90') item.rot = ((Number(item.rot) || 0) + 90) % 360;
+      else if (command === 'rotate-90') { quickRotateStep(90); return; }
       else if (command === 'stroke') {
         const hasStroke = (Number(item.borderW) || 0) > 0;
         item.borderW = hasStroke ? 0 : 2;
@@ -4293,27 +4740,34 @@
       state.elements.forEach(other => {
         if (other.id === movingObj.id || selectedIds.has(other.id) || other.hidden) return;
         if (other.locked && other.x === 0 && other.y === 0 && other.w >= cw && other.h >= ch) return;
+        const ob = rotatedElementBounds(other);
         xTargets.push(
-          { pos: other.x, isCenter: false },
-          { pos: other.x + other.w / 2, isCenter: true },
-          { pos: other.x + other.w, isCenter: false }
+          { pos: ob.left, isCenter: false },
+          { pos: (ob.left + ob.right) / 2, isCenter: true },
+          { pos: ob.right, isCenter: false }
         );
         yTargets.push(
-          { pos: other.y, isCenter: false },
-          { pos: other.y + other.h / 2, isCenter: true },
-          { pos: other.y + other.h, isCenter: false }
+          { pos: ob.top, isCenter: false },
+          { pos: (ob.top + ob.bottom) / 2, isCenter: true },
+          { pos: ob.bottom, isCenter: false }
         );
       });
 
+      const mb = rotatedElementBounds({ x: rawX, y: rawY, w, h, rot: movingObj.rot });
+      const bw = mb.right - mb.left;
+      const bh = mb.bottom - mb.top;
+      const offsetLeft = mb.left - rawX;
+      const offsetTop = mb.top - rawY;
+
       const myXPoints = [
-        { offset: 0, val: rawX },
-        { offset: w / 2, val: rawX + w / 2 },
-        { offset: w, val: rawX + w }
+        { offset: offsetLeft, val: mb.left },
+        { offset: offsetLeft + bw / 2, val: mb.left + bw / 2 },
+        { offset: offsetLeft + bw, val: mb.right }
       ];
       const myYPoints = [
-        { offset: 0, val: rawY },
-        { offset: h / 2, val: rawY + h / 2 },
-        { offset: h, val: rawY + h }
+        { offset: offsetTop, val: mb.top },
+        { offset: offsetTop + bh / 2, val: mb.top + bh / 2 },
+        { offset: offsetTop + bh, val: mb.bottom }
       ];
 
       let bestX = null;
@@ -4481,6 +4935,7 @@
         });
         const line = document.createElement('div'); line.className = 'handle-line'; el.appendChild(line);
         const rot = document.createElement('div'); rot.className = 'handle rot'; rot.dataset.handle = 'rot'; el.appendChild(rot);
+        applyElementHandleState(el, o);
 
         el.addEventListener('pointerdown', onPointerDown);
         el.addEventListener('contextmenu', event => openImageContextMenu(event, o));
@@ -4593,16 +5048,17 @@
     function reflowContainerChildren(snapshot, nextBounds) {
       snapshot.children.forEach(s => {
         const item = s.item;
+        const { minW, minH } = getElementMinSize(item);
         item.x = nextBounds.x + s.left;
         item.y = nextBounds.y + s.top;
         if (s.mode === 'stretch-both' || s.mode === 'inset') {
-          item.w = Math.max(30, nextBounds.w - s.left - s.right);
-          item.h = Math.max(item.minH || 20, nextBounds.h - s.top - s.bottom);
+          item.w = Math.max(minW, nextBounds.w - s.left - s.right);
+          item.h = Math.max(minH, nextBounds.h - s.top - s.bottom);
         } else if (s.mode === 'stretch-width' || s.mode === 'width' || s.mode === 'content-flow') {
-          item.w = Math.max(item.minW || 30, nextBounds.w - s.left - s.right);
-          if (s.mode === 'content-flow') item.h = Math.max(item.minH || s.h, nextBounds.h - s.top - s.bottom);
+          item.w = Math.max(minW, nextBounds.w - s.left - s.right);
+          if (s.mode === 'content-flow') item.h = Math.max(minH, nextBounds.h - s.top - s.bottom);
         } else if (s.mode === 'stretch-height' || s.mode === 'height') {
-          item.h = Math.max(item.minH || 20, nextBounds.h - s.top - s.bottom);
+          item.h = Math.max(minH, nextBounds.h - s.top - s.bottom);
         } else if (s.mode === 'anchor-bottom' || s.mode === 'bottom-fixed') {
           item.y = nextBounds.y + nextBounds.h - s.bottom - item.h;
         }
@@ -4707,20 +5163,26 @@
       const cropHandle=e.target.dataset.cropHandle;
       if(cropSession?.id===id&&(cropHandle||!e.target.dataset.handle)){
         const rect=stage.getBoundingClientRect(),scale=rect.width/stage.offsetWidth,target=cropHandle?e.target:e.currentTarget,c=normalizedCrop(obj);
-        action={type:cropHandle?'crop-resize':'crop-pan',obj,handle:cropHandle,startX:e.clientX/scale,startY:e.clientY/scale,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,crop:{...c},scale,pointerId:e.pointerId,captureTarget:target,pendingEvent:null,raf:0};
+        const startX=(e.clientX-rect.left)/scale,startY=(e.clientY-rect.top)/scale;
+        action={type:cropHandle?'crop-resize':'crop-pan',obj,handle:cropHandle,startX,startY,ox:obj.x,oy:obj.y,ow:obj.w,oh:obj.h,crop:{...c},scale,pointerId:e.pointerId,captureTarget:target,pendingEvent:null,raf:0};
         target.setPointerCapture?.(e.pointerId);target.addEventListener('pointermove',onPointerMove);target.addEventListener('pointerup',onPointerUp,{once:true});target.addEventListener('pointercancel',onPointerCancel,{once:true});e.preventDefault();e.stopPropagation();return;
       }
 
       const handle = e.target.dataset.handle;
       const rect = stage.getBoundingClientRect();
       const scale = rect.width / stage.offsetWidth;
-      const startX = e.clientX / scale, startY = e.clientY / scale;
+      const startX = (e.clientX - rect.left) / scale;
+      const startY = (e.clientY - rect.top) / scale;
 
       if (handle === 'rot') {
         const cx = obj.x + obj.w / 2, cy = obj.y + obj.h / 2;
-        action = { type: 'rotate', obj, cx, cy, scale, moved: false };
+        const startPointerAngle = Math.atan2(startY - cy, startX - cx) * 180 / Math.PI;
+        const startRot = Number(obj.rot) || 0;
+        action = { type: 'rotate', obj, cx, cy, startPointerAngle, startRot, scale, moved: false };
       } else if (handle) {
-        action = { type: 'resize', obj, handle, startX, startY, ox: obj.x, oy: obj.y, ow: obj.w, oh: obj.h, scale, neighbors: captureNeighborResize(obj, handle), moved: false };
+        const hasRot = ((Number(obj.rot) || 0) % 360) !== 0;
+        const neighbors = hasRot ? null : captureNeighborResize(obj, handle);
+        action = { type: 'resize', obj, handle, startX, startY, ox: obj.x, oy: obj.y, ow: obj.w, oh: obj.h, orot: Number(obj.rot) || 0, scale, neighbors, moved: false };
       } else {
         if (editingTextId === id && e.target.closest?.('.editable')) return;
         const members = state.elements.filter(item => selectedIds.has(item.id) && !item.locked)
@@ -4733,6 +5195,68 @@
       window.addEventListener('pointerup', onPointerUp, { once: true });
     }
 
+    function computeRotatedResize(action, rawDx, rawDy, shiftKey) {
+      const { obj, handle, ox, oy, ow, oh } = action;
+      const rotDeg = Number(action.orot ?? obj.rot) || 0;
+      const rad = rotDeg * Math.PI / 180;
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
+
+      // Chuyển vector kéo chuột từ hệ tọa độ stage sang hệ tọa độ cục bộ đã xoay của phần tử
+      const localDx = rawDx * cos + rawDy * sin;
+      const localDy = -rawDx * sin + rawDy * cos;
+
+      const { minW, minH } = getElementMinSize(obj);
+      let left = -ow / 2;
+      let right = ow / 2;
+      let top = -oh / 2;
+      let bottom = oh / 2;
+
+      const proportional = (
+        (obj.type === 'image' && (obj.imageMode || 'frame') === 'free' && obj.lockAspect !== false && !shiftKey && handle.length === 2) ||
+        (obj.type === 'icon' && shiftKey && handle.length === 2)
+      );
+
+      if (proportional) {
+        const ratio = obj.aspectRatio || (ow / Math.max(1, oh)) || 1;
+        const widthCandidate = handle.includes('e') ? ow + localDx : ow - localDx;
+        const heightCandidate = handle.includes('s') ? oh + localDy : oh - localDy;
+        const widthFromHeight = heightCandidate * ratio;
+        const nextW = Math.max(minW, Math.abs(widthCandidate - ow) >= Math.abs(widthFromHeight - ow) ? widthCandidate : widthFromHeight);
+        const nextH = Math.max(minH, nextW / ratio);
+        if (handle.includes('e')) right = left + nextW;
+        if (handle.includes('w')) left = right - nextW;
+        if (handle.includes('s')) bottom = top + nextH;
+        if (handle.includes('n')) top = bottom - nextH;
+      } else {
+        if (handle.includes('e')) right = Math.max(left + minW, right + localDx);
+        if (handle.includes('w')) left = Math.min(right - minW, left + localDx);
+        if (handle.includes('s')) bottom = Math.max(top + minH, bottom + localDy);
+        if (handle.includes('n')) top = Math.min(bottom - minH, top + localDy);
+      }
+
+      const w = right - left;
+      const h = bottom - top;
+      const localShiftX = (left + right) / 2;
+      const localShiftY = (top + bottom) / 2;
+
+      // Chuyển độ dịch tâm cục bộ ngược về hệ tọa độ stage để cạnh đối diện luôn đứng yên tuyệt đối
+      const worldShiftX = localShiftX * cos - localShiftY * sin;
+      const worldShiftY = localShiftX * sin + localShiftY * cos;
+
+      const origCx = ox + ow / 2;
+      const origCy = oy + oh / 2;
+      const newCx = origCx + worldShiftX;
+      const newCy = origCy + worldShiftY;
+
+      return {
+        x: Math.round((newCx - w / 2) * 10) / 10,
+        y: Math.round((newCy - h / 2) * 10) / 10,
+        w: Math.max(minW, Math.round(w)),
+        h: Math.max(minH, Math.round(h))
+      };
+    }
+
     function onPointerMove(e) {
       if (!action) return;
       if(action.type==='crop-resize'||action.type==='crop-pan'){
@@ -4740,11 +5264,13 @@
         if(!action.raf)action.raf=requestAnimationFrame(()=>{if(!action)return;action.raf=0;const evt=action.pendingEvent;action.pendingEvent=null;updateCropGesture(evt);});
         return;
       }
+      const rect = stage.getBoundingClientRect();
+      const scale = rect.width / stage.offsetWidth || action.scale || 1;
+      const mx = (e.clientX - rect.left) / scale;
+      const my = (e.clientY - rect.top) / scale;
+
       if (action.type === 'marquee') {
-        const { scale, startX, startY, boxEl } = action;
-        const rect = stage.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) / scale;
-        const my = (e.clientY - rect.top) / scale;
+        const { startX, startY, boxEl } = action;
         const x = Math.min(startX, mx), y = Math.min(startY, my);
         const w = Math.abs(mx - startX), h = Math.abs(my - startY);
         boxEl.style.display = 'block';
@@ -4756,15 +5282,15 @@
         const hits = state.elements.filter(item => {
           if (item.locked || item.hidden) return false;
           if (item.x <= 0 && item.y <= 0 && item.w >= cw && item.h >= ch) return false;
-          return item.x < x + w && item.x + item.w > x && item.y < y + h && item.y + item.h > y;
+          const b = rotatedElementBounds(item);
+          return b.left < x + w && b.right > x && b.top < y + h && b.bottom > y;
         });
         selectedIds = new Set(hits.map(i => i.id));
         selected = hits[hits.length - 1] || null;
         updateSelectionDOM();
         return;
       }
-      const { obj, scale } = action;
-      const mx = e.clientX / scale, my = e.clientY / scale;
+      const { obj } = action;
       action.moved = true;
       if (action.type === 'drag') {
         const rawDx = mx - action.startX, rawDy = my - action.startY;
@@ -4776,31 +5302,36 @@
           item.y = Math.round(oy + snappedDy);
         });
         renderSnapGuides(snap.guides);
-        showSizeHud(e.clientX, e.clientY, `X: ${obj.x} · Y: ${obj.y}`);
+        showSizeHud(e.clientX, e.clientY, `X: ${Math.round(obj.x)} · Y: ${Math.round(obj.y)}`);
       } else if (action.type === 'resize') {
         const dx = mx - action.startX, dy = my - action.startY;
         if (action.neighbors) resizeWithNeighbors(action.neighbors, dx, dy);
         else {
-          let x = action.ox, y = action.oy, w = action.ow, h = action.oh;
-          const proportional = obj.type === 'image' && (obj.imageMode || 'frame') === 'free' && obj.lockAspect !== false && !e.shiftKey && action.handle.length === 2;
-          if (proportional) {
-            const ratio = obj.aspectRatio || action.ow / action.oh || 1;
-            const widthCandidate = action.handle.includes('e') ? action.ow + dx : action.ow - dx;
-            const heightCandidate = action.handle.includes('s') ? action.oh + dy : action.oh - dy;
-            const widthFromHeight = heightCandidate * ratio;
-            w = Math.max(30, Math.abs(widthCandidate - action.ow) >= Math.abs(widthFromHeight - action.ow) ? widthCandidate : widthFromHeight);h = Math.max(20, w / ratio);
-            if (action.handle.includes('w')) x = action.ox + action.ow - w;if (action.handle.includes('n')) y = action.oy + action.oh - h;
-          } else {
-            if (action.handle.includes('e')) w = Math.max(30, action.ow + dx);if (action.handle.includes('s')) h = Math.max(20, action.oh + dy);
-            if (action.handle.includes('w')) { w = Math.max(30, action.ow - dx); x = action.ox + (action.ow - w); }
-            if (action.handle.includes('n')) { h = Math.max(20, action.oh - dy); y = action.oy + (action.oh - h); }
-          }
-          Object.assign(obj, { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
+          const next = computeRotatedResize(action, dx, dy, e.shiftKey);
+          Object.assign(obj, next);
         }
-        showSizeHud(e.clientX, e.clientY, `${Math.round(obj.w)} × ${Math.round(obj.h)} px`);
+        const qt = isQuarterTurnAngle(obj.rot);
+        const visW = Math.round(qt ? obj.h : obj.w);
+        const visH = Math.round(qt ? obj.w : obj.h);
+        showSizeHud(e.clientX, e.clientY, `${visW} × ${visH} px`);
       } else if (action.type === 'rotate') {
-        let angle = Math.round(Math.atan2(my - action.cy, mx - action.cx) * 180 / Math.PI + 90);
-        if (e.shiftKey) angle = Math.round(angle / 15) * 15;
+        const currentPointerAngle = Math.atan2(my - action.cy, mx - action.cx) * 180 / Math.PI;
+        let deltaAngle = currentPointerAngle - action.startPointerAngle;
+        let angle = Math.round(action.startRot + deltaAngle);
+        // Normalize angle to [-180, 180] or [0, 360) smoothly
+        angle = ((angle % 360) + 540) % 360 - 180;
+        if (angle === -180) angle = 180;
+        if (e.shiftKey) {
+          angle = Math.round(angle / 15) * 15;
+        } else {
+          // Tự động bắt dính nhẹ (snap) vào các góc vuông 0°, ±90°, ±180° khi gần trong phạm vi 2°
+          for (const cardinal of [0, 90, -90, 180, -180]) {
+            if (Math.abs(angle - cardinal) <= 2) {
+              angle = cardinal === -180 ? 180 : cardinal;
+              break;
+            }
+          }
+        }
         obj.rot = angle;
         showSizeHud(e.clientX, e.clientY, `${obj.rot}°`);
       }
@@ -4808,18 +5339,27 @@
     }
 
     function updateCropGesture(e){
-      if(!action||!e)return;const {obj,scale}=action,mx=e.clientX/scale,my=e.clientY/scale,c=action.crop;
+      if(!action||!e)return;
+      const rect=stage.getBoundingClientRect();
+      const scale=rect.width/stage.offsetWidth||action.scale||1;
+      const {obj}=action,mx=(e.clientX-rect.left)/scale,my=(e.clientY-rect.top)/scale,c=action.crop;
+      const rawDx=mx-action.startX,rawDy=my-action.startY;
+      const rotRad=(Number(obj.rot)||0)*Math.PI/180,cos=Math.cos(rotRad),sin=Math.sin(rotRad);
+      const localDx=rawDx*cos+rawDy*sin,localDy=-rawDx*sin+rawDy*cos;
       if(action.type==='crop-resize'){
-        const dx=mx-action.startX,dy=my-action.startY,h=action.handle,minW=30,minH=20;
-        const fx=clamp(dx/action.ow,-c.x/c.width,(action.ow-minW)/action.ow),fy=clamp(dy/action.oh,-c.y/c.height,(action.oh-minH)/action.oh);
-        let x=action.ox,y=action.oy,w=action.ow,ht=action.oh,n={...c};
-        if(h.includes('w')){x=action.ox+action.ow*fx;w=action.ow*(1-fx);n.x=c.x+c.width*fx;n.width=c.width*(1-fx);}
-        if(h.includes('e')){const f=clamp(dx/action.ow,(minW-action.ow)/action.ow,(1-c.x-c.width)/c.width);w=action.ow*(1+f);n.width=c.width*(1+f);}
-        if(h.includes('n')){y=action.oy+action.oh*fy;ht=action.oh*(1-fy);n.y=c.y+c.height*fy;n.height=c.height*(1-fy);}
-        if(h.includes('s')){const f=clamp(dy/action.oh,(minH-action.oh)/action.oh,(1-c.y-c.height)/c.height);ht=action.oh*(1+f);n.height=c.height*(1+f);}
-        Object.assign(obj,{x,y,w,h:ht,crop:normalizedCrop({crop:n})});
+        const h=action.handle,{minW,minH}=getElementMinSize(obj);
+        const fx=clamp(localDx/action.ow,-c.x/c.width,(action.ow-minW)/action.ow),fy=clamp(localDy/action.oh,-c.y/c.height,(action.oh-minH)/action.oh);
+        let left=-action.ow/2,right=action.ow/2,top=-action.oh/2,bottom=action.oh/2,n={...c};
+        if(h.includes('w')){left+=action.ow*fx;n.x=c.x+c.width*fx;n.width=c.width*(1-fx);}
+        if(h.includes('e')){const f=clamp(localDx/action.ow,(minW-action.ow)/action.ow,(1-c.x-c.width)/c.width);right=left+action.ow*(1+f);n.width=c.width*(1+f);}
+        if(h.includes('n')){top+=action.oh*fy;n.y=c.y+c.height*fy;n.height=c.height*(1-fy);}
+        if(h.includes('s')){const f=clamp(localDy/action.oh,(minH-action.oh)/action.oh,(1-c.y-c.height)/c.height);bottom=top+action.oh*(1+f);n.height=c.height*(1+f);}
+        const w=right-left,ht=bottom-top,lsx=(left+right)/2,lsy=(top+bottom)/2;
+        const wsx=lsx*cos-lsy*sin,wsy=lsx*sin+lsy*cos;
+        const cx=action.ox+action.ow/2+wsx,cy=action.oy+action.oh/2+wsy;
+        Object.assign(obj,{x:cx-w/2,y:cy-ht/2,w,h:ht,crop:normalizedCrop({crop:n})});
       }else{
-        const dx=(mx-action.startX)/action.ow*c.width,dy=(my-action.startY)/action.oh*c.height;
+        const dx=localDx/action.ow*c.width,dy=localDy/action.oh*c.height;
         obj.crop={x:clamp(c.x-dx,0,1-c.width),y:clamp(c.y-dy,0,1-c.height),width:c.width,height:c.height};
       }
       updateCropDom(obj);syncInspector(false);
@@ -4856,7 +5396,26 @@
       if (action?.type === 'drag') items = action.members.map(member => member.item);
       else if (action?.type === 'resize' && action.neighbors) items = action.neighbors.touched.flatMap(panel => [panel, ...action.neighbors.snapshots.get(panel).children.map(s => s.item)]);
       else items = selected ? [selected] : [];
-      [...new Set(items)].forEach(item => {const el=stage.querySelector(`[data-id="${item.id}"]`);if(!el)return;el.style.left=item.x+'px';el.style.top=item.y+'px';el.style.width=item.w+'px';el.style.height=item.h+'px';el.style.transform=elementTransform(item);});
+      [...new Set(items)].forEach(item => {
+        const el = stage.querySelector(`[data-id="${item.id}"]`);
+        if (!el) return;
+        el.style.left = item.x + 'px';
+        el.style.top = item.y + 'px';
+        el.style.width = item.w + 'px';
+        el.style.height = item.h + 'px';
+        el.style.transform = elementTransform(item);
+        applyElementHandleState(el, item);
+        if (item.type === 'image' && item.src) {
+          const img = el.querySelector('.image-crop-viewport img');
+          const c = item.cropEnabled ? normalizedCrop(item) : { x: 0, y: 0, width: 1, height: 1 };
+          if (img) {
+            img.style.width = (item.w / c.width) + 'px';
+            img.style.height = (item.h / c.height) + 'px';
+            img.style.left = (-c.x * item.w / c.width) + 'px';
+            img.style.top = (-c.y * item.h / c.height) + 'px';
+          }
+        }
+      });
     }
 
     stage.addEventListener('pointerdown', e => {
@@ -5005,9 +5564,13 @@
           : (typeLabels[selected.type] || selected.type);
       }
 
-      propX.value = Math.round(selected.x); propY.value = Math.round(selected.y);
-      propW.value = Math.round(selected.w); propH.value = Math.round(selected.h);
-      propRot.value = selected.rot || 0; propZ.value = selected.z || 1;
+      const quarterTurn = isQuarterTurnAngle(selected.rot);
+      if (document.activeElement !== propX) propX.value = Math.round(selected.x);
+      if (document.activeElement !== propY) propY.value = Math.round(selected.y);
+      if (document.activeElement !== propW) propW.value = Math.round(quarterTurn ? selected.h : selected.w);
+      if (document.activeElement !== propH) propH.value = Math.round(quarterTurn ? selected.w : selected.h);
+      if (document.activeElement !== propRot) propRot.value = selected.rot || 0;
+      if (document.activeElement !== propZ) propZ.value = selected.z || 1;
 
       const text = selected.type === 'text';
       const market = selected.type === 'marketWidget';
@@ -5021,21 +5584,28 @@
       document.getElementById('iconProps').style.display = icon ? 'block' : 'none';
 
       if (text) {
-        if (includeText) propText.value = selected.text || '';
-        if (selected.font) {
-          const rawName = selected.font.replace(/^['"]|['"]$/g, '');
-          addFontOption(rawName);
+        updateSelectionScopeBanner();
+        if (savedRichSelection && savedRichSelection.elementId === selected.id) {
+          const editable = stage.querySelector(`.element[data-id="${selected.id}"] .editable`);
+          const range = editable ? restoreRichSelection(editable, savedRichSelection.start, savedRichSelection.end) : null;
+          if (editable && range) syncRichControlsFromEditable(editable, range);
+        } else {
+          if (includeText && document.activeElement !== propText) propText.value = selected.text || '';
+          if (selected.font) {
+            const rawName = selected.font.replace(/^['"]|['"]$/g, '');
+            addFontOption(rawName);
+          }
+          propFont.value = selected.font || state.defaultFont || "'Be Vietnam Pro'";
+          propFontSize.value = selected.fontSize || 18;
+          propWeight.value = String(selected.weight || 400);
+          propColor.value = selected.color || '#153452';
+          propAlign.value = selected.align || 'left';
+          propLine.value = selected.lineHeight || 1.2;
+          propLetter.value = selected.letterSpacing || 0;
+          propUpper.checked = !!selected.upper;
+          const vAlign = document.getElementById('propVerticalAlign');
+          if (vAlign) vAlign.value = selected.verticalAlign || 'top';
         }
-        propFont.value = selected.font || state.defaultFont || "'Be Vietnam Pro'";
-        propFontSize.value = selected.fontSize || 18;
-        propWeight.value = String(selected.weight || 400);
-        propColor.value = selected.color || '#153452';
-        propAlign.value = selected.align || 'left';
-        propLine.value = selected.lineHeight || 1.2;
-        propLetter.value = selected.letterSpacing || 0;
-        propUpper.checked = !!selected.upper;
-        const vAlign = document.getElementById('propVerticalAlign');
-        if (vAlign) vAlign.value = selected.verticalAlign || 'top';
       } else if (market) {
         marketSectionTitle.value = selected.sectionTitle || '';
         marketCardTitleSize.value = selected.cardTitleSize || 14;
@@ -5097,16 +5667,63 @@
     }
 
 
-    function applyProps() {
+    function applyProps(changedField = null) {
       if (!selected) return;
       const oldBounds = { x: selected.x, y: selected.y, w: selected.w, h: selected.h };
       const childSnapshot = selected.layoutRole === 'container' ? snapshotContainer(selected) : null;
-      selected.x = +propX.value || 0;
-      selected.y = +propY.value || 0;
-      selected.w = Math.max(selected.minW || 20, +propW.value || 20);
-      selected.h = Math.max(selected.minH || 20, +propH.value || 20);
-      selected.rot = +propRot.value || 0;
-      selected.z = +propZ.value || 1;
+      const { minW, minH } = getElementMinSize(selected);
+      const parsedX = parseFloat(propX.value);
+      const parsedY = parseFloat(propY.value);
+      const parsedW = parseFloat(propW.value);
+      const parsedH = parseFloat(propH.value);
+      const parsedRot = parseFloat(propRot.value);
+      const parsedZ = parseFloat(propZ.value);
+
+      if (changedField === 'rot' || changedField === null) {
+        if (Number.isFinite(parsedRot)) selected.rot = parsedRot;
+        else if (propRot.value === '') selected.rot = 0;
+      }
+      if (changedField === 'x' || changedField === null) {
+        if (Number.isFinite(parsedX)) selected.x = parsedX;
+      }
+      if (changedField === 'y' || changedField === null) {
+        if (Number.isFinite(parsedY)) selected.y = parsedY;
+      }
+      if (changedField === 'z' || changedField === null) {
+        if (Number.isFinite(parsedZ)) selected.z = parsedZ;
+      }
+
+      const quarterTurn = isQuarterTurnAngle(selected.rot);
+      if (changedField === 'rot') {
+        // Khi người dùng đổi góc xoay (ví dụ 0 -> 90), cập nhật ngay Rộng và Cao hiển thị theo đúng phương ngang/dọc thực tế trên màn hình
+        propW.value = Math.round(quarterTurn ? selected.h : selected.w);
+        propH.value = Math.round(quarterTurn ? selected.w : selected.h);
+      } else if (changedField === 'w' || changedField === 'h' || changedField === null) {
+        const cx = selected.x + selected.w / 2;
+        const cy = selected.y + selected.h / 2;
+        if (quarterTurn) {
+          // Ở góc xoay ±90°, ô Rộng (propW) điều khiển bề ngang trên màn hình (tức selected.h), ô Cao (propH) điều khiển chiều dọc trên màn hình (tức selected.w)
+          if ((changedField === 'w' || changedField === null) && Number.isFinite(parsedW)) {
+            selected.h = Math.max(minH, parsedW);
+          }
+          if ((changedField === 'h' || changedField === null) && Number.isFinite(parsedH)) {
+            selected.w = Math.max(minW, parsedH);
+          }
+          // Giữ nguyên tâm xoay để phần tử không bị nhảy lệch vị trí khi đổi bề ngang/dọc ở góc 90°
+          selected.x = Math.round((cx - selected.w / 2) * 10) / 10;
+          selected.y = Math.round((cy - selected.h / 2) * 10) / 10;
+          propX.value = Math.round(selected.x);
+          propY.value = Math.round(selected.y);
+        } else {
+          if ((changedField === 'w' || changedField === null) && Number.isFinite(parsedW)) {
+            selected.w = Math.max(minW, parsedW);
+          }
+          if ((changedField === 'h' || changedField === null) && Number.isFinite(parsedH)) {
+            selected.h = Math.max(minH, parsedH);
+          }
+        }
+      }
+
       if (childSnapshot && (oldBounds.x !== selected.x || oldBounds.y !== selected.y || oldBounds.w !== selected.w || oldBounds.h !== selected.h)) {
         reflowContainerChildren(childSnapshot, { x: selected.x, y: selected.y, w: selected.w, h: selected.h });
         render();
@@ -5119,27 +5736,150 @@
           el.style.height = selected.h + 'px';
           el.style.transform = elementTransform(selected);
           el.style.zIndex = selected.z;
+          applyElementHandleState(el, selected);
+          if (selected.type === 'image' && selected.src) {
+            const img = el.querySelector('.image-crop-viewport img');
+            const c = selected.cropEnabled ? normalizedCrop(selected) : { x: 0, y: 0, width: 1, height: 1 };
+            if (img) {
+              img.style.width = (selected.w / c.width) + 'px';
+              img.style.height = (selected.h / c.height) + 'px';
+              img.style.left = (-c.x * selected.w / c.width) + 'px';
+              img.style.top = (-c.y * selected.h / c.height) + 'px';
+            }
+          }
         } else render();
       }
       scheduleHistory();
     }
 
-    function applyTextProps() {
+    function quickRotateTo(deg) {
+      const items = selectedItems(false);
+      if (!items.length) return;
+      items.forEach(item => { item.rot = deg; });
+      updateSelectedDom();
+      syncInspector(false);
+      pushHistory();
+      status(`Đã đặt góc xoay ${deg}°`);
+    }
+
+    function quickRotateStep(delta) {
+      const items = selectedItems(false);
+      if (!items.length) return;
+      items.forEach(item => {
+        let next = ((Number(item.rot) || 0) + delta) % 360;
+        if (next > 180) next -= 360;
+        if (next <= -180) next += 360;
+        item.rot = Math.round(next);
+      });
+      updateSelectedDom();
+      syncInspector(false);
+      pushHistory();
+      status(`Đã xoay ${delta > 0 ? '+' : ''}${delta}°`);
+    }
+
+    function swapSelectedDimensions() {
+      const items = selectedItems(false);
+      if (!items.length) return;
+      items.forEach(item => {
+        const cx = item.x + item.w / 2;
+        const cy = item.y + item.h / 2;
+        const { minW, minH } = getElementMinSize(item);
+        const nextW = Math.max(minW, item.h);
+        const nextH = Math.max(minH, item.w);
+        item.w = nextW;
+        item.h = nextH;
+        item.x = Math.round(cx - nextW / 2);
+        item.y = Math.round(cy - nextH / 2);
+        if (item.type === 'card' && typeof item.bg === 'string') {
+          if (item.bg.includes('linear-gradient(90deg,')) {
+            item.bg = item.bg.replace('linear-gradient(90deg,', 'linear-gradient(180deg,');
+          } else if (item.bg.includes('linear-gradient(180deg,')) {
+            item.bg = item.bg.replace('linear-gradient(180deg,', 'linear-gradient(90deg,');
+          }
+        }
+      });
+      render();
+      pushHistory();
+      status('Đã đảo chiều Rộng ↔ Cao (giữ nguyên tâm)');
+    }
+
+    function applyTextProps(changedProp = null) {
       if (!selected || selected.type !== 'text') return;
-      if (selected.text !== propText.value) {
-        selected.text = propText.value;
-        delete selected.html; // sửa nội dung qua ô textarea sẽ reset định dạng bôi màu/đậm theo cụm
+
+      // Nếu đang có vùng chữ bôi đen trong khung text này và người dùng chỉnh thuộc tính style
+      // (Font, Cỡ chữ, Độ đậm, Màu chữ, Line-height, Letter-spacing, IN HOA) -> chỉ áp dụng cho vùng bôi đen!
+      const inlineProps = ['font', 'fontSize', 'weight', 'color', 'lineHeight', 'letterSpacing', 'upper'];
+      if (changedProp && inlineProps.includes(changedProp)) {
+        const activeRange = getActiveRichSelection();
+        if (activeRange && activeRange.editable) {
+          if (changedProp === 'font') {
+            const fVal = propFont.value || state.defaultFont || "'Be Vietnam Pro'";
+            mutateRichSelection(style => { style.fontFamily = `${fVal}, 'Noto Sans', Arial, sans-serif`; });
+          } else if (changedProp === 'fontSize') {
+            const sz = parseFloat(propFontSize.value);
+            if (Number.isFinite(sz) && sz >= 6) {
+              mutateRichSelection(style => { style.fontSize = Math.max(6, Math.min(160, Math.round(sz))) + 'px'; });
+            }
+          } else if (changedProp === 'weight') {
+            const wVal = propWeight.value || '400';
+            mutateRichSelection(style => { style.fontWeight = String(wVal); });
+          } else if (changedProp === 'color') {
+            mutateRichSelection(style => { style.color = propColor.value; });
+          } else if (changedProp === 'lineHeight') {
+            const lh = parseFloat(propLine.value);
+            if (Number.isFinite(lh) && lh > 0) {
+              mutateRichSelection(style => { style.lineHeight = String(lh); });
+            }
+          } else if (changedProp === 'letterSpacing') {
+            const ls = parseFloat(propLetter.value);
+            if (Number.isFinite(ls)) {
+              mutateRichSelection(style => { style.letterSpacing = ls + 'px'; });
+            }
+          } else if (changedProp === 'upper') {
+            const up = propUpper.checked;
+            mutateRichSelection(style => { style.textTransform = up ? 'uppercase' : 'none'; });
+          }
+          return;
+        }
       }
-      selected.font = propFont.value || state.defaultFont || "'Be Vietnam Pro'";
-      selected.fontSize = +propFontSize.value || 18;
-      selected.weight = +propWeight.value || 400;
-      selected.color = propColor.value;
-      selected.align = propAlign.value;
-      selected.lineHeight = +propLine.value || 1.2;
-      selected.letterSpacing = +propLetter.value || 0;
-      selected.upper = propUpper.checked;
+
+      if (changedProp === 'text' || changedProp === null) {
+        if (selected.text !== propText.value) {
+          selected.text = propText.value;
+          delete selected.html; // sửa nội dung qua ô textarea sẽ reset định dạng bôi màu/đậm theo cụm
+          savedRichSelection = null;
+          updateSelectionScopeBanner();
+        }
+      }
+      if (changedProp === 'font' || changedProp === null) {
+        selected.font = propFont.value || state.defaultFont || "'Be Vietnam Pro'";
+      }
+      if (changedProp === 'fontSize' || changedProp === null) {
+        const parsedFs = parseFloat(propFontSize.value);
+        if (Number.isFinite(parsedFs) && parsedFs >= 6) selected.fontSize = parsedFs;
+      }
+      if (changedProp === 'weight' || changedProp === null) {
+        selected.weight = +propWeight.value || 400;
+      }
+      if (changedProp === 'color' || changedProp === null) {
+        selected.color = propColor.value;
+      }
+      if (changedProp === 'align' || changedProp === null) {
+        selected.align = propAlign.value;
+      }
+      if (changedProp === 'lineHeight' || changedProp === null) {
+        const parsedLh = parseFloat(propLine.value);
+        if (Number.isFinite(parsedLh) && parsedLh > 0) selected.lineHeight = parsedLh;
+      }
+      if (changedProp === 'letterSpacing' || changedProp === null) {
+        const parsedLs = parseFloat(propLetter.value);
+        if (Number.isFinite(parsedLs)) selected.letterSpacing = parsedLs;
+      }
+      if (changedProp === 'upper' || changedProp === null) {
+        selected.upper = propUpper.checked;
+      }
       const vAlign = document.getElementById('propVerticalAlign');
-      if (vAlign && vAlign.value !== (selected.verticalAlign || 'top')) {
+      if ((changedProp === 'verticalAlign' || changedProp === null) && vAlign && vAlign.value !== (selected.verticalAlign || 'top')) {
         selected.verticalAlign = vAlign.value;
         selected.baselineY = null;
       }
@@ -5298,24 +6038,29 @@
       if (!items.length) return;
       const cw = +canvasW.value || 1600;
       const ch = +canvasH.value || 1000;
+      const itemBoxes = items.map(item => ({ item, b: rotatedElementBounds(item) }));
       const box = items.length === 1
         ? { left: 0, top: 0, right: cw, bottom: ch, width: cw, height: ch }
         : {
-            left: Math.min(...items.map(i => i.x)),
-            top: Math.min(...items.map(i => i.y)),
-            right: Math.max(...items.map(i => i.x + i.w)),
-            bottom: Math.max(...items.map(i => i.y + i.h)),
+            left: Math.min(...itemBoxes.map(ib => ib.b.left)),
+            top: Math.min(...itemBoxes.map(ib => ib.b.top)),
+            right: Math.max(...itemBoxes.map(ib => ib.b.right)),
+            bottom: Math.max(...itemBoxes.map(ib => ib.b.bottom)),
             get width() { return this.right - this.left; },
             get height() { return this.bottom - this.top; }
           };
 
-      items.forEach(item => {
-        if (mode === 'left') item.x = Math.round(box.left);
-        else if (mode === 'center-x') item.x = Math.round(box.left + (box.width - item.w) / 2);
-        else if (mode === 'right') item.x = Math.round(box.right - item.w);
-        else if (mode === 'top') item.y = Math.round(box.top);
-        else if (mode === 'center-y') item.y = Math.round(box.top + (box.height - item.h) / 2);
-        else if (mode === 'bottom') item.y = Math.round(box.bottom - item.h);
+      itemBoxes.forEach(({ item, b }) => {
+        const bw = b.right - b.left;
+        const bh = b.bottom - b.top;
+        const offsetLeft = b.left - item.x;
+        const offsetTop = b.top - item.y;
+        if (mode === 'left') item.x = Math.round(box.left - offsetLeft);
+        else if (mode === 'center-x') item.x = Math.round(box.left + (box.width - bw) / 2 - offsetLeft);
+        else if (mode === 'right') item.x = Math.round(box.right - bw - offsetLeft);
+        else if (mode === 'top') item.y = Math.round(box.top - offsetTop);
+        else if (mode === 'center-y') item.y = Math.round(box.top + (box.height - bh) / 2 - offsetTop);
+        else if (mode === 'bottom') item.y = Math.round(box.bottom - bh - offsetTop);
       });
       render();
       pushHistory();
@@ -5328,27 +6073,38 @@
         status('Hãy chọn ít nhất 3 phần tử (Shift+Click) để chia đều khoảng cách');
         return;
       }
+      const itemBoxes = items.map(item => {
+        const b = rotatedElementBounds(item);
+        return {
+          item,
+          b,
+          bw: b.right - b.left,
+          bh: b.bottom - b.top,
+          offsetLeft: b.left - item.x,
+          offsetTop: b.top - item.y
+        };
+      });
       if (axis === 'horizontal') {
-        const sorted = [...items].sort((a, b) => a.x - b.x);
+        const sorted = [...itemBoxes].sort((a, b) => a.b.left - b.b.left);
         const first = sorted[0], last = sorted[sorted.length - 1];
-        const totalSpan = (last.x + last.w) - first.x;
-        const sumWidths = sorted.reduce((acc, it) => acc + it.w, 0);
+        const totalSpan = last.b.right - first.b.left;
+        const sumWidths = sorted.reduce((acc, it) => acc + it.bw, 0);
         const gap = (totalSpan - sumWidths) / (sorted.length - 1);
-        let cursor = first.x;
+        let cursor = first.b.left;
         sorted.forEach(it => {
-          it.x = Math.round(cursor);
-          cursor += it.w + gap;
+          it.item.x = Math.round(cursor - it.offsetLeft);
+          cursor += it.bw + gap;
         });
       } else {
-        const sorted = [...items].sort((a, b) => a.y - b.y);
+        const sorted = [...itemBoxes].sort((a, b) => a.b.top - b.b.top);
         const first = sorted[0], last = sorted[sorted.length - 1];
-        const totalSpan = (last.y + last.h) - first.y;
-        const sumHeights = sorted.reduce((acc, it) => acc + it.h, 0);
+        const totalSpan = last.b.bottom - first.b.top;
+        const sumHeights = sorted.reduce((acc, it) => acc + it.bh, 0);
         const gap = (totalSpan - sumHeights) / (sorted.length - 1);
-        let cursor = first.y;
+        let cursor = first.b.top;
         sorted.forEach(it => {
-          it.y = Math.round(cursor);
-          cursor += it.h + gap;
+          it.item.y = Math.round(cursor - it.offsetTop);
+          cursor += it.bh + gap;
         });
       }
       render();
