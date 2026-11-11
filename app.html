@@ -1534,7 +1534,7 @@
     }
 
     .market-widget .mw-neutral {
-      color: #334155;
+      color: #d4a017;
     }
 
     .market-widget .mw-arrow {
@@ -3954,20 +3954,32 @@
     function marketValueMeta(cardTitle, cardChange, label, value, fallback = '#173456') {
       const title = normalizeVN(cardTitle);
       const labelNorm = normalizeVN(label);
+      const valueNorm = normalizeVN(value);
       const changeNorm = normalizeVN(cardChange);
       const raw = String(value ?? '').trim();
       let text = raw;
       let color = fallback;
 
-      if (labelNorm.includes('so ma dung gia')) {
-        return { text, color: '#d4a017' };
-      }
+      // Các trạng thái có màu cố định, ưu tiên trước mọi suy luận từ giá trị số.
+      if (labelNorm.includes('so ma tang')) color = '#13803d';
+      if (labelNorm.includes('so ma giam')) color = '#d62828';
+      if (labelNorm.includes('so ma dung gia')) color = '#d4a017';
+      if (labelNorm.includes('tham chieu')) color = '#d4a017';
+      if (labelNorm.includes('nn mua') || labelNorm.includes('mua rong')) color = '#13803d';
+      if (labelNorm.includes('nn ban') || labelNorm.includes('ban rong')) color = '#d62828';
+
+      // Các nhãn tiếng Việt đầy đủ trong card VNINDEX.
+      if (labelNorm.includes('khoi luong nn mua')) color = '#13803d';
+      if (labelNorm.includes('khoi luong nn ban')) color = '#d62828';
+
+      // Xu hướng dùng đúng ba trạng thái: Tích cực xanh, Tiêu cực đỏ, Neutral vàng.
       if (labelNorm.includes('xu huong')) {
-        if (normalizeVN(raw).includes('tich cuc')) return { text, color: '#13803d' };
-        if (normalizeVN(raw).includes('tieu cuc')) return { text, color: '#d62828' };
-        if (normalizeVN(raw).includes('neutral')) return { text, color: '#d4a017' };
+        if (valueNorm.includes('tich cuc')) color = '#13803d';
+        else if (valueNorm.includes('tieu cuc')) color = '#d62828';
+        else if (valueNorm.includes('neutral')) color = '#d4a017';
       }
 
+      // Khối ngoại: dấu và màu phụ thuộc vào trạng thái MUA RÒNG/BÁN RÒNG.
       if (title.includes('khoi ngoai')) {
         const isBuy = changeNorm.includes('mua rong');
         const isSell = changeNorm.includes('ban rong');
@@ -4026,6 +4038,7 @@
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\u0111/g, 'd')
         .trim();
     }
 
@@ -4098,7 +4111,8 @@
           stats.push({ label: '', value: '' });
         }
         const rows = stats.map((row, statIdx) => {
-          const rowMeta = marketValueMeta(card.title || '', card.change || '', row.label || '', row.value || '', o.statValueColor || '#173456');
+          const statColor = pickMarketStatValueColor(card.title || '', row.label || '', row.value || '', o.statValueColor || '#173456');
+          const rowMeta = marketValueMeta(card.title || '', card.change || '', row.label || '', row.value || '', statColor);
 
           return `
       <div class="mw-row">
