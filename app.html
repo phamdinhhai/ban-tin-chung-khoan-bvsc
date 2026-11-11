@@ -3941,27 +3941,68 @@
 
     function parseTrend(raw) {
       const str = String(raw ?? '').trim();
-      const lower = str.toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (lower.includes('ban rong') || lower.includes('ban') || lower.includes('sell')) return -1;
-      if (lower.includes('mua rong') || lower.includes('mua') || lower.includes('buy')) return 1;
+      const lower = normalizeVN(str);
+      if (lower.includes('neutral') || lower.includes('dung gia')) return 0;
+      if (lower.includes('ban rong') || lower.includes('ban') || lower.includes('sell') || lower.includes('giam') || lower.includes('tieu cuc')) return -1;
+      if (lower.includes('mua rong') || lower.includes('mua') || lower.includes('buy') || lower.includes('tang') || lower.includes('tich cuc')) return 1;
       if (str.startsWith('-')) return -1;
       if (str.startsWith('+')) return 1;
-      const cleaned = str.replace(/,/g, '').replace(/[^\d.-]/g, '');
-      const n = parseFloat(cleaned);
-      if (Number.isNaN(n)) return 0;
-      if (n > 0) return 1;
-      if (n < 0) return -1;
-      return 0;
+      const numeric = Number(str.replace(/,/g, '').replace(/[^0-9.\-]/g, ''));
+      return Number.isFinite(numeric) && numeric !== 0 ? (numeric > 0 ? 1 : -1) : 0;
+    }
+
+    function marketValueMeta(cardTitle, cardChange, label, value, fallback = '#173456') {
+      const title = normalizeVN(cardTitle);
+      const labelNorm = normalizeVN(label);
+      const changeNorm = normalizeVN(cardChange);
+      const raw = String(value ?? '').trim();
+      let text = raw;
+      let color = fallback;
+
+      if (labelNorm.includes('so ma dung gia')) {
+        return { text, color: '#d4a017' };
+      }
+      if (labelNorm.includes('xu huong')) {
+        if (normalizeVN(raw).includes('tich cuc')) return { text, color: '#13803d' };
+        if (normalizeVN(raw).includes('tieu cuc')) return { text, color: '#d62828' };
+        if (normalizeVN(raw).includes('neutral')) return { text, color: '#d4a017' };
+      }
+
+      if (title.includes('khoi ngoai')) {
+        const isBuy = changeNorm.includes('mua rong');
+        const isSell = changeNorm.includes('ban rong');
+        const isFlowValue = labelNorm === '' || labelNorm.includes('mua rong') || labelNorm.includes('ban rong') || labelNorm.includes('hien tai');
+        if (isFlowValue && (isBuy || isSell)) {
+          const sign = isBuy ? '+' : '-';
+          text = raw.replace(/^[+\-]\s*/, '');
+          if (text) text = sign + text;
+          color = isBuy ? '#13803d' : '#d62828';
+        }
+      }
+      return { text, color };
     }
 
     function trendMeta(change, percent = '') {
-      const sign = parseTrend(change || percent);
+      const v = change || percent;
+      const sign = parseTrend(v);
+      const isMuaRong = normalizeVN(v).includes('mua rong');
+      const isBanRong = normalizeVN(v).includes('ban rong');
+
+      let color = '#334155';
+      if (sign > 0) color = '#13803d';
+      else if (sign < 0) color = '#d62828';
+      else if (normalizeVN(v).includes('neutral')) color = '#d4a017';
+
+      let text = v;
+      if (isMuaRong && !v.startsWith('+')) text = '+' + v;
+      else if (isBanRong && !v.startsWith('-')) text = '-' + v;
+
       return {
         sign,
         cls: sign > 0 ? 'mw-up' : sign < 0 ? 'mw-down' : 'mw-neutral',
         arrow: sign > 0 ? '▲' : sign < 0 ? '▼' : '•',
-        color: sign > 0 ? '#13803d' : sign < 0 ? '#d62828' : '#334155'
+        color,
+        text
       };
     }
 
@@ -4008,6 +4049,7 @@
         if (l.includes('xu huong')) {
           if (v.includes('tich cuc')) return '#13803d';
           if (v.includes('tieu cuc')) return '#d62828';
+          if (v.includes('neutral')) return '#d4a017';
         }
       }
 
@@ -4018,6 +4060,7 @@
         if (l.includes('xu huong')) {
           if (v.includes('tich cuc')) return '#13803d';
           if (v.includes('tieu cuc')) return '#d62828';
+          if (v.includes('neutral')) return '#d4a017';
         }
       }
 
@@ -4055,17 +4098,19 @@
           stats.push({ label: '', value: '' });
         }
         const rows = stats.map((row, statIdx) => {
-          const statColor = pickMarketStatValueColor(card.title || '', row.label || '', row.value || '', o.statValueColor || '#173456');
+          const rowMeta = marketValueMeta(card.title || '', card.change || '', row.label || '', row.value || '', o.statValueColor || '#173456');
+
           return `
       <div class="mw-row">
         <div class="mw-label" data-mw-card="${cardIdx}" data-mw-stat-label="${statIdx}" title="Double-click để sửa nhãn" style="font-size:${o.statLabelSize || 12}px;color:${o.statLabelColor || '#4b6788'}">${esc(row.label || ' ')}</div>
-        <div class="mw-stat" data-mw-card="${cardIdx}" data-mw-stat-value="${statIdx}" title="Double-click để sửa giá trị" style="font-size:${o.statValueSize || 12}px;color:${statColor}">${esc(row.value || ' ')}</div>
+        <div class="mw-stat" data-mw-card="${cardIdx}" data-mw-stat-value="${statIdx}" title="Double-click để sửa giá trị" style="font-size:${o.statValueSize || 12}px;color:${rowMeta.color}">${esc(rowMeta.text || ' ')}</div>
       </div>`;
         }).join('');
         const subMeta = trendMeta(card.percent || '');
         const percentClass = subMeta.sign !== 0 ? subMeta.cls : 'mw-neutral';
         const arrowHtml = String(card.change || '').trim() ? `<span class="mw-arrow">${meta.arrow}</span>` : '';
-        const vu = splitValueUnit(card.value || '');
+        const valueMeta = marketValueMeta(card.title || '', card.change || '', 'hien tai', card.value || '', '#0f172a');
+        const vu = splitValueUnit(valueMeta.text);
         const unitHtml = vu.unit ? `<span class="mw-unit">${esc(vu.unit)}</span>` : '';
         return `
       <div class="mw-card" style="--mw-card-title-size:${o.cardTitleSize || 14}px;--mw-card-title-color:${o.cardTitleColor || '#143f79'};">
